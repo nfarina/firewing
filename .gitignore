@@ -1,0 +1,20 @@
+## Mac
+
+.DS_Store
+
+## Yarn
+
+node_modules
+.yarn/
+
+## TypeScript
+
+*.tsbuildinfo
+
+## Test Coverage
+
+.coverage
+
+## Build Products
+
+dist/

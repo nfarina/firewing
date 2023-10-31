@@ -1,0 +1,62 @@
+{
+  "name": "fireplace",
+  "type": "module",
+  "private": true,
+  "version": "0.0.0",
+  "exports": {
+    "./admin/app": "./src/admin/app.ts",
+    "./admin/helper": "./src/admin/FirestoreHelper.ts",
+    "./admin/iterables": "./src/admin/iterables.ts",
+    "./admin/functions": "./src/admin/functions.ts",
+    "./admin/testing": "./src/admin/mockfirebase.ts",
+    "./admin/mutex": "./src/admin/mutex.ts",
+    "./admin/wait": "./src/admin/waitForFirestore.ts",
+    "./mocks": "./src/mocks/types.ts",
+    "./mocks/auth": "./src/mocks/MockAuth.ts",
+    "./mocks/firestore": "./src/mocks/MockFirestore.ts",
+    "./mocks/functions": "./src/mocks/MockFunctions.ts",
+    "./mocks/messaging": "./src/mocks/MockMessaging.ts",
+    "./react/context": "./src/react/FirebaseAppContext.tsx",
+    "./react/provider": "./src/react/FirebaseAppProvider.tsx",
+    "./react/iterables": "./src/react/iterables.ts",
+    "./react/document": "./src/react/useFirestoreDocument.ts",
+    "./react/query": "./src/react/useFirestoreQueryOne.ts",
+    "./react/nearby": "./src/react/useFirestoreNearbyQuery.ts",
+    "./react/infinite": "./src/react/useInfiniteFirestoreQuery.ts",
+    "./react/rpc": "./src/react/useFirebaseRpc.ts",
+    "./react/wait": "./src/react/waitForFirestore.ts",
+    "./react/builder": "./src/react/query/buildQuery.ts",
+    "./react/helper": "./src/react/useFirestoreHelper.ts",
+    "./react/global": "./src/react/useFirebaseGlobalHelpers.ts",
+    "./storybook": "./src/storybook/MockFirebaseAppProvider.tsx",
+    "./shared": "./src/shared/shared.ts"
+  },
+  "scripts": {
+    "test-all": "bun prettier && bun circular && bun typecheck && bun test",
+    "prettier": "prettier --check 'src/**/*.ts?(x)'",
+    "prettier:fix": "bun prettier -- --write",
+    "circular": "madge --extensions ts,tsx --circular src",
+    "typecheck": "tsc"
+  },
+  "dependencies": {
+    "cyber": "link:cyber",
+    "firebase": "^10.4.0",
+    "firebase-admin": "^11.10.1",
+    "firebase-functions": "^4.4.1",
+    "pluralize": "^8.0.0"
+  },
+  "peerDependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-is": "^18.2.0"
+  },
+  "devDependencies": {
+    "@storybook/addon-actions": "^7.5.2",
+    "@types/react": "^18.2.33",
+    "@types/react-dom": "^18.2.14",
+    "@types/react-is": "^18.2.3",
+    "bun-types": "^1.0.7",
+    "prettier": "^3.0.3",
+    "typescript": "^5.2.2"
+  }
+}

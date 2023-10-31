@@ -1,0 +1,30 @@
+{
+  // Use our local version of TypeScript.
+  "typescript.tsdk": "./node_modules/typescript/lib",
+  // Turn on auto-format by default.
+  "editor.formatOnSave": true,
+  "[typescript]": {
+    "editor.codeActionsOnSave": [
+      // The problem with this is that you end up dirtying more files in git
+      // possibly unintentionally, and you also erase redo history when saving.
+      "source.organizeImports"
+    ]
+  },
+  "[typescriptreact]": {
+    "editor.codeActionsOnSave": ["source.organizeImports"]
+  },
+  "task.allowAutomaticTasks": "on",
+  // Enable file nesting.
+  "explorer.fileNesting.enabled": true,
+  // Customize file nesting patterns.
+  "explorer.fileNesting.patterns": {
+    "*.ts": "${capture}.test.ts, ${capture}.stories.tsx",
+    "*.tsx": "${capture}.test.ts, ${capture}.stories.tsx"
+  },
+  // Customize icons when using the "Material Icon Theme".
+  "material-icon-theme.folders.associations": {
+    "src": "src",
+    "node_modules": "node",
+    ".vscode": "vscode"
+  }
+}
