@@ -32,9 +32,10 @@
   },
   "scripts": {
     "test-all": "bun prettier && bun circular && bun typecheck && bun test",
+    "check-imports": "bunx npm-check",
     "prettier": "prettier --check 'src/**/*.ts?(x)'",
     "prettier:fix": "bun prettier -- --write",
-    "circular": "madge --extensions ts,tsx --circular src",
+    "circular": "bunx madge --extensions ts,tsx --circular src",
     "typecheck": "tsc"
   },
   "dependencies": {
