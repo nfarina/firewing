@@ -1,5 +1,5 @@
-import { useInfiniteScroll } from "cyber/hooks/useInfiniteScroll";
-import { useResettableState } from "cyber/hooks/useResettableState";
+import { useInfiniteScroll } from "crosswing/hooks/useInfiniteScroll";
+import { useResettableState } from "crosswing/hooks/useResettableState";
 import Debug from "debug";
 import firebase from "firebase/compat/app";
 import { DependencyList, UIEvent, useEffect } from "react";

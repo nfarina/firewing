@@ -1,4 +1,4 @@
-import { runWithMutex } from "cyber/shared/mutex";
+import { runWithMutex } from "crosswing/shared/mutex";
 import firebase from "firebase/compat/app";
 import { getAutoName } from "../shared/getAutoName";
 import { cloneWithMerge, cloneWithUpdates } from "../shared/shared";

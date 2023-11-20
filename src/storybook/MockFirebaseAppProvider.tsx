@@ -1,4 +1,4 @@
-import { useResettableState } from "cyber/hooks/useResettableState";
+import { useResettableState } from "crosswing/hooks/useResettableState";
 import {
   ReactElement,
   useEffect,

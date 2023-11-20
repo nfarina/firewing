@@ -1,4 +1,4 @@
-import { isRunningUnderTest } from "cyber/shared/env";
+import { isRunningUnderTest } from "crosswing/shared/env";
 import { App, initializeApp } from "firebase-admin/app";
 import { Auth, getAuth } from "firebase-admin/auth";
 import { Firestore, getFirestore } from "firebase-admin/firestore";

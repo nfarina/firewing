@@ -1,4 +1,4 @@
-import { EventEmitter } from "cyber/shared/events";
+import { EventEmitter } from "crosswing/shared/events";
 import firebase from "firebase/compat/app";
 
 export type AuthStateChangeListener = (user: firebase.User | null) => any;

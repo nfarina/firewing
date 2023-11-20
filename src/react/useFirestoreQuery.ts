@@ -1,4 +1,4 @@
-import { useResettableState } from "cyber/hooks/useResettableState";
+import { useResettableState } from "crosswing/hooks/useResettableState";
 import Debug from "debug";
 import firebase from "firebase/compat/app";
 import { DependencyList, useEffect } from "react";

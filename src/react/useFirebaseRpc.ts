@@ -1,5 +1,5 @@
-import { DeepPartial, merge } from "cyber/shared/merge";
-import { wait } from "cyber/shared/wait";
+import { DeepPartial, merge } from "crosswing/shared/merge";
+import { wait } from "crosswing/shared/wait";
 import {
   FirebaseAppAccessor,
   useFirebaseApp,

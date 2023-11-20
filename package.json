@@ -39,24 +39,26 @@
     "typecheck": "tsc"
   },
   "dependencies": {
-    "cyber": "file:.yalc/cyber",
-    "firebase": "^10.4.0",
-    "firebase-admin": "^11.10.1",
-    "firebase-functions": "^4.4.1",
+    "debug": "^4.3.4",
+    "firebase": "^10.6.0",
+    "firebase-admin": "^11.11.0",
+    "firebase-functions": "^4.5.0",
     "pluralize": "^8.0.0"
   },
   "peerDependencies": {
+    "crosswing": "^0.0.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-is": "^18.2.0"
   },
   "devDependencies": {
-    "@storybook/addon-actions": "^7.5.2",
-    "@types/react": "^18.2.33",
-    "@types/react-dom": "^18.2.14",
-    "@types/react-is": "^18.2.3",
-    "bun-types": "^1.0.7",
-    "prettier": "^3.0.3",
-    "typescript": "^5.2.2"
+    "@storybook/addon-actions": "^7.5.3",
+    "@types/react": "^18.2.37",
+    "@types/react-dom": "^18.2.15",
+    "@types/react-is": "^18.2.4",
+    "bun-types": "^1.0.13",
+    "crosswing": "^0.0.2",
+    "prettier": "^3.1.0",
+    "typescript": "^5.3.2"
   }
 }

@@ -1,7 +1,7 @@
-import { shallowEqualArrays } from "cyber/shared/compare";
-import { EventEmitter } from "cyber/shared/events";
-import { merge } from "cyber/shared/merge";
-import { wait, waitForever } from "cyber/shared/wait";
+import { shallowEqualArrays } from "crosswing/shared/compare";
+import { EventEmitter } from "crosswing/shared/events";
+import { merge } from "crosswing/shared/merge";
+import { wait, waitForever } from "crosswing/shared/wait";
 import Debug from "debug";
 import firebase from "firebase/compat/app";
 import { getAutoName } from "../shared/getAutoName";

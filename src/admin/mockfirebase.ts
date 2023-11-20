@@ -1,5 +1,5 @@
-import { diff } from "cyber/shared/diff";
-import { merge } from "cyber/shared/merge";
+import { diff } from "crosswing/shared/diff";
+import { merge } from "crosswing/shared/merge";
 import { App, initializeApp } from "firebase-admin/app";
 import { getAuth } from "firebase-admin/auth";
 import { getFirestore } from "firebase-admin/firestore";

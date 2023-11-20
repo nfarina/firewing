@@ -1,4 +1,4 @@
-import { Minutes } from "cyber/shared/timespan";
+import { Minutes } from "crosswing/shared/timespan";
 import Debug from "debug";
 import { DocumentReference } from "firebase-admin/firestore";
 import { firestore } from "./app";

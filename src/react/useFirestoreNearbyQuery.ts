@@ -1,9 +1,9 @@
-import { useResettableState } from "cyber/hooks/useResettableState";
+import { useResettableState } from "crosswing/hooks/useResettableState";
 import {
   AnyLatLng,
   getDistance,
   getGeohashQueryBounds,
-} from "cyber/shared/geo";
+} from "crosswing/shared/geo";
 import Debug from "debug";
 import firebase from "firebase/compat/app";
 import { DependencyList, useEffect } from "react";
