@@ -12,7 +12,7 @@ import {
   updateFieldPath,
 } from "../shared/shared";
 
-const debug = Debug("fireplace:firestore");
+const debug = Debug("firewing:firestore");
 
 /**
  * You can put this at a location in your mock data to simulate "loading"
@@ -45,7 +45,7 @@ type WhereFilterOp = firebase.firestore.WhereFilterOp;
 /**
  * A mock implementation of the Firestore database that implements just enough
  * API surface area to be consumable by the common Firebase features supported
- * by Fireplace. Dramatically, no-contest faster than the Firestore Emulator.
+ * by Firewing. Dramatically, no-contest faster than the Firestore Emulator.
  * Immensely useful for unit tests and Storybook.
  */
 export class MockFirestore<

@@ -1,5 +1,6 @@
 import { DeepPartial, merge } from "crosswing/shared/merge";
 import { wait } from "crosswing/shared/wait";
+import { CallableContext } from "firebase-functions/v1/https";
 import {
   FirebaseAppAccessor,
   useFirebaseApp,
@@ -13,10 +14,7 @@ const MIN_RETRY = 250; // ms
 const MAX_RETRY = 5000; // ms
 const MAX_TIME = 30000; // ms
 
-// The `context` param is really `CallableContext` but getting that type into
-// scope would require adding firebase-functions and firebase-admin to our (dev)
-// deps.
-type CallableFunction = (data: any, context: any) => Promise<any>;
+type CallableFunction = (data: any, context: CallableContext) => Promise<any>;
 
 type GroupedFunctions = Record<string, CallableFunction>;
 

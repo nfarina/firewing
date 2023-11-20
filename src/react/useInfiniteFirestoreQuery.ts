@@ -10,7 +10,7 @@ import {
 } from "./FirebaseAppContext";
 import { useFirestoreQuery } from "./useFirestoreQuery";
 
-const debug = Debug("fireplace:infinite");
+const debug = Debug("firewing:infinite");
 
 export interface UseInfiniteFirestoreQueryOptions {
   /** The number of documents to load for each "chunk". */

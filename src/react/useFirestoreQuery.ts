@@ -8,7 +8,7 @@ import {
   useFirebaseApp,
 } from "./FirebaseAppContext";
 
-const debug = Debug("fireplace:query");
+const debug = Debug("firewing:query");
 
 export interface UseFirestoreQueryOptions<T> {
   /** The already-loaded data, if known. Turns this function into a no-op. */

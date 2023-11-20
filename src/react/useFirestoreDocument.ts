@@ -8,7 +8,7 @@ import {
   useFirebaseApp,
 } from "./FirebaseAppContext";
 
-const debug = Debug("fireplace:document");
+const debug = Debug("firewing:document");
 
 export interface UseFirestoreDocumentOptions<T extends { id?: string }> {
   /** The already-loaded data, if known. Turns this function into a no-op. */

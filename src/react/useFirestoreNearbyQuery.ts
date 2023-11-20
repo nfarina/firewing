@@ -15,7 +15,7 @@ import {
 } from "./FirebaseAppContext";
 import { snapshotToArray } from "./useFirestoreQuery";
 
-const debug = Debug("fireplace:nearby");
+const debug = Debug("firewing:nearby");
 
 export interface UseFirestoreNearbyQueryOptions {
   /** Center of the search circle. */
