@@ -1,0 +1,25 @@
+#!/bin/bash
+
+# Builds Firewing to prepare for distribution on NPM.
+
+# First, clone the `src` folder into `dist`.
+rm -rf dist
+mkdir -p dist
+rsync -av \
+  --exclude=".DS_Store" \
+  --exclude="*.stories.tsx" \
+  --exclude="*.test.ts" \
+  src/ \
+  dist
+
+# Copy package.json.
+cp package.json dist/package.json
+
+# Remove the "private" flag from package.json.
+sed -i '' '/"private": true,/d' dist/package.json
+
+# Remove "src/" from every line in package.json where it appears.
+sed -i '' 's/src\///g' dist/package.json
+
+# Now build the TypeScript into JS.
+bun run tsc -p tsconfig.dist.json

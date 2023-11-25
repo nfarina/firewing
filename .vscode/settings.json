@@ -18,8 +18,8 @@
   "explorer.fileNesting.enabled": true,
   // Customize file nesting patterns.
   "explorer.fileNesting.patterns": {
-    "*.ts": "${capture}.test.ts, ${capture}.stories.tsx",
-    "*.tsx": "${capture}.test.ts, ${capture}.stories.tsx"
+    "*.ts": "${capture}.js, ${capture}.js.map, ${capture}.test.js, ${capture}.test.ts, ${capture}.stories.tsx",
+    "*.tsx": "${capture}.js, ${capture}.js.map, ${capture}.stories.js.map, ${capture}.stories.js, ${capture}.test.ts, ${capture}.stories.tsx"
   },
   // Customize icons when using the "Material Icon Theme".
   "material-icon-theme.folders.associations": {
