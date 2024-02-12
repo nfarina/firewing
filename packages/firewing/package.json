@@ -1,7 +1,7 @@
 {
   "name": "firewing",
   "type": "module",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "exports": {
     "./global": "./useFirebaseGlobalHelpers.js",
     "./mocks": "./mocks/types.ts",
