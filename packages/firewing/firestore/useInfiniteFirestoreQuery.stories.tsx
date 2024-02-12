@@ -1,6 +1,6 @@
 import { CSSProperties, useState } from "react";
-import { MockFirebaseAppProvider } from "../mocks/MockFirebaseAppProvider";
-import { useInfiniteFirestoreQuery } from "./useInfiniteFirestoreQuery";
+import { MockFirebaseAppProvider } from "../mocks/MockFirebaseAppProvider.js";
+import { useInfiniteFirestoreQuery } from "./useInfiniteFirestoreQuery.js";
 
 export default {
   component: useInfiniteFirestoreQuery, // Just for Storybook naming.

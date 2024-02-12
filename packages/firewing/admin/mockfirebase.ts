@@ -4,11 +4,11 @@ import { App, getApp, initializeApp } from "firebase-admin/app";
 import { getAuth } from "firebase-admin/auth";
 import { getFirestore } from "firebase-admin/firestore";
 import { getStorage } from "firebase-admin/storage";
-import { MockAuth } from "../mocks/MockAuth";
-import { MockFirestore } from "../mocks/MockFirestore";
-import { MockMessaging } from "../mocks/MockMessaging";
-import { MockFirebaseData } from "../mocks/types";
-import { FirebaseHelperServices, setMockFirebaseServices } from "./app";
+import { MockAuth } from "../mocks/MockAuth.js";
+import { MockFirestore } from "../mocks/MockFirestore.js";
+import { MockMessaging } from "../mocks/MockMessaging.js";
+import { MockFirebaseData } from "../mocks/types.js";
+import { FirebaseHelperServices, setMockFirebaseServices } from "./app.js";
 
 export type MockFirebaseType = "emulator" | "memory";
 

@@ -7,9 +7,9 @@ import {
   Falsy,
   FirebaseAppAccessor,
   useFirebaseApp,
-} from "../FirebaseAppProvider";
-import { WrappedQuery } from "../wrapped/WrappedFirestore";
-import { useFirestoreQuery } from "./useFirestoreQuery";
+} from "../FirebaseAppProvider.js";
+import { WrappedQuery } from "../wrapped/WrappedFirestore.js";
+import { useFirestoreQuery } from "./useFirestoreQuery.js";
 
 const debug = Debug("firewing:infinite");
 

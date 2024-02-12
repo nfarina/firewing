@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { MockFirestore } from "./MockFirestore";
+import { MockFirestore } from "./MockFirestore.js";
 
 describe("queries documents", () => {
   const message1 = {

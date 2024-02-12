@@ -6,11 +6,11 @@ import {
   UpdateData,
   WriteBatch,
 } from "firebase-admin/firestore";
-import { getAutoName } from "../shared/getAutoName";
-import { cloneWithMerge, cloneWithUpdates } from "../shared/shared";
-import { firestore } from "./app";
-import { getCurrentMockedType, getNextEmulatorId } from "./mockfirebase";
-import { runWithFirestoreMutex } from "./mutex";
+import { getAutoName } from "../shared/getAutoName.js";
+import { cloneWithMerge, cloneWithUpdates } from "../shared/shared.js";
+import { firestore } from "./app.js";
+import { getCurrentMockedType, getNextEmulatorId } from "./mockfirebase.js";
+import { runWithFirestoreMutex } from "./mutex.js";
 
 export const MAX_DOCUMENTS_PER_BATCH = 500;
 

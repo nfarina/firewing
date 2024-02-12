@@ -1,8 +1,8 @@
 import { Minutes } from "crosswing/shared/timespan";
 import Debug from "debug";
 import { DocumentReference } from "firebase-admin/firestore";
-import { firestore } from "./app";
-import { waitForFirestore } from "./waitForFirestore";
+import { firestore } from "./app.js";
+import { waitForFirestore } from "./waitForFirestore.js";
 
 const debug = Debug("firebase-admin:mutex");
 

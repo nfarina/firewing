@@ -1,6 +1,6 @@
 import { DeepPartial, merge } from "crosswing/shared/merge";
 import { wait } from "crosswing/shared/wait";
-import { FirebaseAppAccessor, useFirebaseApp } from "../FirebaseAppProvider";
+import { FirebaseAppAccessor, useFirebaseApp } from "../FirebaseAppProvider.js";
 
 // Wraps Firebase Cloud Functions with rpc() which provides
 // type-safety and automatic logging to console/AppSession.

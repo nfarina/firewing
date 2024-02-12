@@ -1,15 +1,15 @@
 import { QuerySnapshot } from "firebase/firestore";
 import { DependencyList } from "react";
-import { Falsy, FirebaseAppAccessor } from "../FirebaseAppProvider";
-import { WrappedQuery } from "../wrapped/WrappedFirestore";
-import { useFirestoreQuery } from "./useFirestoreQuery";
+import { Falsy, FirebaseAppAccessor } from "../FirebaseAppProvider.js";
+import { WrappedQuery } from "../wrapped/WrappedFirestore.js";
+import { useFirestoreQuery } from "./useFirestoreQuery.js";
 
 export interface UseFirestoreQueryOneOptions<T> {
   /** The already-loaded data, if known. Turns this function into a no-op. */
   loaded?: T[];
 }
 
-export * from "./useFirestoreQuery";
+export * from "./useFirestoreQuery.js";
 
 /**
  * Loads a live query from Firestore that is expected to return exactly one

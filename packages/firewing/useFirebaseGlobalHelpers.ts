@@ -1,8 +1,8 @@
 import Debug from "debug";
 import { useEffect } from "react";
-import { useFirebaseApp } from "./FirebaseAppProvider";
-import { useFirestoreHelper } from "./firestore/useFirestoreHelper";
-import { useFirebaseRpc } from "./functions/useFirebaseRpc";
+import { useFirebaseApp } from "./FirebaseAppProvider.js";
+import { useFirestoreHelper } from "./firestore/useFirestoreHelper.js";
+import { useFirebaseRpc } from "./functions/useFirebaseRpc.js";
 
 /**
  * Exports various packages and global variables to the window object

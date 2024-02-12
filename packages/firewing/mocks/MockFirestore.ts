@@ -3,13 +3,13 @@ import { EventEmitter } from "crosswing/shared/events";
 import { merge } from "crosswing/shared/merge";
 import { wait, waitForever } from "crosswing/shared/wait";
 import Debug from "debug";
-import { getAutoName } from "../shared/getAutoName";
+import { getAutoName } from "../shared/getAutoName.js";
 import {
   flattenObject,
   getFieldValue,
   isFieldValueMissing,
   updateFieldPath,
-} from "../shared/shared";
+} from "../shared/shared.js";
 
 // Important that we only import types, or else we couldn't use this in Node.
 import type {

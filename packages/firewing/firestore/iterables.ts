@@ -2,7 +2,7 @@ import { DocumentSnapshot } from "firebase/firestore";
 import {
   WrappedCollectionReference,
   WrappedQuery,
-} from "../wrapped/WrappedFirestore";
+} from "../wrapped/WrappedFirestore.js";
 
 export interface IterationResult {
   id: string;

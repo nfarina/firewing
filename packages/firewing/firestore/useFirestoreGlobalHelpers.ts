@@ -7,8 +7,8 @@ import {
   increment,
 } from "firebase/firestore";
 import { useEffect } from "react";
-import { useFirebaseApp } from "../FirebaseAppProvider";
-import { useFirestoreHelper } from "./useFirestoreHelper";
+import { useFirebaseApp } from "../FirebaseAppProvider.js";
+import { useFirestoreHelper } from "./useFirestoreHelper.js";
 
 /**
  * Exports various packages and global variables to the window object

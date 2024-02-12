@@ -1,10 +1,10 @@
 import { FirebaseApp } from "firebase/app";
 
 // Careful to import types only! See note in FirebaseAppProvider.tsx.
-import { WrappedAuth } from "./WrappedAuth";
-import type { WrappedFirestore } from "./WrappedFirestore";
-import { WrappedFunctions } from "./WrappedFunctions";
-import { WrappedStorage } from "./WrappedStorage";
+import { WrappedAuth } from "./WrappedAuth.js";
+import type { WrappedFirestore } from "./WrappedFirestore.js";
+import { WrappedFunctions } from "./WrappedFunctions.js";
+import { WrappedStorage } from "./WrappedStorage.js";
 
 export class WrappedFirebaseApp {
   private _auth: WrappedAuth | null = null;

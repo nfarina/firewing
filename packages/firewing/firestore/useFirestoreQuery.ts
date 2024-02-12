@@ -6,8 +6,8 @@ import {
   Falsy,
   FirebaseAppAccessor,
   useFirebaseApp,
-} from "../FirebaseAppProvider";
-import { WrappedQuery } from "../wrapped/WrappedFirestore";
+} from "../FirebaseAppProvider.js";
+import { WrappedQuery } from "../wrapped/WrappedFirestore.js";
 
 const debug = Debug("firewing:query");
 

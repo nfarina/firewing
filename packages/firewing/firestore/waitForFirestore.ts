@@ -1,5 +1,5 @@
 import { DocumentSnapshot } from "firebase/firestore";
-import { WrappedDocumentReference } from "../wrapped/WrappedFirestore";
+import { WrappedDocumentReference } from "../wrapped/WrappedFirestore.js";
 
 /**
  * Returns a Promise that resolves when the given Firestore key exists or matches

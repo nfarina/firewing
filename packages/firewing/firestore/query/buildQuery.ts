@@ -9,12 +9,17 @@ import {
   documentId,
   sum,
 } from "firebase/firestore";
-import { FirebaseAppAccessor } from "../../FirebaseAppProvider";
+import { FirebaseAppAccessor } from "../../FirebaseAppProvider.js";
 import {
   WrappedAggregateQuery,
   WrappedQuery,
-} from "../../wrapped/WrappedFirestore";
-import { SqlWhere, SqlWhereLogic, SqlWhereTerms, parseSql } from "./parseSql";
+} from "../../wrapped/WrappedFirestore.js";
+import {
+  SqlWhere,
+  SqlWhereLogic,
+  SqlWhereTerms,
+  parseSql,
+} from "./parseSql.js";
 
 export interface BuiltQuery<T = any> {
   collection: string;

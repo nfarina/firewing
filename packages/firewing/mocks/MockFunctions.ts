@@ -1,4 +1,4 @@
-import { MockFirestore } from "./MockFirestore";
+import { MockFirestore } from "./MockFirestore.js";
 
 /**
  * Just logs when a function is called.

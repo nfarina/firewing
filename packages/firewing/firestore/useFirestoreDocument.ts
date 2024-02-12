@@ -6,8 +6,8 @@ import {
   Falsy,
   FirebaseAppAccessor,
   useFirebaseApp,
-} from "../FirebaseAppProvider";
-import { WrappedDocumentReference } from "../wrapped/WrappedFirestore";
+} from "../FirebaseAppProvider.js";
+import { WrappedDocumentReference } from "../wrapped/WrappedFirestore.js";
 
 const debug = Debug("firewing:document");
 

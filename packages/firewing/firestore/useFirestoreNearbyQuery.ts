@@ -11,10 +11,10 @@ import {
   Falsy,
   FirebaseAppAccessor,
   useFirebaseApp,
-} from "../FirebaseAppProvider";
-import { getFieldValue } from "../shared/shared";
-import { WrappedQuery } from "../wrapped/WrappedFirestore";
-import { snapshotToArray } from "./useFirestoreQuery";
+} from "../FirebaseAppProvider.js";
+import { getFieldValue } from "../shared/shared.js";
+import { WrappedQuery } from "../wrapped/WrappedFirestore.js";
+import { snapshotToArray } from "./useFirestoreQuery.js";
 
 const debug = Debug("firewing:nearby");
 

@@ -3,8 +3,8 @@ import { createContext, useContext, useMemo, useState } from "react";
 
 // We are careful to import types only, we don't want to bring in specific
 // Firebase packages via static import. That's up to the consumer to decide on.
-import type { WrappedFirebaseApp } from "./wrapped/WrappedFirebaseApp";
-import { WrappedDocumentReference } from "./wrapped/WrappedFirestore";
+import type { WrappedFirebaseApp } from "./wrapped/WrappedFirebaseApp.js";
+import { WrappedDocumentReference } from "./wrapped/WrappedFirestore.js";
 
 export type FirebaseAppAccessor = {
   (): WrappedFirebaseApp;

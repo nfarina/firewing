@@ -9,14 +9,14 @@ import {
 import {
   FirebaseAppContext,
   FirebaseEventEmitter,
-} from "../FirebaseAppProvider";
-import { useFirestoreGlobalHelpers } from "../firestore/useFirestoreGlobalHelpers";
-import { useFirebaseGlobalHelpers } from "../useFirebaseGlobalHelpers";
-import { MockAuth, MockedAuth } from "./MockAuth";
-import { MockFirestore } from "./MockFirestore";
-import { MockFunctions, MockedFunctions } from "./MockFunctions";
+} from "../FirebaseAppProvider.js";
+import { useFirestoreGlobalHelpers } from "../firestore/useFirestoreGlobalHelpers.js";
+import { useFirebaseGlobalHelpers } from "../useFirebaseGlobalHelpers.js";
+import { MockAuth, MockedAuth } from "./MockAuth.js";
+import { MockFirestore } from "./MockFirestore.js";
+import { MockFunctions, MockedFunctions } from "./MockFunctions.js";
 
-export { LoadsForever } from "./MockFirestore";
+export { LoadsForever } from "./MockFirestore.js";
 
 /**
  * Provides a mock Firebase app for Storybook and other edge cases.

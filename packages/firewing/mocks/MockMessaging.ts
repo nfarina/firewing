@@ -1,4 +1,4 @@
-import { MockMessagesData } from "./types";
+import { MockMessagesData } from "./types.js";
 
 /**
  * Bare minimum stub to get consuming code to work.
