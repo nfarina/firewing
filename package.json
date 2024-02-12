@@ -1,66 +1,59 @@
 {
-  "name": "firewing",
+  "//": [
+    "vite is pinned because yarn can't resolve vitest's vite dependency in a way that allows upgrades. Also it's in peerDeps to silence Yarn's incessant warnings about mismatched versions."
+  ],
+  "name": "firewing-monorepo",
   "type": "module",
   "private": true,
-  "version": "0.0.4",
-  "exports": {
-    "./admin/app": "./src/admin/app.js",
-    "./admin/helper": "./src/admin/FirestoreHelper.js",
-    "./admin/iterables": "./src/admin/iterables.js",
-    "./admin/functions": "./src/admin/functions.js",
-    "./admin/testing": "./src/admin/mockfirebase.js",
-    "./admin/mutex": "./src/admin/mutex.js",
-    "./admin/wait": "./src/admin/waitForFirestore.js",
-    "./mocks": "./src/mocks/types.js",
-    "./mocks/auth": "./src/mocks/MockAuth.js",
-    "./mocks/firestore": "./src/mocks/MockFirestore.js",
-    "./mocks/functions": "./src/mocks/MockFunctions.js",
-    "./mocks/messaging": "./src/mocks/MockMessaging.js",
-    "./react/context": "./src/react/FirebaseAppContext.js",
-    "./react/provider": "./src/react/FirebaseAppProvider.js",
-    "./react/iterables": "./src/react/iterables.js",
-    "./react/document": "./src/react/useFirestoreDocument.js",
-    "./react/query": "./src/react/useFirestoreQueryOne.js",
-    "./react/nearby": "./src/react/useFirestoreNearbyQuery.js",
-    "./react/infinite": "./src/react/useInfiniteFirestoreQuery.js",
-    "./react/rpc": "./src/react/useFirebaseRpc.js",
-    "./react/wait": "./src/react/waitForFirestore.js",
-    "./react/builder": "./src/react/query/buildQuery.js",
-    "./react/helper": "./src/react/useFirestoreHelper.js",
-    "./react/global": "./src/react/useFirebaseGlobalHelpers.js",
-    "./storybook": "./src/storybook/MockFirebaseAppProvider.js",
-    "./shared": "./src/shared/shared.js"
-  },
+  "version": "0.0.0",
+  "author": "nfarina@gmail.com",
+  "workspaces": [
+    "packages/*"
+  ],
   "scripts": {
-    "build": "./build",
-    "test-all": "bun prettier && bun circular && bun typecheck && bun test",
-    "check-imports": "bunx npm-check",
-    "prettier": "prettier --check 'src/**/*.ts?(x)'",
-    "prettier:fix": "bun prettier -- --write",
-    "circular": "bunx madge --extensions ts,tsx --circular src",
-    "typecheck": "tsc"
-  },
-  "dependencies": {
-    "debug": "^4.3.4",
-    "pluralize": "^8.0.0"
-  },
-  "peerDependencies": {
-    "crosswing": "^0.0.1",
-    "firebase": "^10.6.0",
-    "firebase-admin": "^11.11.0",
-    "firebase-functions": "^4.5.0",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "react-is": "^18.2.0"
+    "dev": "npx @crosswing/cli --port 2750",
+    "test": "npm run prettier && npm run circular && npm run typecheck && npm run vitest",
+    "vitest": "vitest --run",
+    "check-imports": "npx npm-check",
+    "prettier": "prettier --check 'packages/**/*.ts?(x)'",
+    "prettier:fix": "npm run prettier -- --write",
+    "circular": "npx madge --extensions ts,tsx --circular packages",
+    "typecheck": "tsc",
+    "storybook": "storybook dev --ci -p 2752",
+    "build-storybook": "storybook build",
+    "clean:node_modules": "rm -rf node_modules packages/*/node_modules"
   },
   "devDependencies": {
-    "@storybook/addon-actions": "^7.5.3",
-    "@types/react": "^18.2.37",
-    "@types/react-dom": "^18.2.15",
+    "@storybook/addon-actions": "^7.6.14",
+    "@storybook/addon-essentials": "^7.6.14",
+    "@storybook/react": "^7.6.14",
+    "@storybook/react-vite": "^7.6.14",
+    "@types/debug": "^4.1.12",
+    "@types/minimist": "^1.2.5",
+    "@types/react": "^18.2.55",
+    "@types/react-dom": "^18.2.19",
     "@types/react-is": "^18.2.4",
-    "bun-types": "^1.0.13",
-    "crosswing": "^0.0.2",
-    "prettier": "^3.1.0",
-    "typescript": "^5.3.2"
-  }
+    "@types/react-transition-group": "^4.4.10",
+    "@vitejs/plugin-react": "^4.2.1",
+    "firebase": "^10.8.0",
+    "firebase-admin": "^12.0.0",
+    "firebase-functions": "^4.7.0",
+    "prettier": "^3.2.5",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "storybook": "^7.6.14",
+    "timemachine": "^0.3.2",
+    "typescript": "^5.3.3",
+    "vite": "^5.1.1",
+    "vite-node": "1.2.2",
+    "vite-plugin-svgr": "^4.2.0",
+    "vitest": "^1.2.2"
+  },
+  "peerDependencies": {
+    "vite": "^5.1.1"
+  },
+  "resolutions": {
+    "vite": "5.1.1"
+  },
+  "packageManager": "yarn@4.1.0"
 }

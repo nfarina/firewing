@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
-    // Allow importing Bun built-ins (assumes relevant code is run inside Bun and not Node).
-    "types": ["bun-types"],
+    // Assume all ESNext features are available at runtime.
+    "lib": ["ESNext", "DOM", "DOM.Iterable"],
     // Do as little "transformation" as possible.
     "target": "ESNext",
     // Leave "import" statements alone since we are using ESM.
@@ -26,10 +26,12 @@
     "noImplicitAny": false,
     // Allow JSX syntax.
     "jsx": "react-jsx",
-    // Don't actually output code to the filesystem, just typecheck it.
+    // Don't emit during normal type-checking, only during build script.
     "noEmit": true,
+    // Remove comments from output.
+    "removeComments": true,
     // Dramatically speed up successive compilations.
     "incremental": true
   },
-  "include": ["src/**/*.ts", "src/**/*.tsx", "types.d.ts"]
+  "include": ["packages/firewing/**/*.ts", "packages/firewing/**/*.tsx", "*.ts"]
 }

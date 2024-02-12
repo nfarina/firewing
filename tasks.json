@@ -1,0 +1,10 @@
+{
+  "storybook": {
+    "title": "Storybook",
+    "description": "Storybook server",
+    "run": {
+      "script": "storybook"
+    },
+    "link": "http://localhost:2752"
+  }
+}

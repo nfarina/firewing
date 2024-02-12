@@ -1,0 +1,54 @@
+{
+  "name": "firewing",
+  "type": "module",
+  "version": "0.0.7",
+  "exports": {
+    "./global": "./useFirebaseGlobalHelpers.js",
+    "./mocks": "./mocks/types.ts",
+    "./mocks/provider": "./mocks/MockFirebaseAppProvider.js",
+    "./mocks/auth": "./mocks/MockAuth.js",
+    "./mocks/firestore": "./mocks/MockFirestore.js",
+    "./mocks/functions": "./mocks/MockFunctions.js",
+    "./mocks/messaging": "./mocks/MockMessaging.js",
+    "./provider": "./FirebaseAppProvider.tsx",
+    "./wrapped/app": "./wrapped/WrappedFirebaseApp.ts",
+    "./wrapped/auth": "./wrapped/WrappedAuth.ts",
+    "./wrapped/firestore": "./wrapped/WrappedFirestore.ts",
+    "./wrapped/functions": "./wrapped/WrappedFunctions.ts",
+    "./wrapped/messaging": "./wrapped/WrappedMessaging.ts",
+    "./wrapped/storage": "./wrapped/WrappedStorage.ts",
+    "./auth/user": "./auth/useFirebaseUser.ts",
+    "./functions/rpc": "./functions/useFirebaseRpc.ts",
+    "./firestore/iterables": "./firestore/iterables.js",
+    "./firestore/document": "./firestore/useFirestoreDocument.js",
+    "./firestore/query": "./firestore/useFirestoreQueryOne.js",
+    "./firestore/nearby": "./firestore/useFirestoreNearbyQuery.js",
+    "./firestore/infinite": "./firestore/useInfiniteFirestoreQuery.js",
+    "./firestore/wait": "./firestore/waitForFirestore.js",
+    "./firestore/builder": "./firestore/query/buildQuery.js",
+    "./firestore/helper": "./firestore/useFirestoreHelper.js",
+    "./firestore/global": "./firestore/useFirestoreGlobalHelpers.js",
+    "./admin/app": "./admin/app.ts",
+    "./admin/helper": "./admin/FirestoreHelper.ts",
+    "./admin/iterables": "./admin/iterables.ts",
+    "./admin/functions": "./admin/functions.ts",
+    "./admin/testing": "./admin/mockfirebase.ts",
+    "./admin/mutex": "./admin/mutex.ts",
+    "./admin/wait": "./admin/waitForFirestore.ts",
+    "./shared": "./shared/shared.ts"
+  },
+  "scripts": {
+    "build": "./build.sh",
+    "deploy": "npm run build && cd dist && npm publish"
+  },
+  "dependencies": {
+    "pluralize": "^8.0.0"
+  },
+  "peerDependencies": {
+    "crosswing": "workspace:^",
+    "firebase": "^10.6.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-is": "^18.2.0"
+  }
+}
