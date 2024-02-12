@@ -45,10 +45,14 @@
     "pluralize": "^8.0.0"
   },
   "peerDependencies": {
-    "crosswing": "workspace:^",
+    "crosswing": "^1.0.24",
     "firebase": "^10.6.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-is": "^18.2.0"
+  },
+  "devDependencies": {
+    "crosswing": "^1.0.24",
+    "styled-components": "^6.1.8"
   }
 }
