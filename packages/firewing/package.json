@@ -11,7 +11,7 @@
     "./mocks/firestore": "./mocks/MockFirestore.js",
     "./mocks/functions": "./mocks/MockFunctions.js",
     "./mocks/messaging": "./mocks/MockMessaging.js",
-    "./provider": "./FirebaseAppProvider.jsx",
+    "./provider": "./FirebaseAppProvider.js",
     "./wrapped/app": "./wrapped/WrappedFirebaseApp.js",
     "./wrapped/auth": "./wrapped/WrappedAuth.js",
     "./wrapped/firestore": "./wrapped/WrappedFirestore.js",
