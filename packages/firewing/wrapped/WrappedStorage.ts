@@ -1,9 +1,12 @@
 import {
   FirebaseStorage,
+  FullMetadata,
   StorageReference,
   UploadMetadata,
   UploadTask,
+  deleteObject,
   getDownloadURL,
+  getMetadata,
   ref,
   uploadBytesResumable,
 } from "firebase/storage";
@@ -30,7 +33,15 @@ export class WrappedStorageReference {
     return getDownloadURL(this.ref);
   }
 
+  public getMetadata(): Promise<FullMetadata> {
+    return getMetadata(this.ref);
+  }
+
   public fullPath(): string {
     return this.ref.fullPath;
+  }
+
+  public delete(): Promise<void> {
+    return deleteObject(this.ref);
   }
 }

@@ -2,7 +2,7 @@
   "name": "firewing",
   "type": "module",
   "private": true,
-  "version": "0.0.9",
+  "version": "0.0.10",
   "exports": {
     "./global": "./useFirebaseGlobalHelpers.js",
     "./mocks": "./mocks/types.js",
@@ -54,7 +54,7 @@
     "react-is": "^18.2.0"
   },
   "devDependencies": {
-    "crosswing": "^1.0.24",
+    "crosswing": "^1.0.56",
     "styled-components": "^6.1.8"
   }
 }
