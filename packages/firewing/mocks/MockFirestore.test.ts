@@ -1,5 +1,6 @@
+import { FieldValue } from "firebase-admin/firestore";
 import { describe, expect, test } from "vitest";
-import { MockFirestore } from "./MockFirestore.js";
+import { FirestoreDeleted, MockFirestore } from "./MockFirestore.js";
 
 describe("queries documents", () => {
   const message1 = {
@@ -195,6 +196,53 @@ test("updates documents", async () => {
     messages: {
       message1: {
         text: "Updated message!",
+      },
+    },
+  });
+});
+
+test("handled un-deleting fields in tracked changeset", async () => {
+  const firestore = new MockFirestore();
+
+  // Create a document.
+  await firestore
+    .collection("messages")
+    .doc("message1")
+    .set({
+      text: "Hello, MockFirestore!",
+      sections: {
+        section1: { name: "Nick" },
+      },
+    });
+
+  // Update the document, deleting the field entirely.
+  await firestore.collection("messages").doc("message1").update({
+    text: "Updated message!",
+    sections: FieldValue.delete(),
+  });
+
+  expect(firestore.changes).toEqual({
+    messages: {
+      message1: {
+        text: "Updated message!",
+        sections: FirestoreDeleted,
+      },
+    },
+  });
+
+  // Now make sure we can write a new deep value to the field.
+  await firestore
+    .collection("messages")
+    .doc("message1")
+    .update({ ["sections.section2.name"]: "Nick" });
+
+  expect(firestore.changes).toEqual({
+    messages: {
+      message1: {
+        text: "Updated message!",
+        sections: {
+          section2: { name: "Nick" },
+        },
       },
     },
   });

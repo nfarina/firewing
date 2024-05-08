@@ -9,6 +9,8 @@ export function updateFieldPath<T extends {}>(
   obj: T,
   fieldPath: string | FieldPath,
   value: any,
+  /** A very special list of "sentinel" types to convert to {} when auto-creating objects. Useful for placeholders like "<deleted>" in MockFirestore. */
+  convertSentinels: any[] = [],
 ) {
   const [key, ...rest] =
     typeof fieldPath === "string"
@@ -17,9 +19,11 @@ export function updateFieldPath<T extends {}>(
 
   if (rest.length > 0) {
     // Auto-create empty objects as necessary.
-    if (!obj[key]) obj[key] = {}; // Convert null | undefined to {}.
+    if (!obj[key] || convertSentinels.includes(obj[key])) {
+      obj[key] = {}; // Convert null | undefined | <sentinel> to {}.
+    }
 
-    updateFieldPath(obj[key], rest.join("."), value);
+    updateFieldPath(obj[key], rest.join("."), value, convertSentinels);
 
     // Trim any now-empty objects.
     if (typeof obj[key] === "object" && Object.keys(obj[key]).length === 0) {

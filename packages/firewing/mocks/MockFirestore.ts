@@ -787,6 +787,7 @@ export class MockDocumentReference<
         isFieldValueMissing(finalData, fieldPath)
           ? FirestoreDeleted
           : resolvedValue,
+        [FirestoreDeleted], // Allow values of "<deleted>" to be overwritten with auto-created objects.
       );
     }
 
