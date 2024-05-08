@@ -701,6 +701,7 @@ export class MockDocumentReference<
           isFieldValueMissing(finalData, fieldPath)
             ? FirestoreDeleted
             : resolvedValue,
+          [FirestoreDeleted], // Allow values of "<deleted>" to be overwritten with auto-created objects.
         );
       }
     } else if (options && "merge" in options && options.merge) {
@@ -722,6 +723,7 @@ export class MockDocumentReference<
           isFieldValueMissing(finalData, fieldPath)
             ? FirestoreDeleted
             : resolvedValue,
+          [FirestoreDeleted],
         );
       }
     } else {
@@ -729,7 +731,9 @@ export class MockDocumentReference<
 
       // Track this change.
       const changePath = this.path.replace("/", ".");
-      updateFieldPath(this.firestore.changes, changePath, finalData);
+      updateFieldPath(this.firestore.changes, changePath, finalData, [
+        FirestoreDeleted,
+      ]);
     }
 
     // If we are writing an empty object, we won't track any field updates
@@ -737,7 +741,9 @@ export class MockDocumentReference<
     if (Object.keys(finalData).length === 0) {
       const changePath = this.path.replace("/", ".");
       if (!this.firestore.changes[changePath]) {
-        updateFieldPath(this.firestore.changes, changePath, {});
+        updateFieldPath(this.firestore.changes, changePath, {}, [
+          FirestoreDeleted,
+        ]);
       }
     }
 
@@ -801,7 +807,9 @@ export class MockDocumentReference<
 
     // Track this delete in our changeset.
     const changePath = this.path.replace("/", ".");
-    updateFieldPath(this.firestore.changes, changePath, FirestoreDeleted);
+    updateFieldPath(this.firestore.changes, changePath, FirestoreDeleted, [
+      FirestoreDeleted,
+    ]);
   }
 }
 
