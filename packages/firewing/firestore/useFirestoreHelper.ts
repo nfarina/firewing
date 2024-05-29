@@ -1,14 +1,14 @@
 import { runWithMutex } from "crosswing/shared/mutex";
 import type { FieldValue } from "firebase/firestore";
+import { useFirebaseApp } from "../FirebaseAppProvider.js";
+import { getAutoName } from "../shared/getAutoName.js";
+import { cloneWithMerge, cloneWithUpdates } from "../shared/shared.js";
 import {
   WrappedCollectionReference,
   WrappedDocumentReference,
   WrappedQuery,
   WrappedWriteBatch,
-} from "firewing/wrapped/firestore";
-import { useFirebaseApp } from "../FirebaseAppProvider.js";
-import { getAutoName } from "../shared/getAutoName.js";
-import { cloneWithMerge, cloneWithUpdates } from "../shared/shared.js";
+} from "../wrapped/WrappedFirestore.js";
 
 /**
  * Tracks all auto-generated document IDs that have been vended so far in a
