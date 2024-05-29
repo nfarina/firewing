@@ -44,7 +44,7 @@
     "deploy:yalc": "npm run build && cd dist && yalc publish"
   },
   "dependencies": {
-    "debug": "4.3.4",
+    "debug": "^4.3.4",
     "pluralize": "^8.0.0"
   },
   "peerDependencies": {
