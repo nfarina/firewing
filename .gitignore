@@ -7,6 +7,10 @@
 node_modules
 .yarn/
 
+## Submodule contents (for ignoring in VSCode search results)
+
+submodules/**
+
 ## TypeScript
 
 *.tsbuildinfo

@@ -1,0 +1,3 @@
+[submodule "submodules/crosswing"]
+	path = submodules/crosswing
+	url = https://github.com/nfarina/crosswing.git
