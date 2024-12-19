@@ -1,0 +1,47 @@
+name: Chromatic
+
+on: push
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      # Check out the repo.
+      - uses: actions/checkout@v4
+        with:
+          # Need full history so Chromatic can determine baselines.
+          fetch-depth: 0
+
+      - name: Set yarn version
+        run: corepack enable && yarn set version stable
+
+      - name: Get yarn cache directory path
+        id: yarn-cache-dir-path
+        run: echo "dir=$(yarn config get cacheFolder)" >> $GITHUB_OUTPUT
+
+      # Speed up yarn install dramatically by persisting the yarn cache.
+      - uses: actions/cache@v4
+        with:
+          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
+          # Ideally we'd have the cache from an identical yarn.lock ready.
+          key: ${{ runner.os }}-yarn-${{ hashFiles('yarn.lock') }}
+          # Otherwise we'll try and find something decent to start with.
+          restore-keys: |
+            ${{ runner.os }}-yarn-
+            ${{ runner.os }}-
+
+      - name: Install dependencies
+        run: yarn
+
+      # This is useful for debugging; you can install upterm on your machine
+      # and connect to the Github server currently running this action.
+      # - name: Setup upterm session
+      #   uses: lhotari/action-upterm@v1
+
+      - name: Publish to Chromatic
+        uses: chromaui/action@latest
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          projectToken: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}
+          onlyChanged: true
+          exitOnceUploaded: true
