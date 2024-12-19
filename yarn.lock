@@ -2923,12 +2923,15 @@ __metadata:
     debug: "npm:^4.4.0"
     glob: "npm:^11.0.0"
     prettier: "npm:^3.4.2"
+    react: "npm:^19.0.0"
+    react-dom: "npm:^19.0.0"
+    react-is: "npm:^19.0.0"
     react-transition-group: "npm:^4.4.5"
   peerDependencies:
-    react: ^18.2.0
-    react-dom: ^18.2.0
-    react-is: ^18.2.0
-    styled-components: ^6.0.8
+    react: "*"
+    react-dom: "*"
+    react-is: "*"
+    styled-components: "*"
   languageName: unknown
   linkType: soft
 
