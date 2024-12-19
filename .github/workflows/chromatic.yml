@@ -11,6 +11,7 @@ jobs:
         with:
           # Need full history so Chromatic can determine baselines.
           fetch-depth: 0
+          submodules: true
 
       - name: Set yarn version
         run: corepack enable && yarn set version stable
