@@ -30,6 +30,9 @@ test("using memory-based firestore", async () => {
           text: "Hello, MockFirestore!",
         },
       },
+      mutexLocks: {
+        "getAutoId:messages": "<deleted>",
+      },
     },
   });
 });

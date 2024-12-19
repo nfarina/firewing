@@ -34,7 +34,7 @@ describe("queries documents", () => {
   test("gets a null document when id is undefined", async () => {
     const message = await firestore.collection("messages").doc(undefined).get();
 
-    expect(message.exists()).toBe(false);
+    expect(message.exists).toBe(false);
     expect(message.data()).toBe(null);
   });
 

@@ -6,11 +6,11 @@ import {
 } from "crosswing/shared/geo";
 import Debug from "debug";
 import { QuerySnapshot } from "firebase/firestore";
-import { DependencyList, useEffect } from "react";
+import { DependencyList, use, useEffect } from "react";
 import {
   Falsy,
   FirebaseAppAccessor,
-  useFirebaseApp,
+  FirebaseAppContext,
 } from "../FirebaseAppProvider.js";
 import { getFieldValue } from "../shared/shared.js";
 import { WrappedQuery } from "../wrapped/WrappedFirestore.js";
@@ -43,7 +43,7 @@ export function useFirestoreNearbyQuery<T extends { id?: string }>(
   deps: DependencyList,
   { location, radius, fieldPath = "location" }: UseFirestoreNearbyQueryOptions,
 ): T[] | undefined {
-  const app = useFirebaseApp();
+  const app = use(FirebaseAppContext);
 
   // Use resettable state so that if our deps change, our value gets cleared
   // out right away. Note that we don't reset state completely just for location

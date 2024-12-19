@@ -18,7 +18,7 @@ let mocked: MockFirebase | undefined;
  * Tracks all auto-generated document IDs that have been vended so far in an
  * emulated environment. We store this here so we can reset it between tests.
  */
-let emulatorNextIds: Map<string, number> = new Map();
+const emulatorNextIds = new Map<string, number>();
 
 type MockFirebase = MockEmulatorFirebase | MockMemoryFirebase;
 
@@ -191,6 +191,7 @@ export async function setFirebaseData<
  * Gets the current state of all Firebase services we mock.
  */
 export async function getFirebaseData<
+  /* eslint-disable @typescript-eslint/no-unnecessary-type-constraint */
   T extends any = MockFirebaseData,
 >(): Promise<T> {
   if (!mocked) throw new Error("mockFirebase() was not called!");
@@ -289,14 +290,18 @@ async function populateEmulatorData(
         try {
           const existing = await auth().getUserByEmail(user.email);
           await auth().deleteUser(existing.uid);
-        } catch {}
+        } catch {
+          // Ignore.
+        }
       }
 
       if (user.phone) {
         try {
           const existing = await auth().getUserByPhoneNumber(user.phone);
           await auth().deleteUser(existing.uid);
-        } catch {}
+        } catch {
+          // Ignore.
+        }
       }
 
       // Create new user.

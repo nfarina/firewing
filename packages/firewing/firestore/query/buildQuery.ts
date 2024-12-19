@@ -5,7 +5,6 @@ import {
   OrderByDirection,
   WhereFilterOp,
   average,
-  count,
   documentId,
   sum,
 } from "firebase/firestore";
@@ -39,6 +38,21 @@ export interface QueryFilter {
 }
 
 export type PropertyType = "fieldName" | "documentId";
+
+/**
+ * Created to avoid try/catch in components, which React Compiler doesn't
+ * handle well.
+ */
+export function tryBuildQuery<T>(
+  app: FirebaseAppAccessor,
+  queryText: string,
+): BuiltQuery<T> | Error | null {
+  try {
+    return buildQuery(app, queryText);
+  } catch (error: any) {
+    return error;
+  }
+}
 
 export function buildQuery<T>(
   app: FirebaseAppAccessor,
@@ -122,7 +136,7 @@ export function buildQuery<T>(
   }
 
   for (const { left, right, operator } of whereTerms) {
-    let [property, propertyType] = getProperty(left);
+    const [property, propertyType] = getProperty(left);
     let value = getValue(right);
     const op = getOperator(operator, value);
 
@@ -227,6 +241,8 @@ function getOperator(op: string, value: any): WhereFilterOp {
   switch (op) {
     case "=":
       return "==";
+    case "<>":
+      return "!=";
     case "not in":
       return "not-in";
     case "has":
@@ -244,17 +260,26 @@ const AGGREGATE_FUNCTIONS = ["sum", "count", "average"];
  * into an AggregateSpec, or null if it's not an aggregate column.
  */
 function parseAggregateColumn(column: string): AggregateSpec | null {
-  const match = column
+  let match = column
     .trim()
-    .match(/^([a-z]+)\(([a-z0-9_]+)\)(?:\s+as\s+([a-z0-9_]+))?$/i);
+    .match(/^([a-z]+)\(([a-z0-9_*]+)\)(?:\s+as\s+([a-z0-9_]+))?$/i);
+
+  if (!match) {
+    match = column.trim().match(/^([a-z]+)\(([a-z0-9_*]+)\)$/i);
+  }
+
   if (!match) return null;
 
+  /* eslint-disable prefer-const */
   let [, func, field, as] = match;
   if (!as) as = field;
 
   switch (func.toLowerCase()) {
     case "count":
-      return { [as]: count() };
+      throw new Error(
+        "count() is not supported in queries, but you can see the count under the query box.",
+      );
+    // return { [as]: count() };
     case "sum":
       return { [as]: sum(field) };
     case "average":

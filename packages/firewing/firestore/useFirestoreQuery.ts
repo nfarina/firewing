@@ -1,11 +1,11 @@
 import { useResettableState } from "crosswing/hooks/useResettableState";
 import Debug from "debug";
 import { QuerySnapshot } from "firebase/firestore";
-import { DependencyList, useEffect, useState } from "react";
+import { DependencyList, use, useEffect, useState } from "react";
 import {
   Falsy,
   FirebaseAppAccessor,
-  useFirebaseApp,
+  FirebaseAppContext,
 } from "../FirebaseAppProvider.js";
 import { WrappedQuery } from "../wrapped/WrappedFirestore.js";
 
@@ -30,7 +30,7 @@ export function useFirestoreQuery<T extends { id?: string }>(
   deps: DependencyList,
   { loaded, onSnapshot, onError }: UseFirestoreQueryOptions<T> = {},
 ): T[] | undefined {
-  const app = useFirebaseApp();
+  const app = use(FirebaseAppContext);
   const persistenceEnabled = app().firestore().persistenceEnabled;
 
   const [callingStack] = useState(() => new Error().stack);

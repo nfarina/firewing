@@ -1,6 +1,6 @@
 import Debug from "debug";
-import { useEffect } from "react";
-import { useFirebaseApp } from "./FirebaseAppProvider.js";
+import { use, useEffect } from "react";
+import { FirebaseAppContext } from "./FirebaseAppProvider.js";
 import { useFirestoreHelper } from "./firestore/useFirestoreHelper.js";
 import { useFirebaseRpc } from "./functions/useFirebaseRpc.js";
 
@@ -9,7 +9,7 @@ import { useFirebaseRpc } from "./functions/useFirebaseRpc.js";
  * for debugging. Optionally to the given named property on the window.
  */
 export function useFirebaseGlobalHelpers(varName?: string) {
-  const app = useFirebaseApp();
+  const app = use(FirebaseAppContext);
   const rpc = useFirebaseRpc();
   const helper = useFirestoreHelper();
 
@@ -21,17 +21,7 @@ export function useFirebaseGlobalHelpers(varName?: string) {
       rpc,
     };
 
-    let targetWindow: Window = window;
-
-    try {
-      // This will cause a cross-origin error if we are being rendered inside
-      // Chromatic.
-      window.top?.document.querySelectorAll("nada");
-      // Made it past there?
-      if (window.top) targetWindow = window.top;
-    } catch (error) {
-      // Ignore.
-    }
+    const targetWindow = getTargetWindow();
 
     if (varName && !(varName in targetWindow)) {
       targetWindow[varName] = {};
@@ -49,4 +39,18 @@ export function useFirebaseGlobalHelpers(varName?: string) {
       }
     };
   }, []);
+}
+
+// Extracted because React Compiler can't handle it in the hook body.
+export function getTargetWindow(): Window {
+  try {
+    // This will cause a cross-origin error if we are being rendered inside
+    // Chromatic.
+    window.top?.document.querySelectorAll("nada");
+    // Made it past there?
+    if (window.top) return window.top;
+  } catch (error) {
+    // Ignore.
+  }
+  return window;
 }

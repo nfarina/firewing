@@ -6,8 +6,9 @@ import {
   documentId,
   increment,
 } from "firebase/firestore";
-import { useEffect } from "react";
-import { useFirebaseApp } from "../FirebaseAppProvider.js";
+import { use, useEffect } from "react";
+import { FirebaseAppContext } from "../FirebaseAppProvider.js";
+import { getTargetWindow } from "../useFirebaseGlobalHelpers.js";
 import { useFirestoreHelper } from "./useFirestoreHelper.js";
 
 /**
@@ -15,7 +16,7 @@ import { useFirestoreHelper } from "./useFirestoreHelper.js";
  * for debugging. Optionally to the given named property on the window.
  */
 export function useFirestoreGlobalHelpers(varName?: string) {
-  const app = useFirebaseApp();
+  const app = use(FirebaseAppContext);
   const helper = useFirestoreHelper();
 
   useEffect(() => {
@@ -30,17 +31,7 @@ export function useFirestoreGlobalHelpers(varName?: string) {
       documentId,
     };
 
-    let targetWindow: Window = window;
-
-    try {
-      // This will cause a cross-origin error if we are being rendered inside
-      // Chromatic.
-      window.top?.document.querySelectorAll("nada");
-      // Made it past there?
-      if (window.top) targetWindow = window.top;
-    } catch (error) {
-      // Ignore.
-    }
+    const targetWindow = getTargetWindow();
 
     if (varName && !(varName in targetWindow)) {
       targetWindow[varName] = {};

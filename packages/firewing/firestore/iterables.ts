@@ -19,8 +19,13 @@ export async function* iterateAll<T extends { id?: string }>(
   // fetched, based on the computed size of the actual data we're getting.
   const MAX_PAGE_SIZE = 100;
 
+  // If you gave us a query with a limit already set, respect that limit.
+  const hardLimit = getHardLimit(query);
+  if (hardLimit === 0) return; // Weird edge case, but we handle it here so we can perform our check after the first yield.
+  let totalReturned = 0;
+
   let lastDoc: DocumentSnapshot<T> | null = null;
-  let pageSize = 10; // start small and double on each request.
+  let pageSize = hardLimit ? Math.min(hardLimit, 10) : 10; // start small and double on each request.
 
   while (true) {
     const nextQuery = !lastDoc
@@ -34,6 +39,12 @@ export async function* iterateAll<T extends { id?: string }>(
     // Return this page of results.
     for (const doc of querySnapshot.docs) {
       yield { ...doc.data(), id: doc.id } as T;
+      totalReturned++;
+
+      if (hardLimit && totalReturned >= hardLimit) {
+        // We've hit the hard limit, so stop iterating.
+        return;
+      }
     }
 
     if (querySnapshot.size < pageSize) {
@@ -47,5 +58,20 @@ export async function* iterateAll<T extends { id?: string }>(
     // Double the page size for the next fetch.
     pageSize *= 2;
     pageSize = Math.min(pageSize, MAX_PAGE_SIZE);
+
+    if (hardLimit) {
+      // We can further limit the page size if this will be the last chunk.
+      pageSize = Math.min(pageSize, hardLimit - totalReturned);
+    }
   }
+}
+
+function getHardLimit(
+  query: WrappedQuery<any> | WrappedCollectionReference<any>,
+) {
+  const internalQuery: any = query.internalRef;
+  if (internalQuery._query?.limit) {
+    return internalQuery._query.limit;
+  }
+  return null;
 }

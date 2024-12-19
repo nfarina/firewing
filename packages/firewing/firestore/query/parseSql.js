@@ -1,3 +1,4 @@
+/* eslint-disable */
 // Adapted from https://github.com/dsferruzza/simpleSqlParser/blob/master/simpleSqlParser.js
 
 function trim(str) {

@@ -1,11 +1,11 @@
 import { useResettableState } from "crosswing/hooks/useResettableState";
 import Debug from "debug";
 import { DocumentSnapshot } from "firebase/firestore";
-import { DependencyList, useEffect } from "react";
+import { DependencyList, use, useEffect } from "react";
 import {
   Falsy,
   FirebaseAppAccessor,
-  useFirebaseApp,
+  FirebaseAppContext,
 } from "../FirebaseAppProvider.js";
 import { WrappedDocumentReference } from "../wrapped/WrappedFirestore.js";
 
@@ -28,7 +28,7 @@ export function useFirestoreDocument<T extends { id?: string }>(
   deps: DependencyList,
   { loaded }: UseFirestoreDocumentOptions<T> = {},
 ): T | null | undefined {
-  const app = useFirebaseApp();
+  const app = use(FirebaseAppContext);
   const persistenceEnabled = app().firestore().persistenceEnabled;
 
   // Use resettable state so that if our deps change, our value gets cleared

@@ -1,11 +1,5 @@
 import { useResettableState } from "crosswing/hooks/useResettableState";
-import {
-  ReactElement,
-  useEffect,
-  useLayoutEffect,
-  useMemo,
-  useState,
-} from "react";
+import { ReactElement, useEffect, useLayoutEffect, useState } from "react";
 import {
   FirebaseAppContext,
   FirebaseEventEmitter,
@@ -60,11 +54,9 @@ export function MockFirebaseAppProvider({
   );
 
   // Make sure we update our MockFirestore when our data actually changes.
-  const dataHash = useMemo(() => JSON.stringify(firestore), [firestore]);
-
   useLayoutEffect(() => {
     mockFirestore.setData(firestore);
-  }, [dataHash]);
+  }, [JSON.stringify(firestore)]);
 
   // Cache this permanently.
   const [events] = useState(() => new FirebaseEventEmitter());
@@ -98,24 +90,21 @@ export function MockFirebaseAppProvider({
     };
   }, []);
 
-  const context = useMemo(() => {
-    const mockApp = {
-      auth: () => mockAuth,
-      firestore: () => mockFirestore,
-      functions: () => mockFunctions,
-    };
+  const mockApp = {
+    auth: () => mockAuth,
+    firestore: () => mockFirestore,
+    functions: () => mockFunctions,
+  };
 
-    const context: any = () => mockApp;
-    context.events = events;
-    context.useSimpleIds = useSimpleIds;
-    return context;
-  }, [mockAuth, mockFirestore, mockFunctions, events, useSimpleIds]);
+  const context: any = () => mockApp;
+  context.events = events;
+  context.useSimpleIds = useSimpleIds;
 
   return (
-    <FirebaseAppContext.Provider value={context}>
+    <FirebaseAppContext value={context}>
       <MockGlobalHelpers />
       {children}
-    </FirebaseAppContext.Provider>
+    </FirebaseAppContext>
   );
 }
 

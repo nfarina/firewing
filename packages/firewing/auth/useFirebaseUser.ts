@@ -1,9 +1,9 @@
 import { User } from "firebase/auth";
-import { useEffect, useState } from "react";
-import { useFirebaseApp } from "../FirebaseAppProvider.js";
+import { use, useEffect, useState } from "react";
+import { FirebaseAppContext } from "../FirebaseAppProvider.js";
 
 export function useFirebaseUser(): User | null | undefined {
-  const app = useFirebaseApp();
+  const app = use(FirebaseAppContext);
 
   const [firebaseUser, setFirebaseUser] = useState<User | null | undefined>(
     undefined,

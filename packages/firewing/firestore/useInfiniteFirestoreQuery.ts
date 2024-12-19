@@ -2,11 +2,11 @@ import { useInfiniteScroll } from "crosswing/hooks/useInfiniteScroll";
 import { useResettableState } from "crosswing/hooks/useResettableState";
 import Debug from "debug";
 import { QuerySnapshot } from "firebase/firestore";
-import { DependencyList, UIEvent, useEffect } from "react";
+import { DependencyList, UIEvent, use, useEffect } from "react";
 import {
   Falsy,
   FirebaseAppAccessor,
-  useFirebaseApp,
+  FirebaseAppContext,
 } from "../FirebaseAppProvider.js";
 import { WrappedQuery } from "../wrapped/WrappedFirestore.js";
 import { useFirestoreQuery } from "./useFirestoreQuery.js";
@@ -48,7 +48,7 @@ export function useInfiniteFirestoreQuery<T extends { id?: string }>(
   onScroll: (e: UIEvent<any>) => void,
   atEnd: boolean,
 ] {
-  const app = useFirebaseApp();
+  const app = use(FirebaseAppContext);
 
   // Current cached list of items, should usually only increase in size. Reset
   // whenever deps change.

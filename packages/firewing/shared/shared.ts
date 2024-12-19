@@ -5,7 +5,7 @@ import type { FieldPath, FieldValue } from "firebase/firestore";
 
 // Helper method for applying updates to "dot path notation" fields on
 // an object of type T. Mutates `obj`.
-export function updateFieldPath<T extends {}>(
+export function updateFieldPath<T extends object>(
   obj: T,
   fieldPath: string | FieldPath,
   value: any,
@@ -79,10 +79,10 @@ export function updateFieldPath<T extends {}>(
  * production by Firebase's SDK.
  */
 export function getFieldValueOperand(fieldValue: any): any | undefined {
-  const key = Object.keys(fieldValue._delegate).find(
+  const key = Object.keys(fieldValue._delegate ?? fieldValue).find(
     (k) => k !== "_methodName",
   );
-  return key ? fieldValue._delegate[key] : undefined;
+  return key ? (fieldValue._delegate ?? fieldValue)[key] : undefined;
 }
 
 export function getFieldValue(
@@ -111,7 +111,7 @@ export function isFieldValueMissing(
       : fieldPath["segments"];
   let val = data;
   for (const segment of path) {
-    if (!(segment in val)) return true;
+    if (!val || !(segment in val)) return true;
     val = val[segment];
   }
   return false;

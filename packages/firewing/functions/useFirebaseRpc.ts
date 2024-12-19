@@ -1,6 +1,10 @@
 import { DeepPartial, merge } from "crosswing/shared/merge";
 import { wait } from "crosswing/shared/wait";
-import { FirebaseAppAccessor, useFirebaseApp } from "../FirebaseAppProvider.js";
+import { use } from "react";
+import {
+  FirebaseAppAccessor,
+  FirebaseAppContext,
+} from "../FirebaseAppProvider.js";
 
 // Wraps Firebase Cloud Functions with rpc() which provides
 // type-safety and automatic logging to console/AppSession.
@@ -41,7 +45,7 @@ export interface RpcOptions<Req, Resp> {
 export function useFirebaseRpc<S extends RpcFunctions>({
   automaticRetries,
 }: { automaticRetries?: boolean } = {}): RpcClient<S> {
-  const app = useFirebaseApp();
+  const app = use(FirebaseAppContext);
 
   return function rpc<
     G extends keyof RpcFunctions,
@@ -50,7 +54,7 @@ export function useFirebaseRpc<S extends RpcFunctions>({
   >(
     group: G,
     name: N,
-    data: Parameters<T>[0] = {} as any,
+    data: Parameters<T>[0] = {},
     { redact }: RpcOptions<Parameters<T>[0], Awaited<ReturnType<T>>> = {},
   ): ReturnType<T> {
     // Generate a unique ID for this request.

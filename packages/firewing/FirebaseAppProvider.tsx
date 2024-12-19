@@ -1,5 +1,5 @@
 import { EventEmitter } from "crosswing/shared/events";
-import { createContext, useContext, useMemo, useState } from "react";
+import { createContext, useState } from "react";
 
 // We are careful to import types only, we don't want to bring in specific
 // Firebase packages via static import. That's up to the consumer to decide on.
@@ -19,6 +19,21 @@ export type FirebaseAppAccessor = {
   useSimpleIds: boolean;
 };
 
+export function createFirebaseAppAccessor({
+  app,
+  events,
+  useSimpleIds,
+}: {
+  app: WrappedFirebaseApp;
+  events: FirebaseEventEmitter;
+  useSimpleIds?: boolean;
+}) {
+  const accessor: FirebaseAppAccessor = () => app;
+  accessor.events = events;
+  accessor.useSimpleIds = useSimpleIds ?? false;
+  return accessor;
+}
+
 export function FirebaseAppProvider({
   app,
   useSimpleIds = false,
@@ -33,26 +48,12 @@ export function FirebaseAppProvider({
   // for debugging/logging assistance.
   const [events] = useState(new FirebaseEventEmitter());
 
-  // Make sure to keep this object reference stable across renders so we don't
-  // cause any context children to re-render unnecessarily.
-  const context = useMemo(() => {
-    const context: FirebaseAppAccessor = () => app;
-    context.events = events;
-    context.useSimpleIds = useSimpleIds;
-    return context;
-  }, [app, events, useSimpleIds]);
-
-  return <FirebaseAppContext.Provider value={context} children={children} />;
-}
-
-export function useFirebaseApp(): FirebaseAppAccessor {
-  const app = useContext(FirebaseAppContext);
-
-  if (!app) {
-    throw new Error("FirebaseAppProvider not found");
-  }
-
-  return app;
+  return (
+    <FirebaseAppContext
+      value={createFirebaseAppAccessor({ app, events, useSimpleIds })}
+      children={children}
+    />
+  );
 }
 
 // Allow your ref functions to return "falsy" values to indicate that they

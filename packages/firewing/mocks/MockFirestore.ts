@@ -822,7 +822,23 @@ export class MockDocumentSnapshot<
   constructor(
     private documentRef: MockDocumentReference<T, U>,
     private documentData: T[U] | null,
-  ) {}
+  ) {
+    if (typeof window !== "undefined") {
+      // If we're running in a browser, we need to emulate the browser-based
+      // Firestore SDK, which uses an exists() method.
+      Object.defineProperty(this, "exists", {
+        value: this.actualExists,
+        writable: false,
+        configurable: true,
+      });
+    } else {
+      // Otherwise, we'll create a getter property for exists() that returns
+      // the actual exists() method.
+      Object.defineProperty(this, "exists", {
+        get: () => this.actualExists(),
+      });
+    }
+  }
 
   // Public API
 
@@ -835,6 +851,10 @@ export class MockDocumentSnapshot<
   }
 
   public exists(): boolean {
+    return this.actualExists();
+  }
+
+  private actualExists(): boolean {
     return !!this.documentData;
   }
 
