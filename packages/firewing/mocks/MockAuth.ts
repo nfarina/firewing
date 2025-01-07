@@ -3,26 +3,38 @@ import { EventEmitter } from "crosswing/shared/events";
 // Important that we only import types, or else we couldn't use this in Node.
 import type { NextOrObserver, Unsubscribe, User } from "firebase/auth";
 
-export class MockAuth extends EventEmitter<{
-  authStateChange: NextOrObserver<User>;
-}> {
-  private mocked: MockedAuth;
+export type MockAuthEvents = {
+  authStateChange: (user: MockedAuth | null, initial?: boolean) => void;
+};
 
-  constructor(mocked?: MockedAuth) {
+export type MockedAuth = {
+  uid: string;
+  email: string;
+};
+
+export class MockAuth extends EventEmitter<MockAuthEvents> {
+  public user: MockedAuth | null;
+
+  constructor(user?: MockedAuth | null) {
     super();
-    this.mocked = mocked || {};
+    this.user = user ?? null;
   }
 
   public onAuthStateChanged(listener: NextOrObserver<User>): Unsubscribe {
-    this.on("authStateChange", listener);
+    // Use our own event emitter to implement this firebase-expected method.
+    function handler(user: MockedAuth | null) {
+      if (typeof listener === "function") {
+        listener(user as User);
+      }
+    }
+
+    this.on("authStateChange", handler);
 
     setTimeout(() => {
-      const { uid, email } = this.mocked;
-      const user = { uid, email } as User;
-      this.emit("authStateChange", user);
+      this.emit("authStateChange", this.user, true);
     }, 0);
 
-    return () => this.off("authStateChange", listener);
+    return () => this.off("authStateChange", handler);
   }
 
   public isSignInWithEmailLink(emailLink: string): boolean {
@@ -36,9 +48,9 @@ export class MockAuth extends EventEmitter<{
   public signInWithCustomToken(token: string) {
     // Not implemented.
   }
-}
 
-export interface MockedAuth {
-  uid?: string;
-  email?: string;
+  public signOut() {
+    this.user = null;
+    this.emit("authStateChange", null);
+  }
 }

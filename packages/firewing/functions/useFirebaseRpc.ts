@@ -1,10 +1,13 @@
 import { DeepPartial, merge } from "crosswing/shared/merge";
 import { wait } from "crosswing/shared/wait";
+import Debug from "debug";
 import { use } from "react";
 import {
   FirebaseAppAccessor,
   FirebaseAppContext,
 } from "../FirebaseAppProvider.js";
+
+const debug = Debug("firewing:rpc");
 
 // Wraps Firebase Cloud Functions with rpc() which provides
 // type-safety and automatic logging to console/AppSession.
@@ -65,7 +68,7 @@ export function useFirebaseRpc<S extends RpcFunctions>({
 
     // Toss this in the console both for logging and easy copy/paste for
     // debugging.
-    console.log(
+    debug(
       `await rpc("${group}", "${String(name)}", ${JSON.stringify(
         dataForLogging,
       )}) // requestId = ${requestId}`,
@@ -172,7 +175,7 @@ async function makeRpcRequestWithRetries({
 
         // Don't retry if you don't want us to!
         if (!automaticRetries) {
-          console.log(
+          console.error(
             `Connection error; automatic retries disabled. [${last4}] (${stat})`,
           );
           return { error, elapsed, retries };
@@ -180,12 +183,12 @@ async function makeRpcRequestWithRetries({
 
         // Are we out of time? Or would we be if we waited to retry?
         if (elapsed + retry > MAX_TIME) {
-          console.log(`Connection error; out of time. [${last4}] (${stat})`);
+          console.error(`Connection error; out of time. [${last4}] (${stat})`);
           const elapsed = Date.now() - start;
           return { error, elapsed, retries };
         }
 
-        console.log(
+        console.error(
           `Connection error; will retry after ${retry}ms. [${last4}] (${stat})`,
         );
 
@@ -200,7 +203,7 @@ async function makeRpcRequestWithRetries({
         continue;
       }
 
-      console.log(`Error [${last4}] (${stat}):`, error);
+      console.error(`Error [${last4}] (${stat}):`, error);
 
       // Not a connection error? Return it right away!
       const elapsed = Date.now() - start;

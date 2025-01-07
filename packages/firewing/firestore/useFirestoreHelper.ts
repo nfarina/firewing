@@ -1,4 +1,5 @@
 import { runWithMutex } from "crosswing/shared/mutex";
+import Debug from "debug";
 import type { FieldValue } from "firebase/firestore";
 import { use } from "react";
 import { FirebaseAppContext } from "../FirebaseAppProvider.js";
@@ -14,6 +15,8 @@ import {
   WrappedQuery,
   WrappedWriteBatch,
 } from "../wrapped/WrappedFirestore.js";
+
+const debug = Debug("firewing:firestore");
 
 /**
  * Tracks all auto-generated document IDs that have been vended so far in a
@@ -53,7 +56,7 @@ export function useFirestoreHelper() {
     if (!silent) {
       // Toss this in the console both for logging and easy copy/paste for
       // debugging.
-      console.log(
+      debug(
         `await app().firestore().collection("${
           collectionRef.path
         }").doc("${documentRef.id}").set(${JSON.stringify(data)}, { mergeFields: ${JSON.stringify(
@@ -149,7 +152,7 @@ export function useFirestoreHelper() {
     if (!silent) {
       // Toss this in the console both for logging and easy copy/paste for
       // debugging.
-      console.log(
+      debug(
         `await app().firestore().doc("${
           documentRef.path
         }").update(${JSON.stringify(updateData)})`,
@@ -200,7 +203,7 @@ export function useFirestoreHelper() {
     if (!silent) {
       // Toss this in the console both for logging and easy copy/paste for
       // debugging.
-      console.log(
+      debug(
         `await app().firestore().doc("${
           documentRef.path
         }").set(${JSON.stringify(mergeData)}, {merge: true})`,
@@ -232,7 +235,7 @@ export function useFirestoreHelper() {
   ) {
     // Toss this in the console both for logging and easy copy/paste for
     // debugging.
-    console.log(`await app().firestore().doc("${documentRef.path}").delete()`);
+    debug(`await app().firestore().doc("${documentRef.path}").delete()`);
 
     events.emit("firestoreDelete", documentRef);
 

@@ -1,4 +1,5 @@
 import { useResettableState } from "crosswing/hooks/useResettableState";
+import Debug from "debug";
 import { ReactElement, useEffect, useLayoutEffect, useState } from "react";
 import {
   FirebaseAppContext,
@@ -6,29 +7,31 @@ import {
 } from "../FirebaseAppProvider.js";
 import { useFirestoreGlobalHelpers } from "../firestore/useFirestoreGlobalHelpers.js";
 import { useFirebaseGlobalHelpers } from "../useFirebaseGlobalHelpers.js";
-import { MockAuth, MockedAuth } from "./MockAuth.js";
-import { MockFirestore } from "./MockFirestore.js";
+import { MockAuth, MockAuthEvents, MockedAuth } from "./MockAuth.js";
+import { MockFirestore, MockFirestoreEvents } from "./MockFirestore.js";
 import { MockFunctions, MockedFunctions } from "./MockFunctions.js";
+
+const debug = Debug("firewing:mocks");
 
 export { LoadsForever } from "./MockFirestore.js";
 
 /**
  * Provides a mock Firebase app for Storybook and other edge cases.
- *
- * Still uses the Firebase legacy API - need to port this to the "modular" API.
  */
 export function MockFirebaseAppProvider({
   auth,
   firestore,
   functions,
+  onAuthStateChange,
   onFirestoreChange,
   useSimpleIds = true,
   children,
 }: {
-  auth?: MockedAuth;
+  auth?: MockedAuth | null;
   firestore?: any;
   functions?: MockedFunctions;
-  onFirestoreChange?: (newFirestore: any) => void;
+  onAuthStateChange?: MockAuthEvents["authStateChange"];
+  onFirestoreChange?: MockFirestoreEvents["change"];
   useSimpleIds?: boolean;
   children: ReactElement<any>;
 }) {
@@ -38,13 +41,24 @@ export function MockFirebaseAppProvider({
   // Cache this permanently.
   const [mockFirestore] = useState(() => new MockFirestore());
 
+  // Pass along auth state change events to any listener.
+  useEffect(() => {
+    if (onAuthStateChange) {
+      mockAuth.on("authStateChange", onAuthStateChange);
+      return () => {
+        mockAuth.off("authStateChange", onAuthStateChange);
+      };
+    }
+  }, [onAuthStateChange]);
+
   // Pass along Firestore data change events to any listener.
   useEffect(() => {
-    function onChange() {
-      onFirestoreChange?.(mockFirestore.data);
+    if (onFirestoreChange) {
+      mockFirestore.on("change", onFirestoreChange);
+      return () => {
+        mockFirestore.off("change", onFirestoreChange);
+      };
     }
-    mockFirestore.on("change", onChange);
-    return () => mockFirestore.off("change", onChange);
   }, [onFirestoreChange]);
 
   // Recreate this when the functions change.
@@ -65,27 +79,31 @@ export function MockFirebaseAppProvider({
   useEffect(() => {
     const rpcComplete = (data: any) => {
       const { group, name, ...rest } = data;
-      console.log("rpcComplete", group, name, rest);
+      debug("rpcComplete", group, name, rest);
     };
 
     const firestoreCreate = (ref: any, data: any) =>
-      console.log("firestoreCreate", ref.path, data);
+      debug("firestoreCreate", ref.path, data);
 
     const firestoreUpdate = (ref: any, data: any) =>
-      console.log("firestoreUpdate", ref.path, data);
+      debug("firestoreUpdate", ref.path, data);
 
-    const firestoreDelete = (ref: any) =>
-      console.log("firestoreDelete", ref.path);
+    const firestoreMerge = (ref: any, data: any) =>
+      debug("firestoreMerge", ref.path, data);
+
+    const firestoreDelete = (ref: any) => debug("firestoreDelete", ref.path);
 
     events.on("rpcComplete", rpcComplete);
     events.on("firestoreCreate", firestoreCreate);
     events.on("firestoreUpdate", firestoreUpdate);
+    events.on("firestoreMerge", firestoreMerge);
     events.on("firestoreDelete", firestoreDelete);
 
     return () => {
       events.off("rpcComplete", rpcComplete);
       events.off("firestoreCreate", firestoreCreate);
       events.off("firestoreUpdate", firestoreUpdate);
+      events.off("firestoreMerge", firestoreMerge);
       events.off("firestoreDelete", firestoreDelete);
     };
   }, []);

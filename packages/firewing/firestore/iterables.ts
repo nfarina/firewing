@@ -75,3 +75,10 @@ function getHardLimit(
   }
   return null;
 }
+
+export async function countAll<T extends { id?: string }>(
+  query: WrappedQuery<T> | WrappedCollectionReference<T>,
+): Promise<number> {
+  const snapshot = await query.count().get();
+  return snapshot.data().count;
+}

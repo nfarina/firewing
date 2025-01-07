@@ -1,3 +1,4 @@
+import { action } from "@storybook/addon-actions";
 import { MockFirestore } from "./MockFirestore.js";
 
 /**
@@ -17,7 +18,7 @@ export class MockFunctions {
 
     async function callable({ group, name, data }: any) {
       // A story has called this function! Log it.
-      console.log(endpoint, group, name, data);
+      action("httpsCallable")(endpoint, group, name, data);
 
       // Check to see if you have provided a mock for this function.
       const func = mocked[group] && mocked[group][name];
@@ -28,7 +29,7 @@ export class MockFunctions {
         const result = await func({ ...data, firestore });
         return { data: result };
       } else {
-        console.log(
+        console.error(
           `No mock function defined for ${group}.${name}; returning empty object.`,
         );
         return { data: {} };

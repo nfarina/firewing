@@ -12,6 +12,7 @@ import {
 } from "../shared/shared.js";
 
 // Important that we only import types, or else we couldn't use this in Node.
+import { runWithMutex } from "crosswing/shared/mutex";
 import type {
   FieldPath,
   OrderByDirection,
@@ -45,7 +46,16 @@ export type MockFirestoreCollections = {
 };
 
 export type MockFirestoreEvents = {
-  change: () => void;
+  /**
+   * Called when the data changes. Diff is the changes since the last change
+   * event, and data is the new data in its entirety.
+   */
+  change: (diff: any, data: any) => void;
+
+  /**
+   * Called when a single document is updated, regardless of whether the update
+   * was part of a batch.
+   */
   update: (
     documentRef: MockDocumentReference<any, any>,
     oldData: any,
@@ -70,14 +80,41 @@ export class MockFirestore<
 
   /** Track all modifications to the data, for test suites. */
   public changes: any;
+  /** Only the changes since the last "change" event. */
+  public changesSinceLastEvent: any;
 
   /** Always false for MockFirestore. */
   public readonly persistenceEnabled: boolean = false;
+
+  /**
+   * During a batch, we want to defer any calls to the "change" event until the
+   * batch is committed.
+   */
+  public suspendingChangeEvents: boolean = false;
+  public pendingChangeEvent: boolean = false;
+
+  /** Something to lock on, for batch commits that are in-flight. */
+  public batchMutex = Symbol("MockFirestoreBatch");
 
   constructor(data?: any) {
     super();
     this.data = data || {};
     this.changes = {};
+    this.changesSinceLastEvent = {};
+  }
+
+  /** Updates the changes and changesSinceLastEvent objects. */
+  public updateFieldPathForChange(fieldPath: string | FieldPath, value: any) {
+    // Allow values of "<deleted>" to be overwritten with auto-created objects.
+    updateFieldPath(this.changes, fieldPath, value, [FirestoreDeleted]);
+    updateFieldPath(this.changesSinceLastEvent, fieldPath, value, [
+      FirestoreDeleted,
+    ]);
+  }
+
+  public emitChangeEvent() {
+    this.emit("change", this.changesSinceLastEvent, this.data);
+    this.changesSinceLastEvent = {};
   }
 
   /** Resets our data and change history, and emits a change event. */
@@ -85,11 +122,29 @@ export class MockFirestore<
     this.data = newData || {};
     this.resetChanges();
     this.nextIds = new Map();
-    this.emit("change");
+    this.emitChangeEvent();
   }
 
   public resetChanges() {
     this.changes = {};
+  }
+
+  public suspendChangeEvents() {
+    if (this.suspendingChangeEvents) {
+      throw new Error("Pending events already suspended.");
+    }
+    this.suspendingChangeEvents = true;
+  }
+
+  public resumeChangeEvents() {
+    if (!this.suspendingChangeEvents) {
+      throw new Error("No pending events to flush.");
+    }
+    this.suspendingChangeEvents = false;
+    if (this.pendingChangeEvent) {
+      this.pendingChangeEvent = false;
+      this.emitChangeEvent();
+    }
   }
 
   public getNextId(collectionPath: string): number {
@@ -145,6 +200,7 @@ export class MockFirestore<
 
     const oldData = this.data;
     this.data = newData;
+
     this.emit(
       "update",
       documentRef,
@@ -152,7 +208,13 @@ export class MockFirestore<
       newData,
       MockFirestoreWriteBatch.currentlyExecutingBatchId,
     );
-    this.emit("change");
+
+    // Emit (or defer) our change events.
+    if (this.suspendingChangeEvents) {
+      this.pendingChangeEvent = true;
+    } else {
+      this.emitChangeEvent();
+    }
   }
 
   public batch(): MockFirestoreWriteBatch<T> {
@@ -658,7 +720,6 @@ export class MockDocumentReference<
         );
 
         const snapshot = new MockDocumentSnapshot(this, data);
-
         handler(snapshot);
       }
     };
@@ -695,13 +756,11 @@ export class MockDocumentReference<
         // Track this field update. Use the final written value from `finalData`.
         const changePath = this.path.replace("/", ".") + "." + fieldPath;
         const resolvedValue = getFieldValue(finalData, fieldPath);
-        updateFieldPath(
-          this.firestore.changes,
+        this.firestore.updateFieldPathForChange(
           changePath,
           isFieldValueMissing(finalData, fieldPath)
             ? FirestoreDeleted
             : resolvedValue,
-          [FirestoreDeleted], // Allow values of "<deleted>" to be overwritten with auto-created objects.
         );
       }
     } else if (options && "merge" in options && options.merge) {
@@ -717,13 +776,11 @@ export class MockDocumentReference<
         // Track this field update. Use the final written value from `finalData`.
         const changePath = this.path.replace("/", ".") + "." + fieldPath;
         const resolvedValue = getFieldValue(finalData, fieldPath);
-        updateFieldPath(
-          this.firestore.changes,
+        this.firestore.updateFieldPathForChange(
           changePath,
           isFieldValueMissing(finalData, fieldPath)
             ? FirestoreDeleted
             : resolvedValue,
-          [FirestoreDeleted],
         );
       }
     } else {
@@ -731,9 +788,7 @@ export class MockDocumentReference<
 
       // Track this change.
       const changePath = this.path.replace("/", ".");
-      updateFieldPath(this.firestore.changes, changePath, finalData, [
-        FirestoreDeleted,
-      ]);
+      this.firestore.updateFieldPathForChange(changePath, finalData);
     }
 
     // If we are writing an empty object, we won't track any field updates
@@ -741,9 +796,7 @@ export class MockDocumentReference<
     if (Object.keys(finalData).length === 0) {
       const changePath = this.path.replace("/", ".");
       if (!this.firestore.changes[changePath]) {
-        updateFieldPath(this.firestore.changes, changePath, {}, [
-          FirestoreDeleted,
-        ]);
+        this.firestore.updateFieldPathForChange(changePath, {});
       }
     }
 
@@ -787,13 +840,11 @@ export class MockDocumentReference<
       // Track this field update. Use the final written value from `finalData`.
       const changePath = this.path.replace("/", ".") + "." + fieldPath;
       const resolvedValue = getFieldValue(finalData, fieldPath);
-      updateFieldPath(
-        this.firestore.changes,
+      this.firestore.updateFieldPathForChange(
         changePath,
         isFieldValueMissing(finalData, fieldPath)
           ? FirestoreDeleted
           : resolvedValue,
-        [FirestoreDeleted], // Allow values of "<deleted>" to be overwritten with auto-created objects.
       );
     }
 
@@ -807,9 +858,7 @@ export class MockDocumentReference<
 
     // Track this delete in our changeset.
     const changePath = this.path.replace("/", ".");
-    updateFieldPath(this.firestore.changes, changePath, FirestoreDeleted, [
-      FirestoreDeleted,
-    ]);
+    this.firestore.updateFieldPathForChange(changePath, FirestoreDeleted);
   }
 }
 
@@ -909,11 +958,19 @@ class MockFirestoreWriteBatch<T extends MockFirestoreCollections> {
   }
 
   public async commit(): Promise<void> {
-    MockFirestoreWriteBatch.currentlyExecutingBatchId = this.batchId;
-    for (const operation of this.operations) {
-      await operation();
-    }
-    MockFirestoreWriteBatch.currentlyExecutingBatchId = null;
+    await runWithMutex(this.firestore.batchMutex, async () => {
+      try {
+        MockFirestoreWriteBatch.currentlyExecutingBatchId = this.batchId;
+        this.firestore.suspendChangeEvents();
+
+        for (const operation of this.operations) {
+          await operation();
+        }
+      } finally {
+        MockFirestoreWriteBatch.currentlyExecutingBatchId = null;
+        this.firestore.resumeChangeEvents();
+      }
+    });
   }
 }
 

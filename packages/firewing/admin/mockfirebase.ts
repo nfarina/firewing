@@ -236,7 +236,7 @@ export async function getFirebaseData<
 }
 
 /**
- * Gets an object representing only the data changed since setFirebase
+ * Gets an object representing only the data changed since setFirebaseData().
  */
 export async function getFirebaseChanges<
   T extends any = MockFirebaseData,
