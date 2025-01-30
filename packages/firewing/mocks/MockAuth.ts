@@ -49,6 +49,11 @@ export class MockAuth extends EventEmitter<MockAuthEvents> {
     // Not implemented.
   }
 
+  public signIn(user: MockedAuth) {
+    this.user = user;
+    this.emit("authStateChange", user);
+  }
+
   public signOut() {
     this.user = null;
     this.emit("authStateChange", null);

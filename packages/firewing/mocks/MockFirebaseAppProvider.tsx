@@ -35,11 +35,20 @@ export function MockFirebaseAppProvider({
   useSimpleIds?: boolean;
   children: ReactElement<any>;
 }) {
-  // Recreate this when auth changes.
-  const [mockAuth] = useResettableState(() => new MockAuth(auth), [auth]);
+  // Cache this permanently.
+  const [mockAuth] = useState(() => new MockAuth(auth));
 
   // Cache this permanently.
   const [mockFirestore] = useState(() => new MockFirestore());
+
+  // If mockAuth changes, pass along the current user state.
+  useEffect(() => {
+    if (auth) {
+      mockAuth.signIn(auth);
+    } else {
+      mockAuth.signOut();
+    }
+  }, [auth]);
 
   // Pass along auth state change events to any listener.
   useEffect(() => {
