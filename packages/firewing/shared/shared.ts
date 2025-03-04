@@ -1,7 +1,16 @@
-// We import this for types only - it's important that we don't use anything
-// besides types, or this module wouldn't run in Node.
 import { merge } from "crosswing/shared/merge";
-import type { FieldPath, FieldValue } from "firebase/firestore";
+
+// We import these for types only - it's important that we don't use anything
+// besides types, or this module wouldn't run in Node.
+import type { Timestamp as AdminTimestamp } from "firebase-admin/firestore";
+import type {
+  Timestamp as ClientTimestamp,
+  FieldPath,
+  FieldValue,
+} from "firebase/firestore";
+
+/** Unified Timestamp type for use in both Admin and Client contexts. */
+export type Timestamp = AdminTimestamp | ClientTimestamp;
 
 // Helper method for applying updates to "dot path notation" fields on
 // an object of type T. Mutates `obj`.

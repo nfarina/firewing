@@ -60,6 +60,9 @@ export function buildQuery<T>(
 ): BuiltQuery<T> | null {
   if (!queryText) return null;
 
+  // Flatten whitespace to single spaces.
+  queryText = queryText.replace(/\s+/g, " ").trim();
+
   // First extract any LIMIT or LIMIT TO LAST clause at the very end using a
   // simple regex, since the parseSql() command has problems with that.
   const limitMatch = queryText.match(/\s+limit\s+([0-9]+)\s*$/i);
@@ -270,7 +273,6 @@ function parseAggregateColumn(column: string): AggregateSpec | null {
 
   if (!match) return null;
 
-  /* eslint-disable prefer-const */
   let [, func, field, as] = match;
   if (!as) as = field;
 

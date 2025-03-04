@@ -52,9 +52,9 @@ export function app(): App {
   return firebaseServices().app();
 }
 
-export function firestore(): Firestore {
+export function firestore(databaseId?: string): Firestore {
   const { app, firestore } = firebaseServices();
-  return firestore?.() ?? getFirestore(app());
+  return firestore?.() ?? getFirestore(app(), databaseId as any);
 }
 
 export function auth(): Auth {

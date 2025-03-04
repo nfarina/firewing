@@ -285,7 +285,7 @@ export function useFirestoreHelper() {
 
         while (true) {
           // Vend an ID from the storage map (that is automatically reset between tests
-          // if running under teset).
+          // if running under test).
           const nextId = getNextSimpleId(collectionPath);
 
           const newId = `${prefix}${nextId}`; // 'report1'
