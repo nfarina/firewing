@@ -22,3 +22,4 @@ submodules/**
 ## Build Products
 
 dist/
+lib/

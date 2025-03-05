@@ -15,7 +15,7 @@
     "check-imports": "npx npm-check",
     "prettier": "prettier --check 'packages/**/*.ts?(x)'",
     "prettier:fix": "npm run prettier -- --write",
-    "circular": "npx madge --extensions ts,tsx --circular packages",
+    "circular": "npx madge --extensions ts,tsx --exclude 'lib' --circular packages",
     "typecheck": "tsc",
     "storybook": "storybook dev --ci -p 2752",
     "build-storybook": "storybook build",

@@ -26,12 +26,19 @@
     "noImplicitAny": false,
     // Allow JSX syntax.
     "jsx": "react-jsx",
-    // Don't emit during normal type-checking, only during build script.
-    "noEmit": true,
+    // Output .js files in the lib folder, which won't be used, but we can't
+    // disable emit in this composite project.
+    "outDir": "./lib",
+    // This is a composite project.
+    "composite": true,
     // Remove comments from output.
     "removeComments": true,
     // Dramatically speed up successive compilations.
     "incremental": true
   },
-  "include": ["packages/firewing/**/*.ts", "packages/firewing/**/*.tsx", "*.ts"]
+  "include": ["*.ts"],
+  "references": [
+    { "path": "./packages/crosswing/tsconfig.json" },
+    { "path": "./packages/firewing/tsconfig.json" }
+  ]
 }
