@@ -104,7 +104,7 @@ export function getFieldValue(
       : fieldPath["segments"];
   let val = data;
   for (const segment of path) {
-    if (val[segment] === undefined) return undefined;
+    if (!val || val[segment] === undefined) return undefined;
     val = val[segment];
   }
   return val;

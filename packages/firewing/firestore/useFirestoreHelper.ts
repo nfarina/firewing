@@ -283,7 +283,14 @@ export function useFirestoreHelper() {
             .doc(documentId)
             .get());
 
+        let attempts = 0;
+
         while (true) {
+          attempts++;
+          if (attempts > 50) {
+            throw new Error("Failed to generate a unique ID.");
+          }
+
           // Vend an ID from the storage map (that is automatically reset between tests
           // if running under test).
           const nextId = getNextSimpleId(collectionPath);
@@ -302,14 +309,20 @@ export function useFirestoreHelper() {
               return newId;
             }
           } else {
-            // Make sure this document doesn't exist already!
-            const maybeExisting = await app()
-              .firestore()
-              .collection(collectionPath)
-              .doc(newId)
-              .get();
-            if (!maybeExisting.exists()) {
-              return newId;
+            // Make sure this document doesn't exist already! Note that we
+            // have to wrap in try/catch because it may exist but not have
+            // the permissions for us to access it.
+            try {
+              const maybeExisting = await app()
+                .firestore()
+                .collection(collectionPath)
+                .doc(newId)
+                .get();
+              if (!maybeExisting.exists()) {
+                return newId;
+              }
+            } catch (e) {
+              // Keep going.
             }
           }
         }

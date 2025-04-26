@@ -261,7 +261,11 @@ export async function getAutoId(specifier: string): Promise<string> {
   const keyName = fieldComponents[fieldComponents.length - 1];
 
   if (
-    getCurrentMockedType() === "emulator" ||
+    // I LOVE using simple IDs in the emulator, but it's just too flaky.
+    // It can take a while to find the "next ID" when you have a lot of
+    // documents, and it's also easy to fill in "holes" left by previously
+    // deleted documents that existing data might still be referencing.
+    // getCurrentMockedType() === "emulator" ||
     getCurrentMockedType() === "memory"
   ) {
     // Run with a mutex in case we are checking existence of multiple IDs at once.
