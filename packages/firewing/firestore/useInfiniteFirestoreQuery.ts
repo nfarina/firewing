@@ -107,7 +107,7 @@ export function useInfiniteFirestoreQuery<T extends { id?: string }>(
         setAtEnd(true);
       }
     }
-  });
+  }, [rawItems, limit]);
 
   return [items, onScroll, atEnd];
 }

@@ -44,7 +44,7 @@
     "deploy:yalc": "npm run build && cd dist && yalc publish"
   },
   "dependencies": {
-    "debug": "^4.4.0",
+    "debug": "^4.4.1",
     "pluralize": "^8.0.0"
   },
   "peerDependencies": {
@@ -61,6 +61,6 @@
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "react-is": "^19.1.0",
-    "styled-components": "^6.1.17"
+    "styled-components": "^6.1.18"
   }
 }

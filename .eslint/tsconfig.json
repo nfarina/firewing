@@ -1,0 +1,13 @@
+// @chatwing
+{
+  "compilerOptions": {
+    // Copied options from root tsconfig.json.
+    "target": "esnext",
+    "module": "esnext",
+    "lib": ["esnext"],
+    "moduleResolution": "bundler",
+    "skipLibCheck": true,
+    "outDir": "lib"
+  },
+  "include": ["*.ts"]
+}
