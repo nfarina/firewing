@@ -38,6 +38,8 @@ export type RpcClient<S extends RpcFunctions> = <
 ) => ReturnType<T>;
 
 export interface RpcOptions<Req, Resp> {
+  /** If true, no request ID will be generated and nothing will be logged. */
+  silent?: boolean;
   /** Optional objects that are merged with data objects when logging them. */
   redact?: {
     request?: DeepPartial<Req>;
@@ -58,29 +60,36 @@ export function useFirebaseRpc<S extends RpcFunctions>({
     group: G,
     name: N,
     data: Parameters<T>[0] = {},
-    { redact }: RpcOptions<Parameters<T>[0], Awaited<ReturnType<T>>> = {},
+    {
+      redact,
+      silent = false,
+    }: RpcOptions<Parameters<T>[0], Awaited<ReturnType<T>>> = {},
   ): ReturnType<T> {
     // Generate a unique ID for this request.
-    const requestId = app().firestore().collection("rpcRequesets").doc().id;
+    const requestId = silent
+      ? null
+      : app().firestore().collection("rpcRequesets").doc().id;
 
     // Redact any sensitive data.
     const dataForLogging = merge(data, redact?.request ?? {});
 
-    // Toss this in the console both for logging and easy copy/paste for
-    // debugging.
-    debug(
-      `await rpc("${group}", "${String(name)}", ${JSON.stringify(
-        dataForLogging,
-      )}) // requestId = ${requestId}`,
-    );
+    if (requestId) {
+      // Toss this in the console both for logging and easy copy/paste for
+      // debugging.
+      debug(
+        `await rpc("${group}", "${String(name)}", ${JSON.stringify(
+          dataForLogging,
+        )}) // requestId = ${requestId}`,
+      );
 
-    // Log the creation of this request.
-    app.events.emit("rpcCreate", {
-      requestId,
-      group,
-      name: name as string,
-      data: dataForLogging,
-    });
+      // Log the creation of this request.
+      app.events.emit("rpcCreate", {
+        requestId,
+        group,
+        name: name as string,
+        data: dataForLogging,
+      });
+    }
 
     // We can't use async/await because TypeScript can't figure out that
     // ReturnType<T> is always a Promise; not sure why this works instead.
@@ -92,19 +101,22 @@ export function useFirebaseRpc<S extends RpcFunctions>({
       name,
       data,
       redact,
+      silent,
     }).then((result) => {
       const { elapsed, retries, error } = result;
 
-      // Log this result, whether it succeeded or failed.
-      app.events.emit("rpcComplete", {
-        requestId,
-        group,
-        name: name as string,
-        elapsed,
-        retries,
-        data: dataForLogging,
-        ...(error ? { error: error.message ?? "Unknown error" } : null),
-      });
+      if (requestId) {
+        // Log this result, whether it succeeded or failed.
+        app.events.emit("rpcComplete", {
+          requestId,
+          group,
+          name: name as string,
+          elapsed,
+          retries,
+          data: dataForLogging,
+          ...(error ? { error: error.message ?? "Unknown error" } : null),
+        });
+      }
 
       if (error) {
         // Now we can throw it.
@@ -132,21 +144,24 @@ async function makeRpcRequestWithRetries({
   name,
   data,
   redact,
+  silent,
 }: {
   app: FirebaseAppAccessor;
-  requestId: string;
+  requestId: string | null;
   automaticRetries?: boolean;
   group: any;
   name: any;
   data: any;
   redact: any;
+  silent: boolean;
 }): Promise<RequestResult> {
   const start = Date.now();
   let retry = MIN_RETRY;
   let retries = 0;
 
   // For less verbose logging.
-  const last4 = requestId.substring(requestId.length - 4);
+  const last4 =
+    requestId?.substring(requestId.length - 4) ?? "<silent request>";
 
   while (true) {
     try {
@@ -157,6 +172,7 @@ async function makeRpcRequestWithRetries({
         name,
         data,
         redact,
+        silent,
       });
 
       // Success!
