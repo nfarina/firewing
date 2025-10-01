@@ -242,7 +242,7 @@ type MockQueryParams = {
   endBefore?: any[];
 };
 
-class MockQuery<T extends MockFirestoreCollections, U extends keyof T> {
+export class MockQuery<T extends MockFirestoreCollections, U extends keyof T> {
   private isCountOnly: boolean = false;
 
   constructor(

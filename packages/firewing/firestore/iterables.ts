@@ -1,4 +1,5 @@
 import { DocumentSnapshot } from "firebase/firestore";
+import { MockQuery } from "../mocks/MockFirestore.js";
 import {
   WrappedCollectionReference,
   WrappedQuery,
@@ -68,7 +69,11 @@ export async function* iterateAll<T extends { id?: string }>(
 
 function getHardLimit(
   query: WrappedQuery<any> | WrappedCollectionReference<any>,
-) {
+): number | null {
+  if (query instanceof MockQuery) {
+    return query.params.limit ?? null;
+  }
+
   const internalQuery: any = query.internalRef;
   if (internalQuery._query?.limit) {
     return internalQuery._query.limit;
