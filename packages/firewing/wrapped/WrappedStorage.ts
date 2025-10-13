@@ -5,6 +5,8 @@ import {
   UploadMetadata,
   UploadTask,
   deleteObject,
+  getBlob,
+  getBytes,
   getDownloadURL,
   getMetadata,
   ref,
@@ -31,6 +33,14 @@ export class WrappedStorageReference {
 
   public getDownloadURL(): Promise<string> {
     return getDownloadURL(this.ref);
+  }
+
+  public getBytes(): Promise<ArrayBuffer> {
+    return getBytes(this.ref);
+  }
+
+  public getBlob(): Promise<Blob> {
+    return getBlob(this.ref);
   }
 
   public getMetadata(): Promise<FullMetadata> {
