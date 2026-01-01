@@ -259,14 +259,15 @@ export async function getFirebaseChanges<
   }
 }
 
-async function populateEmulatorData(
+export async function populateEmulatorData(
   services: FirebaseHelperServices,
   data: MockFirebaseData,
 ) {
   const { app } = services;
-  const auth = () => getAuth(app());
-  const firestore = () => getFirestore(app());
-  const storage = () => getStorage(app());
+  // Mimic app.ts's helper functions which allow setting overrides for the default Firebase services.
+  const auth = () => services.auth?.() ?? getAuth(app());
+  const firestore = () => services.firestore?.() ?? getFirestore(app());
+  const storage = () => services.storage?.() ?? getStorage(app());
 
   const promises: Promise<any>[] = [];
 
