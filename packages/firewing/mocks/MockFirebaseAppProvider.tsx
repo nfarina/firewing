@@ -7,6 +7,7 @@ import {
 } from "../FirebaseAppProvider.js";
 import { useFirestoreGlobalHelpers } from "../firestore/useFirestoreGlobalHelpers.js";
 import { useFirebaseGlobalHelpers } from "../useFirebaseGlobalHelpers.js";
+import { MockAnalytics } from "./MockAnalytics.js";
 import { MockAuth, MockAuthEvents, MockedAuth } from "./MockAuth.js";
 import { MockFirestore, MockFirestoreEvents } from "./MockFirestore.js";
 import { MockFunctions, MockedFunctions } from "./MockFunctions.js";
@@ -22,6 +23,7 @@ export function MockFirebaseAppProvider({
   auth,
   firestore,
   functions,
+  analytics,
   onAuthStateChange,
   onFirestoreChange,
   useSimpleIds = true,
@@ -30,6 +32,7 @@ export function MockFirebaseAppProvider({
   auth?: MockedAuth | null;
   firestore?: any;
   functions?: MockedFunctions;
+  analytics?: MockAnalytics | null;
   onAuthStateChange?: MockAuthEvents["authStateChange"];
   onFirestoreChange?: MockFirestoreEvents["change"];
   useSimpleIds?: boolean;
@@ -76,6 +79,9 @@ export function MockFirebaseAppProvider({
     [functions],
   );
 
+  // Cache this permanently.
+  const [mockAnalytics] = useState(() => analytics ?? new MockAnalytics());
+
   // Make sure we update our MockFirestore when our data actually changes.
   useLayoutEffect(() => {
     mockFirestore.setData(firestore);
@@ -121,6 +127,8 @@ export function MockFirebaseAppProvider({
     auth: () => mockAuth,
     firestore: () => mockFirestore,
     functions: () => mockFunctions,
+    analytics: () => mockAnalytics,
+    analyticsIfEnabled: () => mockAnalytics,
   };
 
   const context: any = () => mockApp;

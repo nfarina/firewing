@@ -321,6 +321,31 @@ export async function getAutoId(specifier: string): Promise<string> {
   }
 }
 
+/**
+ * For operations that must be run in a batch, this will create a batch if one
+ * is not provided, then run the function with a guaranteed non-null batch.
+ * Finally, it will commit the batch if it was created by us.
+ */
+export async function ensureBatch<T>(
+  batch: WriteBatch | null | undefined,
+  func: (batch: WriteBatch) => Promise<T>,
+): Promise<T> {
+  let shouldCommitBatch = false;
+
+  if (!batch) {
+    batch = firestore().batch();
+    shouldCommitBatch = true;
+  }
+
+  const result = await func(batch);
+
+  if (shouldCommitBatch && batch) {
+    await batch.commit();
+  }
+
+  return result;
+}
+
 //
 // Utility types
 //

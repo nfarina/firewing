@@ -1,6 +1,7 @@
 import { FirebaseApp } from "firebase/app";
 
 // Careful to import types only! See note in FirebaseAppProvider.tsx.
+import type { WrappedAnalytics } from "./WrappedAnalytics.js";
 import { WrappedAuth } from "./WrappedAuth.js";
 import type { WrappedFirestore } from "./WrappedFirestore.js";
 import { WrappedFunctions } from "./WrappedFunctions.js";
@@ -11,6 +12,7 @@ export class WrappedFirebaseApp {
   private _firestore: WrappedFirestore | null = null;
   private _functions: WrappedFunctions | null = null;
   private _storage: WrappedStorage | null = null;
+  private _analytics: WrappedAnalytics | null = null;
 
   constructor(
     private readonly app: FirebaseApp,
@@ -19,17 +21,20 @@ export class WrappedFirebaseApp {
       firestore = null,
       functions = null,
       storage = null,
+      analytics = null,
     }: {
       auth?: WrappedAuth | null;
       firestore?: WrappedFirestore | null;
       functions?: WrappedFunctions | null;
       storage?: WrappedStorage | null;
+      analytics?: WrappedAnalytics | null;
     },
   ) {
     this.setAuth(auth);
     this.setFirestore(firestore);
     this.setFunctions(functions);
     this.setStorage(storage);
+    this.setAnalytics(analytics);
   }
 
   public setAuth(auth: WrappedAuth | null) {
@@ -78,5 +83,17 @@ export class WrappedFirebaseApp {
     }
 
     return this._storage;
+  }
+
+  public setAnalytics(analytics: WrappedAnalytics | null) {
+    this._analytics = analytics;
+  }
+
+  public analytics(): WrappedAnalytics {
+    if (!this._analytics) {
+      throw new Error("Analytics is not enabled for this app.");
+    }
+
+    return this._analytics;
   }
 }

@@ -18,6 +18,8 @@
     "./wrapped/functions": "./wrapped/WrappedFunctions.ts",
     "./wrapped/messaging": "./wrapped/WrappedMessaging.ts",
     "./wrapped/storage": "./wrapped/WrappedStorage.ts",
+    "./wrapped/analytics": "./wrapped/WrappedAnalytics.ts",
+    "./mocks/analytics": "./mocks/MockAnalytics.ts",
     "./auth/user": "./auth/useFirebaseUser.ts",
     "./functions/rpc": "./functions/useFirebaseRpc.ts",
     "./firestore/iterables": "./firestore/iterables.ts",
@@ -61,6 +63,6 @@
     "react": "^19.2.3",
     "react-dom": "^19.2.3",
     "react-is": "^19.2.3",
-    "styled-components": "^6.2.0"
+    "styled-components": "^6.3.8"
   }
 }
