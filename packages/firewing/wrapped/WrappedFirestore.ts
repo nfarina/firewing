@@ -61,6 +61,9 @@ export class WrappedFirestore {
  *
  * Also adds a `descriptor` property to each query since Firestore's internal
  * query obfuscation makes it hard to tell what query is being executed.
+ *
+ * Wraps error handling for all methods that may throw security rules errors,
+ * because otherwise Firestore gives you no information about what went wrong.
  */
 export class WrappedQuery<T = any> {
   constructor(
@@ -154,7 +157,15 @@ export class WrappedQuery<T = any> {
   }
 
   public async get(): Promise<QuerySnapshot<T>> {
-    return getDocs(this.query);
+    try {
+      return await getDocs(this.query);
+    } catch (error: any) {
+      console.error(
+        `Error getting docs for ${this.descriptor}:`,
+        error?.message,
+      );
+      throw error;
+    }
   }
 
   public onSnapshot(
@@ -162,7 +173,15 @@ export class WrappedQuery<T = any> {
     onNext: (snapshot: QuerySnapshot<T>) => void,
     onError?: (error: Error) => void,
   ): () => void {
-    return onSnapshot(this.query, options, onNext, onError);
+    const onErrorWrapper = (error: Error) => {
+      console.error(
+        `Error on snapshot for ${this.descriptor}:`,
+        error?.message,
+      );
+      onError?.(error);
+    };
+
+    return onSnapshot(this.query, options, onNext, onErrorWrapper);
   }
 }
 
@@ -206,6 +225,10 @@ export class WrappedCollectionReference<T = any> extends WrappedQuery<T> {
   }
 }
 
+/**
+ * Wraps error handling for all methods that may throw security rules errors,
+ * because otherwise Firestore gives you no information about what went wrong.
+ */
 export class WrappedDocumentReference<T = any> {
   constructor(private readonly ref: DocumentReference<T>) {}
 
@@ -222,7 +245,12 @@ export class WrappedDocumentReference<T = any> {
   }
 
   public async get(): Promise<DocumentSnapshot<T>> {
-    return await getDoc(this.ref);
+    try {
+      return await getDoc(this.ref);
+    } catch (error: any) {
+      console.error(`Error getting doc for ${this.ref.path}:`, error?.message);
+      throw error;
+    }
   }
 
   public onSnapshot(
@@ -245,24 +273,44 @@ export class WrappedDocumentReference<T = any> {
       | ((error: Error) => void),
     onError?: (error: Error) => void,
   ): () => void {
+    const onErrorWrapper = (error: Error) => {
+      console.error(`Error on snapshot for ${this.ref.path}:`, error?.message);
+      onError?.(error);
+    };
+
     return onSnapshot(
       this.ref as any,
       optionsOrNext as any,
       onNextOrError as any,
-      onError,
+      onErrorWrapper,
     );
   }
 
-  public set(data: any, options: SetOptions = {}) {
-    return setDoc(this.ref, data, options);
+  public async set(data: any, options: SetOptions = {}): Promise<void> {
+    try {
+      await setDoc(this.ref, data, options);
+    } catch (error: any) {
+      console.error(`Error setting doc for ${this.ref.path}:`, error?.message);
+      throw error;
+    }
   }
 
-  public update(data: any) {
-    return updateDoc(this.ref, data);
+  public async update(data: any): Promise<void> {
+    try {
+      await updateDoc(this.ref, data);
+    } catch (error: any) {
+      console.error(`Error updating doc for ${this.ref.path}:`, error?.message);
+      throw error;
+    }
   }
 
-  public delete() {
-    return deleteDoc(this.ref);
+  public async delete(): Promise<void> {
+    try {
+      await deleteDoc(this.ref);
+    } catch (error: any) {
+      console.error(`Error deleting doc for ${this.ref.path}:`, error?.message);
+      throw error;
+    }
   }
 }
 
