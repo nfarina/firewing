@@ -9,16 +9,8 @@ import {
   sum,
 } from "firebase/firestore";
 import { FirebaseAppAccessor } from "../../FirebaseAppProvider.js";
-import {
-  WrappedAggregateQuery,
-  WrappedQuery,
-} from "../../wrapped/WrappedFirestore.js";
-import {
-  SqlWhere,
-  SqlWhereLogic,
-  SqlWhereTerms,
-  parseSql,
-} from "./parseSql.js";
+import { WrappedAggregateQuery, WrappedQuery } from "../../wrapped/WrappedFirestore.js";
+import { SqlWhere, SqlWhereLogic, SqlWhereTerms, parseSql } from "./parseSql.js";
 
 export interface BuiltQuery<T = any> {
   collection: string;
@@ -54,10 +46,7 @@ export function tryBuildQuery<T>(
   }
 }
 
-export function buildQuery<T>(
-  app: FirebaseAppAccessor,
-  queryText: string,
-): BuiltQuery<T> | null {
+export function buildQuery<T>(app: FirebaseAppAccessor, queryText: string): BuiltQuery<T> | null {
   if (!queryText) return null;
 
   // Flatten whitespace to single spaces.
@@ -66,9 +55,7 @@ export function buildQuery<T>(
   // First extract any LIMIT or LIMIT TO LAST clause at the very end using a
   // simple regex, since the parseSql() command has problems with that.
   const limitMatch = queryText.match(/\s+limit\s+([0-9]+)\s*$/i);
-  const limitToLastMatch = queryText.match(
-    /\s+limit\s+to\s+last\s+([0-9]+)\s*$/i,
-  );
+  const limitToLastMatch = queryText.match(/\s+limit\s+to\s+last\s+([0-9]+)\s*$/i);
 
   let limit: number | null = null;
   let limitToLast: number | null = null;
@@ -103,17 +90,13 @@ export function buildQuery<T>(
   const aggregateSpecs = columns.map(parseAggregateColumn).filter(Boolean);
 
   if (aggregateSpecs.length > 0 && aggregateSpecs.length !== columns.length) {
-    throw new Error(
-      "Aggregate functions like sum() must be used on all columns or none of them.",
-    );
+    throw new Error("Aggregate functions like sum() must be used on all columns or none of them.");
   }
 
   const collectionName = FROM[0].table;
   const filters: QueryFilter[] = [];
 
-  let compiled: WrappedQuery<T> | null = app()
-    .firestore()
-    .collection<T>(collectionName);
+  let compiled: WrappedQuery<T> | null = app().firestore().collection<T>(collectionName);
 
   const whereTerms: SqlWhereTerms[] = [];
 
@@ -187,9 +170,7 @@ export function buildQuery<T>(
   };
 }
 
-function getValue(
-  value: string | SqlWhereLogic,
-): string | number | boolean | null | any[] {
+function getValue(value: string | SqlWhereLogic): string | number | boolean | null | any[] {
   if (typeof value === "string") {
     const lower = value.toLowerCase();
 
@@ -263,9 +244,7 @@ const AGGREGATE_FUNCTIONS = ["sum", "count", "average"];
  * into an AggregateSpec, or null if it's not an aggregate column.
  */
 function parseAggregateColumn(column: string): AggregateSpec | null {
-  let match = column
-    .trim()
-    .match(/^([a-z]+)\(([a-z0-9_*]+)\)(?:\s+as\s+([a-z0-9_]+))?$/i);
+  let match = column.trim().match(/^([a-z]+)\(([a-z0-9_*]+)\)(?:\s+as\s+([a-z0-9_]+))?$/i);
 
   if (!match) {
     match = column.trim().match(/^([a-z]+)\(([a-z0-9_*]+)\)$/i);

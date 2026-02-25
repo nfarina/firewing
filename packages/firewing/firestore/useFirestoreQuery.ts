@@ -2,11 +2,7 @@ import { useResettableState } from "crosswing/hooks/useResettableState";
 import Debug from "debug";
 import { QuerySnapshot } from "firebase/firestore";
 import { DependencyList, use, useEffect, useState } from "react";
-import {
-  Falsy,
-  FirebaseAppAccessor,
-  FirebaseAppContext,
-} from "../FirebaseAppProvider.js";
+import { Falsy, FirebaseAppAccessor, FirebaseAppContext } from "../FirebaseAppProvider.js";
 import { WrappedQuery } from "../wrapped/WrappedFirestore.js";
 
 const debug = Debug("firewing:query");
@@ -37,10 +33,7 @@ export function useFirestoreQuery<T extends { id?: string }>(
 
   // Use resettable state so that if our deps change, our value gets cleared
   // out right away.
-  const [value, setValue] = useResettableState<T[] | undefined>(
-    undefined,
-    deps,
-  );
+  const [value, setValue] = useResettableState<T[] | undefined>(undefined, deps);
 
   useEffect(() => {
     // We always have to call useEffect() because of Rules for Hooks.
@@ -106,9 +99,7 @@ export function useFirestoreQuery<T extends { id?: string }>(
  * that no runtime checks are performed to ensure that the snapshots are valid
  * instances of that type!
  */
-export function snapshotToArray<T extends { id?: string }>({
-  docs,
-}: QuerySnapshot<T>): T[] {
+export function snapshotToArray<T extends { id?: string }>({ docs }: QuerySnapshot<T>): T[] {
   return docs.map(
     (doc) =>
       ({

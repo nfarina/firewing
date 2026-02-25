@@ -13,13 +13,8 @@ const LEASE_EXPIRATION = Minutes(10);
  * ensuring that only one instance of the function can be running at a time.
  * Uses Firestore to hold the lock.
  */
-export async function runWithFirestoreMutex<T>(
-  id: string,
-  func: () => Promise<T>,
-): Promise<T> {
-  const leaseRef = firestore()
-    .collection("mutexLocks")
-    .doc(id) as DocumentReference<ObjectLease>;
+export async function runWithFirestoreMutex<T>(id: string, func: () => Promise<T>): Promise<T> {
+  const leaseRef = firestore().collection("mutexLocks").doc(id) as DocumentReference<ObjectLease>;
 
   const start = Date.now();
 
@@ -67,9 +62,7 @@ export interface ObjectLease {
   created: number;
 }
 
-async function tryAcquireLease(
-  ref: DocumentReference<ObjectLease>,
-): Promise<boolean> {
+async function tryAcquireLease(ref: DocumentReference<ObjectLease>): Promise<boolean> {
   return firestore().runTransaction(async (tx) => {
     debug(`Checking for existing lease…`);
     const lease = (await tx.get(ref)).data();

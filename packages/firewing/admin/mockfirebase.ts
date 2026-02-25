@@ -65,8 +65,7 @@ export function mockFirebase({
     let projectId: string | null = null;
 
     if (randomizeProjectId) {
-      const instanceId =
-        process.pid + "-" + String(Math.random()).replace(".", "");
+      const instanceId = process.pid + "-" + String(Math.random()).replace(".", "");
       projectId = `mock-firebase-project-${instanceId}`;
       const storageBucket = `mock-firebase-storage-${instanceId}`;
 
@@ -135,9 +134,7 @@ export function restoreFirebase() {
     const { projectId } = mocked;
 
     if (!projectId) {
-      throw new Error(
-        "Cannot restore Firebase emulator without a randomized project ID.",
-      );
+      throw new Error("Cannot restore Firebase emulator without a randomized project ID.");
     }
 
     // https://firebase.google.com/docs/emulator-suite/connect_firestore#clear_your_database_between_tests
@@ -158,9 +155,7 @@ export function restoreFirebase() {
 /**
  * Replaces our mocked data and resets change history for MockFirestore.
  */
-export async function setFirebaseData<
-  T extends MockFirebaseData = MockFirebaseData,
->(...data: T[]) {
+export async function setFirebaseData<T extends MockFirebaseData = MockFirebaseData>(...data: T[]) {
   if (!mocked) throw new Error("mockFirebase() was not called!");
 
   const merged = merge(...data) ?? {};
@@ -169,9 +164,7 @@ export async function setFirebaseData<
     const { firestore } = mocked;
 
     if (merged.auth || merged.messages || merged.storage) {
-      throw new Error(
-        "Cannot set auth, messages, or storage with memory-mock Firebase",
-      );
+      throw new Error("Cannot set auth, messages, or storage with memory-mock Firebase");
     }
 
     if (merged.firestore) {
@@ -190,10 +183,7 @@ export async function setFirebaseData<
 /**
  * Gets the current state of all Firebase services we mock.
  */
-export async function getFirebaseData<
-  /* eslint-disable @typescript-eslint/no-unnecessary-type-constraint */
-  T extends any = MockFirebaseData,
->(): Promise<T> {
+export async function getFirebaseData<T extends any = MockFirebaseData>(): Promise<T> {
   if (!mocked) throw new Error("mockFirebase() was not called!");
 
   if (mocked.type === "memory") {
@@ -238,9 +228,7 @@ export async function getFirebaseData<
 /**
  * Gets an object representing only the data changed since setFirebaseData().
  */
-export async function getFirebaseChanges<
-  T extends any = MockFirebaseData,
->(): Promise<T> {
+export async function getFirebaseChanges<T extends any = MockFirebaseData>(): Promise<T> {
   if (!mocked) throw new Error("mockFirebase() was not called!");
 
   if (mocked.type === "memory") {
@@ -318,9 +306,7 @@ export async function populateEmulatorData(
   }
 
   // Populate Firestore data.
-  for (const [collection, collectionData] of Object.entries(
-    data.firestore ?? {},
-  )) {
+  for (const [collection, collectionData] of Object.entries(data.firestore ?? {})) {
     const collectionRef = firestore().collection(collection);
 
     for (const [doc, docData] of Object.entries(collectionData ?? {})) {
@@ -341,9 +327,7 @@ export async function populateEmulatorData(
         bucketRef.upload(diskPath, {
           destination: prefix + "/" + path,
           validation: false,
-          contentType:
-            mockFile.contentType ??
-            guessContentType(diskPath.split(".").pop()!),
+          contentType: mockFile.contentType ?? guessContentType(diskPath.split(".").pop()!),
         }),
       );
     }

@@ -2,11 +2,7 @@ import { afterEach, beforeEach, expect, test } from "vitest";
 import { MockFirebaseData } from "../mocks/types.js";
 import { FirestoreHelper } from "./FirestoreHelper.js";
 import { firestore } from "./app.js";
-import {
-  getFirebaseChanges,
-  mockFirebase,
-  restoreFirebase,
-} from "./mockfirebase.js";
+import { getFirebaseChanges, mockFirebase, restoreFirebase } from "./mockfirebase.js";
 
 beforeEach(async () => {
   mockFirebase();

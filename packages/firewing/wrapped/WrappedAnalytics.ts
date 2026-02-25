@@ -1,9 +1,4 @@
-import {
-  Analytics,
-  logEvent,
-  setUserId,
-  setUserProperties,
-} from "firebase/analytics";
+import { Analytics, logEvent, setUserId, setUserProperties } from "firebase/analytics";
 
 export class WrappedAnalytics {
   constructor(private readonly analytics: Analytics | null) {}

@@ -3,11 +3,7 @@ import { merge } from "crosswing/shared/merge";
 // We import these for types only - it's important that we don't use anything
 // besides types, or this module wouldn't run in Node.
 import type { Timestamp as AdminTimestamp } from "firebase-admin/firestore";
-import type {
-  Timestamp as ClientTimestamp,
-  FieldPath,
-  FieldValue,
-} from "firebase/firestore";
+import type { Timestamp as ClientTimestamp, FieldPath, FieldValue } from "firebase/firestore";
 
 /** Unified Timestamp type for use in both Admin and Client contexts. */
 export type Timestamp = AdminTimestamp | ClientTimestamp;
@@ -22,9 +18,7 @@ export function updateFieldPath<T extends object>(
   convertSentinels: any[] = [],
 ) {
   const [key, ...rest] =
-    typeof fieldPath === "string"
-      ? fieldPath.split(".")
-      : fieldPath["segments"];
+    typeof fieldPath === "string" ? fieldPath.split(".") : fieldPath["segments"];
 
   if (rest.length > 0) {
     // Auto-create empty objects as necessary.
@@ -88,20 +82,12 @@ export function updateFieldPath<T extends object>(
  * production by Firebase's SDK.
  */
 export function getFieldValueOperand(fieldValue: any): any | undefined {
-  const key = Object.keys(fieldValue._delegate ?? fieldValue).find(
-    (k) => k !== "_methodName",
-  );
+  const key = Object.keys(fieldValue._delegate ?? fieldValue).find((k) => k !== "_methodName");
   return key ? (fieldValue._delegate ?? fieldValue)[key] : undefined;
 }
 
-export function getFieldValue(
-  data: object,
-  fieldPath: FieldPath | string,
-): any {
-  const path =
-    typeof fieldPath === "string"
-      ? fieldPath.split(".")
-      : fieldPath["segments"];
+export function getFieldValue(data: object, fieldPath: FieldPath | string): any {
+  const path = typeof fieldPath === "string" ? fieldPath.split(".") : fieldPath["segments"];
   let val = data;
   for (const segment of path) {
     if (!val || val[segment] === undefined) return undefined;
@@ -110,14 +96,8 @@ export function getFieldValue(
   return val;
 }
 
-export function isFieldValueMissing(
-  data: object,
-  fieldPath: FieldPath | string,
-): boolean {
-  const path =
-    typeof fieldPath === "string"
-      ? fieldPath.split(".")
-      : fieldPath["segments"];
+export function isFieldValueMissing(data: object, fieldPath: FieldPath | string): boolean {
+  const path = typeof fieldPath === "string" ? fieldPath.split(".") : fieldPath["segments"];
   let val = data;
   for (const segment of path) {
     if (!val || !(segment in val)) return true;
@@ -164,10 +144,7 @@ export function flattenObject(data: any): { [fieldPath: string]: any } {
 /**
  * Clones the given data and applies a FirestoreMerge object to it.
  */
-export function cloneWithMerge<T extends object>(
-  data: T,
-  mergeData: FirestoreMerge<T>,
-): T {
+export function cloneWithMerge<T extends object>(data: T, mergeData: FirestoreMerge<T>): T {
   // The mergeData object is an object of the same "shape" as the data object,
   // but with only the fields that contain changes. Because we already wrote
   // updateFieldPath above, we can use it if we "flatten" mergeData into an
@@ -179,8 +156,7 @@ export function cloneWithMerge<T extends object>(
 
 /** Check if an object is "plain" versus some placeholder class like FieldValue. */
 const isPlainObject = (obj: object | null): boolean =>
-  obj?.constructor === Object &&
-  Object.getPrototypeOf(obj) === Object.prototype;
+  obj?.constructor === Object && Object.getPrototypeOf(obj) === Object.prototype;
 
 // Copied from useFirestoreHelper.ts.
 

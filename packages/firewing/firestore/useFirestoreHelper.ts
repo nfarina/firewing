@@ -4,11 +4,7 @@ import type { FieldValue } from "firebase/firestore";
 import { use } from "react";
 import { FirebaseAppContext } from "../FirebaseAppProvider.js";
 import { getAutoName } from "../shared/getAutoName.js";
-import {
-  cloneWithMerge,
-  cloneWithUpdates,
-  getFieldValue,
-} from "../shared/shared.js";
+import { cloneWithMerge, cloneWithUpdates, getFieldValue } from "../shared/shared.js";
 import {
   WrappedCollectionReference,
   WrappedDocumentReference,
@@ -118,9 +114,7 @@ export function useFirestoreHelper() {
    * Gets a collection of documents from Firestore and converts the elements
    * to "flattened" objects of the given type.
    */
-  async function getAll<T extends { id?: string }>(
-    query: WrappedQuery<T>,
-  ): Promise<T[]> {
+  async function getAll<T extends { id?: string }>(query: WrappedQuery<T>): Promise<T[]> {
     const snapshot = await query.get();
     return snapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id }) as T);
   }
@@ -135,11 +129,7 @@ export function useFirestoreHelper() {
    * @param data Existing document data.
    * @param updateData "Patch" format data to update the document with.
    */
-  async function update<
-    T extends { id?: string },
-    U extends T,
-    D extends U | null,
-  >(
+  async function update<T extends { id?: string }, U extends T, D extends U | null>(
     batch: WrappedWriteBatch | null | undefined,
     // Allow "wider" collection types, for instance, union types of which U is
     // a member.
@@ -153,9 +143,7 @@ export function useFirestoreHelper() {
       // Toss this in the console both for logging and easy copy/paste for
       // debugging.
       debug(
-        `await app().firestore().doc("${
-          documentRef.path
-        }").update(${JSON.stringify(updateData)})`,
+        `await app().firestore().doc("${documentRef.path}").update(${JSON.stringify(updateData)})`,
       );
 
       events.emit("firestoreUpdate", documentRef, updateData);
@@ -188,11 +176,7 @@ export function useFirestoreHelper() {
    * @param data Existing document data.
    * @param mergeData Data in the same "shape" as the existing data.
    */
-  async function merge<
-    T extends { id?: string },
-    U extends T,
-    D extends U | null,
-  >(
+  async function merge<T extends { id?: string }, U extends T, D extends U | null>(
     batch: WrappedWriteBatch | null | undefined,
     documentRef: WrappedDocumentReference<T>,
     /** Pass null if you don't need to update an in-memory copy of this record. */
@@ -262,8 +246,7 @@ export function useFirestoreHelper() {
    * collection.
    */
   async function getAutoId(specifier: string): Promise<string> {
-    const [collectionPath, documentId, ...fieldComponents] =
-      specifier.split(".");
+    const [collectionPath, documentId, ...fieldComponents] = specifier.split(".");
 
     // These may be empty or undefined.
     const fieldPath = fieldComponents.join(".");
@@ -276,12 +259,7 @@ export function useFirestoreHelper() {
         const prefix = getAutoName(keyName || collectionPath); // Like "report" from "accounting/reports"
 
         const document =
-          documentId &&
-          (await app()
-            .firestore()
-            .collection(collectionPath)
-            .doc(documentId)
-            .get());
+          documentId && (await app().firestore().collection(collectionPath).doc(documentId).get());
 
         let attempts = 0;
 
@@ -300,9 +278,7 @@ export function useFirestoreHelper() {
           if (document) {
             const data = document.data();
             if (!document.exists || !data) {
-              throw new Error(
-                `Document at ${collectionPath}/${documentId} does not exist`,
-              );
+              throw new Error(`Document at ${collectionPath}/${documentId} does not exist`);
             }
             const existing = getFieldValue(data, fieldPath + "." + newId);
             if (!existing) {

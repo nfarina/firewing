@@ -21,9 +21,7 @@ export async function waitForFirestore(
       // Start the clock ticking.
       const timeoutId = setTimeout(() => {
         stopListening();
-        reject(
-          new Error(`Timed out: condition not satisfied within ${timeout}ms.`),
-        );
+        reject(new Error(`Timed out: condition not satisfied within ${timeout}ms.`));
       }, timeout);
 
       stopTimer = () => clearTimeout(timeoutId);

@@ -38,11 +38,7 @@ function Inner() {
       <div style={peopleStyle}>
         {people?.map((person, i) => (
           <div
-            style={
-              i === 0
-                ? personStyle
-                : { ...personStyle, borderTop: "1px solid #d1d1d1" }
-            }
+            style={i === 0 ? personStyle : { ...personStyle, borderTop: "1px solid #d1d1d1" }}
             key={i}
           >
             {person.name}

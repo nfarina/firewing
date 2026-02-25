@@ -94,26 +94,16 @@ export interface FirebaseEvents {
     elapsed: number;
     retries: number;
   }) => void;
-  firestoreCreate: (
-    documentRef: WrappedDocumentReference,
-    data: Record<string, any>,
-  ) => void;
-  firestoreUpdate: (
-    documentRef: WrappedDocumentReference,
-    updateData: Record<string, any>,
-  ) => void;
-  firestoreMerge: (
-    documentRef: WrappedDocumentReference,
-    mergeData: Record<string, any>,
-  ) => void;
+  firestoreCreate: (documentRef: WrappedDocumentReference, data: Record<string, any>) => void;
+  firestoreUpdate: (documentRef: WrappedDocumentReference, updateData: Record<string, any>) => void;
+  firestoreMerge: (documentRef: WrappedDocumentReference, mergeData: Record<string, any>) => void;
   firestoreDelete: (documentRef: WrappedDocumentReference) => void;
 }
 
 export class FirebaseEventEmitter extends EventEmitter<FirebaseEvents> {}
 
 // Must define this below the class definition.
-export const FirebaseAppContext =
-  createContext<FirebaseAppAccessor>(getDefaultContext());
+export const FirebaseAppContext = createContext<FirebaseAppAccessor>(getDefaultContext());
 
 function getDefaultContext() {
   const context: FirebaseAppAccessor = () => {

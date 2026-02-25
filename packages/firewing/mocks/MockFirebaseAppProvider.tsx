@@ -1,10 +1,7 @@
 import { useResettableState } from "crosswing/hooks/useResettableState";
 import Debug from "debug";
 import { ReactElement, useEffect, useLayoutEffect, useState } from "react";
-import {
-  FirebaseAppContext,
-  FirebaseEventEmitter,
-} from "../FirebaseAppProvider.js";
+import { FirebaseAppContext, FirebaseEventEmitter } from "../FirebaseAppProvider.js";
 import { useFirestoreGlobalHelpers } from "../firestore/useFirestoreGlobalHelpers.js";
 import { useFirebaseGlobalHelpers } from "../useFirebaseGlobalHelpers.js";
 import { MockAnalytics } from "./MockAnalytics.js";
@@ -97,14 +94,11 @@ export function MockFirebaseAppProvider({
       debug("rpcComplete", group, name, rest);
     };
 
-    const firestoreCreate = (ref: any, data: any) =>
-      debug("firestoreCreate", ref.path, data);
+    const firestoreCreate = (ref: any, data: any) => debug("firestoreCreate", ref.path, data);
 
-    const firestoreUpdate = (ref: any, data: any) =>
-      debug("firestoreUpdate", ref.path, data);
+    const firestoreUpdate = (ref: any, data: any) => debug("firestoreUpdate", ref.path, data);
 
-    const firestoreMerge = (ref: any, data: any) =>
-      debug("firestoreMerge", ref.path, data);
+    const firestoreMerge = (ref: any, data: any) => debug("firestoreMerge", ref.path, data);
 
     const firestoreDelete = (ref: any) => debug("firestoreDelete", ref.path);
 

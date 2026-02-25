@@ -24,10 +24,7 @@ export class WrappedStorage {
 export class WrappedStorageReference {
   constructor(private readonly ref: StorageReference) {}
 
-  public put(
-    data: Blob | Uint8Array | ArrayBuffer,
-    metadata?: UploadMetadata,
-  ): UploadTask {
+  public put(data: Blob | Uint8Array | ArrayBuffer, metadata?: UploadMetadata): UploadTask {
     return uploadBytesResumable(this.ref, data, metadata);
   }
 

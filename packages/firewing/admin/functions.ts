@@ -1,10 +1,7 @@
 import type { FunctionsErrorCode } from "firebase-functions/v2/https";
 import { HttpsError } from "firebase-functions/v2/identity";
 
-export type UserFacingErrorOptions = Record<
-  string,
-  string | number | boolean
-> & {
+export type UserFacingErrorOptions = Record<string, string | number | boolean> & {
   /** If true, the error should not be sent to alert destinations like Discord. */
   silent?: boolean;
   /** A code describing the nature of the error, can be converted to a HTTP status code. */

@@ -29,9 +29,7 @@ export class MockFunctions {
         const result = await func({ ...data, firestore });
         return { data: result };
       } else {
-        console.error(
-          `No mock function defined for ${group}.${name}; returning empty object.`,
-        );
+        console.error(`No mock function defined for ${group}.${name}; returning empty object.`);
         return { data: {} };
       }
     }

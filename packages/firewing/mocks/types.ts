@@ -21,10 +21,7 @@ export interface MockAuthUser {
 
 // Firestore
 
-export type MockFirestoreData = Record<
-  string,
-  MockFirestoreCollection | undefined
->;
+export type MockFirestoreData = Record<string, MockFirestoreCollection | undefined>;
 
 export type MockFirestoreCollection = Record<string, MockFirestoreDocument>;
 export type MockFirestoreDocument = any;

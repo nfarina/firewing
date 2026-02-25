@@ -2,10 +2,7 @@ import { DeepPartial, merge } from "crosswing/shared/merge";
 import { wait } from "crosswing/shared/wait";
 import Debug from "debug";
 import { use } from "react";
-import {
-  FirebaseAppAccessor,
-  FirebaseAppContext,
-} from "../FirebaseAppProvider.js";
+import { FirebaseAppAccessor, FirebaseAppContext } from "../FirebaseAppProvider.js";
 
 const debug = Debug("firewing:rpc");
 
@@ -52,23 +49,14 @@ export function useFirebaseRpc<S extends RpcFunctions>({
 }: { automaticRetries?: boolean } = {}): RpcClient<S> {
   const app = use(FirebaseAppContext);
 
-  return function rpc<
-    G extends keyof RpcFunctions,
-    N extends keyof S[G],
-    T extends S[G][N],
-  >(
+  return function rpc<G extends keyof RpcFunctions, N extends keyof S[G], T extends S[G][N]>(
     group: G,
     name: N,
     data: Parameters<T>[0] = {},
-    {
-      redact,
-      silent = false,
-    }: RpcOptions<Parameters<T>[0], Awaited<ReturnType<T>>> = {},
+    { redact, silent = false }: RpcOptions<Parameters<T>[0], Awaited<ReturnType<T>>> = {},
   ): ReturnType<T> {
     // Generate a unique ID for this request.
-    const requestId = silent
-      ? null
-      : app().firestore().collection("rpcRequesets").doc().id;
+    const requestId = silent ? null : app().firestore().collection("rpcRequesets").doc().id;
 
     // Redact any sensitive data.
     const dataForLogging = merge(data, redact?.request ?? {});
@@ -160,8 +148,7 @@ async function makeRpcRequestWithRetries({
   let retries = 0;
 
   // For less verbose logging.
-  const last4 =
-    requestId?.substring(requestId.length - 4) ?? "<silent request>";
+  const last4 = requestId?.substring(requestId.length - 4) ?? "<silent request>";
 
   while (true) {
     try {
@@ -191,9 +178,7 @@ async function makeRpcRequestWithRetries({
 
         // Don't retry if you don't want us to!
         if (!automaticRetries) {
-          console.error(
-            `Connection error; automatic retries disabled. [${last4}] (${stat})`,
-          );
+          console.error(`Connection error; automatic retries disabled. [${last4}] (${stat})`);
           return { error, elapsed, retries };
         }
 
@@ -204,9 +189,7 @@ async function makeRpcRequestWithRetries({
           return { error, elapsed, retries };
         }
 
-        console.error(
-          `Connection error; will retry after ${retry}ms. [${last4}] (${stat})`,
-        );
+        console.error(`Connection error; will retry after ${retry}ms. [${last4}] (${stat})`);
 
         // Try again later.
         await wait(retry);

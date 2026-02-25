@@ -1,9 +1,6 @@
 import { DocumentSnapshot } from "firebase/firestore";
 import { MockQuery } from "../mocks/MockFirestore.js";
-import {
-  WrappedCollectionReference,
-  WrappedQuery,
-} from "../wrapped/WrappedFirestore.js";
+import { WrappedCollectionReference, WrappedQuery } from "../wrapped/WrappedFirestore.js";
 
 export interface IterationResult {
   id: string;
@@ -29,9 +26,7 @@ export async function* iterateAll<T extends { id?: string }>(
   let pageSize = hardLimit ? Math.min(hardLimit, 10) : 10; // start small and double on each request.
 
   while (true) {
-    const nextQuery = !lastDoc
-      ? query.limit(pageSize)
-      : query.startAfter(lastDoc).limit(pageSize);
+    const nextQuery = !lastDoc ? query.limit(pageSize) : query.startAfter(lastDoc).limit(pageSize);
 
     const querySnapshot = await nextQuery.get();
 
@@ -67,9 +62,7 @@ export async function* iterateAll<T extends { id?: string }>(
   }
 }
 
-function getHardLimit(
-  query: WrappedQuery<any> | WrappedCollectionReference<any>,
-): number | null {
+function getHardLimit(query: WrappedQuery<any> | WrappedCollectionReference<any>): number | null {
   if (query instanceof MockQuery) {
     return query.params.limit ?? null;
   }

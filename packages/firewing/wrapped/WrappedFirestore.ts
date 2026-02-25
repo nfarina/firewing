@@ -45,9 +45,7 @@ export class WrappedFirestore {
   }
 
   public collection<T = any>(path: string): WrappedCollectionReference<T> {
-    return new WrappedCollectionReference(
-      collection(this.firestore, path) as any,
-    );
+    return new WrappedCollectionReference(collection(this.firestore, path) as any);
   }
 
   public batch(): WrappedWriteBatch {
@@ -75,24 +73,15 @@ export class WrappedQuery<T = any> {
     return this.query;
   }
 
-  public where(
-    fieldPath: string | FieldPath,
-    opStr: WhereFilterOp,
-    value: any,
-  ): WrappedQuery<T> {
+  public where(fieldPath: string | FieldPath, opStr: WhereFilterOp, value: any): WrappedQuery<T> {
     const newQuery = query(this.query, where(fieldPath, opStr, value));
     return new WrappedQuery(
       newQuery,
-      `${this.descriptor}.where("${fieldPath}", "${opStr}", ${JSON.stringify(
-        value,
-      )})`,
+      `${this.descriptor}.where("${fieldPath}", "${opStr}", ${JSON.stringify(value)})`,
     );
   }
 
-  public orderBy(
-    fieldPath: string,
-    directionStr?: OrderByDirection,
-  ): WrappedQuery<T> {
+  public orderBy(fieldPath: string, directionStr?: OrderByDirection): WrappedQuery<T> {
     const newQuery = query(this.query, orderBy(fieldPath, directionStr));
     return new WrappedQuery(
       newQuery,
@@ -111,9 +100,7 @@ export class WrappedQuery<T = any> {
 
   public startAfter(snapshot: DocumentSnapshot<T>): WrappedQuery<T> {
     const newQuery = query(this.query, startAfter(snapshot));
-    const newDescriptor = `${this.descriptor}.startAfter(${serializeSnapshot(
-      snapshot,
-    )})`;
+    const newDescriptor = `${this.descriptor}.startAfter(${serializeSnapshot(snapshot)})`;
     return new WrappedQuery(newQuery, newDescriptor);
   }
 
@@ -128,9 +115,7 @@ export class WrappedQuery<T = any> {
 
   public endBefore(snapshot: DocumentSnapshot<T>): WrappedQuery<T> {
     const newQuery = query(this.query, endBefore(snapshot));
-    const newDescriptor = `${this.descriptor}.endBefore(${serializeSnapshot(
-      snapshot,
-    )})`;
+    const newDescriptor = `${this.descriptor}.endBefore(${serializeSnapshot(snapshot)})`;
     return new WrappedQuery(newQuery, newDescriptor);
   }
 
@@ -160,10 +145,7 @@ export class WrappedQuery<T = any> {
     try {
       return await getDocs(this.query);
     } catch (error: any) {
-      console.error(
-        `Error getting docs for ${this.descriptor}:`,
-        error?.message,
-      );
+      console.error(`Error getting docs for ${this.descriptor}:`, error?.message);
       throw error;
     }
   }
@@ -174,10 +156,7 @@ export class WrappedQuery<T = any> {
     onError?: (error: Error) => void,
   ): () => void {
     const onErrorWrapper = (error: Error) => {
-      console.error(
-        `Error on snapshot for ${this.descriptor}:`,
-        error?.message,
-      );
+      console.error(`Error on snapshot for ${this.descriptor}:`, error?.message);
       onError?.(error);
     };
 
@@ -188,9 +167,7 @@ export class WrappedQuery<T = any> {
 export class WrappedCountQuery {
   constructor(protected readonly query: Query<any>) {}
 
-  public async get(): Promise<
-    AggregateQuerySnapshot<{ count: AggregateField<number> }>
-  > {
+  public async get(): Promise<AggregateQuerySnapshot<{ count: AggregateField<number> }>> {
     return getCountFromServer(this.query);
   }
 }
@@ -265,12 +242,8 @@ export class WrappedDocumentReference<T = any> {
   ): () => void;
 
   public onSnapshot(
-    optionsOrNext:
-      | SnapshotListenOptions
-      | ((snapshot: DocumentSnapshot<T>) => void),
-    onNextOrError?:
-      | ((snapshot: DocumentSnapshot<T>) => void)
-      | ((error: Error) => void),
+    optionsOrNext: SnapshotListenOptions | ((snapshot: DocumentSnapshot<T>) => void),
+    onNextOrError?: ((snapshot: DocumentSnapshot<T>) => void) | ((error: Error) => void),
     onError?: (error: Error) => void,
   ): () => void {
     const onErrorWrapper = (error: Error) => {
@@ -278,12 +251,7 @@ export class WrappedDocumentReference<T = any> {
       onError?.(error);
     };
 
-    return onSnapshot(
-      this.ref as any,
-      optionsOrNext as any,
-      onNextOrError as any,
-      onErrorWrapper,
-    );
+    return onSnapshot(this.ref as any, optionsOrNext as any, onNextOrError as any, onErrorWrapper);
   }
 
   public async set(data: any, options: SetOptions = {}): Promise<void> {
@@ -317,11 +285,7 @@ export class WrappedDocumentReference<T = any> {
 export class WrappedWriteBatch {
   constructor(private readonly batch: WriteBatch) {}
 
-  public set<T>(
-    ref: WrappedDocumentReference<T>,
-    data: any,
-    options: SetOptions = {},
-  ) {
+  public set<T>(ref: WrappedDocumentReference<T>, data: any, options: SetOptions = {}) {
     return this.batch.set(unwrap(ref), data as any, options);
   }
 

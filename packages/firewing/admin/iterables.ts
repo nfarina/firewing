@@ -1,8 +1,4 @@
-import {
-  CollectionReference,
-  DocumentSnapshot,
-  Query,
-} from "firebase-admin/firestore";
+import { CollectionReference, DocumentSnapshot, Query } from "firebase-admin/firestore";
 
 /**
  * Iterates through the given query, returning an iterator for all

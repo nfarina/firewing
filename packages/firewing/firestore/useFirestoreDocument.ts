@@ -2,11 +2,7 @@ import { useResettableState } from "crosswing/hooks/useResettableState";
 import Debug from "debug";
 import { DocumentSnapshot } from "firebase/firestore";
 import { DependencyList, use, useEffect } from "react";
-import {
-  Falsy,
-  FirebaseAppAccessor,
-  FirebaseAppContext,
-} from "../FirebaseAppProvider.js";
+import { Falsy, FirebaseAppAccessor, FirebaseAppContext } from "../FirebaseAppProvider.js";
 import { WrappedDocumentReference } from "../wrapped/WrappedFirestore.js";
 
 const debug = Debug("firewing:document");
@@ -33,10 +29,7 @@ export function useFirestoreDocument<T extends { id?: string }>(
 
   // Use resettable state so that if our deps change, our value gets cleared
   // out right away.
-  const [value, setValue] = useResettableState<T | null | undefined>(
-    undefined,
-    deps,
-  );
+  const [value, setValue] = useResettableState<T | null | undefined>(undefined, deps);
 
   useEffect(() => {
     // We always have to call useEffect() because of Rules for Hooks.
@@ -55,11 +48,7 @@ export function useFirestoreDocument<T extends { id?: string }>(
         // and `exists` as false. We don't want to pretend we *know* this data
         // doesn't exist, becuase of course we don't know anything yet! But
         // we don't do this check if persistence is enabled.
-        if (
-          !persistenceEnabled &&
-          !snapshot.exists() &&
-          snapshot.metadata.fromCache
-        ) {
+        if (!persistenceEnabled && !snapshot.exists() && snapshot.metadata.fromCache) {
           setValue(undefined);
         } else {
           setValue(snapshotToObject<T>(snapshot));
@@ -96,9 +85,7 @@ export function useFirestoreDocument<T extends { id?: string }>(
  * that no runtime checks are performed to ensure that the snapshots are valid
  * instances of that type!
  */
-export function snapshotToObject<T extends { id?: string }>(
-  snapshot: DocumentSnapshot,
-): T | null {
+export function snapshotToObject<T extends { id?: string }>(snapshot: DocumentSnapshot): T | null {
   if (snapshot.exists()) {
     return { ...snapshot.data(), id: snapshot.id } as T;
   } else {

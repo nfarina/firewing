@@ -23,10 +23,7 @@ describe("queries documents", () => {
   });
 
   test("gets documents by id", async () => {
-    const message = await firestore
-      .collection("messages")
-      .doc("message2")
-      .get();
+    const message = await firestore.collection("messages").doc("message2").get();
 
     expect(message.data()).toEqual(message2);
   });
@@ -39,19 +36,13 @@ describe("queries documents", () => {
   });
 
   test("compares using equality filters", async () => {
-    const messages = await firestore
-      .collection("messages")
-      .where("text", "==", "Red.")
-      .get();
+    const messages = await firestore.collection("messages").where("text", "==", "Red.").get();
 
     expect(messages.docs.map((doc) => doc.data())).toEqual([message2]);
   });
 
   test("compares using inequality filters", async () => {
-    const messages = await firestore
-      .collection("messages")
-      .where("created", ">", 150)
-      .get();
+    const messages = await firestore.collection("messages").where("created", ">", 150).get();
 
     expect(messages.docs.map((doc) => doc.data())).toEqual([message2]);
   });
@@ -63,27 +54,15 @@ describe("queries documents", () => {
   });
 
   test("sorts results ascending", async () => {
-    const messages = await firestore
-      .collection("messages")
-      .orderBy("created", "asc")
-      .get();
+    const messages = await firestore.collection("messages").orderBy("created", "asc").get();
 
-    expect(messages.docs.map((doc) => doc.data())).toEqual([
-      message1,
-      message2,
-    ]);
+    expect(messages.docs.map((doc) => doc.data())).toEqual([message1, message2]);
   });
 
   test("sorts results descending", async () => {
-    const messages = await firestore
-      .collection("messages")
-      .orderBy("created", "desc")
-      .get();
+    const messages = await firestore.collection("messages").orderBy("created", "desc").get();
 
-    expect(messages.docs.map((doc) => doc.data())).toEqual([
-      message2,
-      message1,
-    ]);
+    expect(messages.docs.map((doc) => doc.data())).toEqual([message2, message1]);
   });
 
   test("sorts results by multiple fields", async () => {
@@ -93,10 +72,7 @@ describe("queries documents", () => {
       .orderBy("created", "desc")
       .get();
 
-    expect(messages.docs.map((doc) => doc.data())).toEqual([
-      message2,
-      message1,
-    ]);
+    expect(messages.docs.map((doc) => doc.data())).toEqual([message2, message1]);
   });
 
   test("starts at a given field value", async () => {

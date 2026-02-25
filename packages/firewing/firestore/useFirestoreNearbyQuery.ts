@@ -1,17 +1,9 @@
 import { useResettableState } from "crosswing/hooks/useResettableState";
-import {
-  AnyLatLng,
-  getDistance,
-  getGeohashQueryBounds,
-} from "crosswing/shared/geo";
+import { AnyLatLng, getDistance, getGeohashQueryBounds } from "crosswing/shared/geo";
 import Debug from "debug";
 import { QuerySnapshot } from "firebase/firestore";
 import { DependencyList, use, useEffect } from "react";
-import {
-  Falsy,
-  FirebaseAppAccessor,
-  FirebaseAppContext,
-} from "../FirebaseAppProvider.js";
+import { Falsy, FirebaseAppAccessor, FirebaseAppContext } from "../FirebaseAppProvider.js";
 import { getFieldValue } from "../shared/shared.js";
 import { WrappedQuery } from "../wrapped/WrappedFirestore.js";
 import { snapshotToArray } from "./useFirestoreQuery.js";
@@ -48,9 +40,10 @@ export function useFirestoreNearbyQuery<T extends { id?: string }>(
   // Use resettable state so that if our deps change, our value gets cleared
   // out right away. Note that we don't reset state completely just for location
   // or radius changes.
-  const [resultMap, setResultMap] = useResettableState<
-    Map<string, T[] | undefined> | undefined
-  >(undefined, deps);
+  const [resultMap, setResultMap] = useResettableState<Map<string, T[] | undefined> | undefined>(
+    undefined,
+    deps,
+  );
 
   useEffect(() => {
     const q = query(app);

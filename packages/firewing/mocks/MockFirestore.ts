@@ -13,12 +13,7 @@ import {
 
 // Important that we only import types, or else we couldn't use this in Node.
 import { runWithMutex } from "crosswing/shared/mutex";
-import type {
-  FieldPath,
-  OrderByDirection,
-  SetOptions,
-  WhereFilterOp,
-} from "firebase/firestore";
+import type { FieldPath, OrderByDirection, SetOptions, WhereFilterOp } from "firebase/firestore";
 
 const debug = Debug("firewing:firestore");
 
@@ -107,9 +102,7 @@ export class MockFirestore<
   public updateFieldPathForChange(fieldPath: string | FieldPath, value: any) {
     // Allow values of "<deleted>" to be overwritten with auto-created objects.
     updateFieldPath(this.changes, fieldPath, value, [FirestoreDeleted]);
-    updateFieldPath(this.changesSinceLastEvent, fieldPath, value, [
-      FirestoreDeleted,
-    ]);
+    updateFieldPath(this.changesSinceLastEvent, fieldPath, value, [FirestoreDeleted]);
   }
 
   public emitChangeEvent() {
@@ -153,13 +146,9 @@ export class MockFirestore<
     return nextId;
   }
 
-  public collection<U extends keyof T>(
-    collectionPath: U,
-  ): MockCollectionReference<T, U> {
+  public collection<U extends keyof T>(collectionPath: U): MockCollectionReference<T, U> {
     if (!collectionPath)
-      throw new Error(
-        "Must provide a collectionPath when calling collection().",
-      );
+      throw new Error("Must provide a collectionPath when calling collection().");
 
     return new MockCollectionReference<T, U>(this, collectionPath);
   }
@@ -250,28 +239,18 @@ export class MockQuery<T extends MockFirestoreCollections, U extends keyof T> {
     public collectionRef: MockCollectionReference<T, U> = "reject" as any,
     public params: MockQueryParams = { where: [], order: [] },
   ) {
-    if (
-      (collectionRef as any) === "reject" &&
-      !(this instanceof MockCollectionReference)
-    ) {
+    if ((collectionRef as any) === "reject" && !(this instanceof MockCollectionReference)) {
       throw new Error("collectionRef is required in new MockQuery().");
     }
   }
 
-  public where(
-    fieldPath: string,
-    opStr: WhereFilterOp,
-    value: any,
-  ): MockQuery<T, U> {
+  public where(fieldPath: string, opStr: WhereFilterOp, value: any): MockQuery<T, U> {
     const newParams = { ...this.params };
     newParams.where.push([fieldPath, opStr, value]);
     return new MockQuery(this.firestore, this.collectionRef, newParams);
   }
 
-  public orderBy(
-    fieldPath: FieldPath | string,
-    directionStr: OrderByDirection,
-  ): MockQuery<T, U> {
+  public orderBy(fieldPath: FieldPath | string, directionStr: OrderByDirection): MockQuery<T, U> {
     const newParams = { ...this.params };
     newParams.order.push([fieldPath, directionStr]);
     return new MockQuery(this.firestore, this.collectionRef, newParams);
@@ -314,11 +293,7 @@ export class MockQuery<T extends MockFirestoreCollections, U extends keyof T> {
   }
 
   public count(): MockQuery<T, U> {
-    const query = new MockQuery(
-      this.firestore,
-      this.collectionRef,
-      this.params,
-    );
+    const query = new MockQuery(this.firestore, this.collectionRef, this.params);
     query.isCountOnly = true;
     return query;
   }
@@ -380,11 +355,7 @@ export class MockQuery<T extends MockFirestoreCollections, U extends keyof T> {
     return this.compareValues(valueA, valueB, direction);
   }
 
-  private compareValues(
-    valueA: any,
-    valueB: any,
-    direction: OrderByDirection,
-  ): number {
+  private compareValues(valueA: any, valueB: any, direction: OrderByDirection): number {
     let result = 0;
 
     if (valueA == null && valueB != null) {
@@ -418,9 +389,7 @@ export class MockQuery<T extends MockFirestoreCollections, U extends keyof T> {
     );
 
     // Apply sorts in reverse order since JS sort is stable.
-    for (const [i, [fieldPath, direction]] of Object.entries(
-      this.params.order,
-    ).reverse()) {
+    for (const [i, [fieldPath, direction]] of Object.entries(this.params.order).reverse()) {
       entries.sort(([, a], [, b]) => this.compare(a, b, fieldPath, direction));
 
       // Apply startAt/startAfter/endAt/endBefore.
@@ -482,10 +451,7 @@ export class MockQuery<T extends MockFirestoreCollections, U extends keyof T> {
     return new MockQuerySnapshot(this, data);
   }
 
-  public onSnapshot(
-    optionsOrHandler: any,
-    handler: any = optionsOrHandler,
-  ): () => void {
+  public onSnapshot(optionsOrHandler: any, handler: any = optionsOrHandler): () => void {
     const { firestore, collectionRef } = this;
     const { collectionPath } = collectionRef;
 
@@ -511,11 +477,7 @@ export class MockQuery<T extends MockFirestoreCollections, U extends keyof T> {
       if (!shallowEqualArrays(docs, lastDocs)) {
         lastData = data;
 
-        debug(
-          `Firestore onSnapshot to query for collection ${String(
-            collectionPath,
-          )}`,
-        );
+        debug(`Firestore onSnapshot to query for collection ${String(collectionPath)}`);
 
         const snapshot = new MockQuerySnapshot(this, data);
 
@@ -579,11 +541,7 @@ export class MockCollectionReference<
         // Make sure this document doesn't exist already! We might not catch all
         // instances because we're not considering batches or transactions that
         // could be in progress.
-        const maybeExisting = new MockDocumentReference(
-          this.firestore,
-          this,
-          documentId,
-        ).getData();
+        const maybeExisting = new MockDocumentReference(this.firestore, this, documentId).getData();
         if (maybeExisting === null || maybeExisting === LoadsForever) {
           break;
         }
@@ -597,10 +555,7 @@ export class MockCollectionReference<
   }
 }
 
-export class MockQuerySnapshot<
-  T extends MockFirestoreCollections,
-  U extends keyof T,
-> {
+export class MockQuerySnapshot<T extends MockFirestoreCollections, U extends keyof T> {
   public metadata = {};
 
   constructor(
@@ -616,10 +571,7 @@ export class MockQuerySnapshot<
   }
 }
 
-export class MockDocumentReference<
-  T extends MockFirestoreCollections,
-  U extends keyof T,
-> {
+export class MockDocumentReference<T extends MockFirestoreCollections, U extends keyof T> {
   constructor(
     private firestore: MockFirestore<T>,
     private collectionRef: MockCollectionReference<T, U>,
@@ -634,10 +586,7 @@ export class MockDocumentReference<
     const collectionPath = `${String(
       collectionRef.collectionPath,
     )}/${documentId}/${subcollectionPath}`;
-    return new MockCollectionReference<T, U>(
-      this.firestore,
-      collectionPath as any,
-    );
+    return new MockCollectionReference<T, U>(this.firestore, collectionPath as any);
   }
 
   get path(): string {
@@ -691,10 +640,7 @@ export class MockDocumentReference<
     return new MockDocumentSnapshot(this, data);
   }
 
-  public onSnapshot(
-    optionsOrHandler: any,
-    handler: any = optionsOrHandler,
-  ): () => void {
+  public onSnapshot(optionsOrHandler: any, handler: any = optionsOrHandler): () => void {
     const { firestore, collectionRef, documentId } = this;
     const { collectionPath } = collectionRef;
 
@@ -758,18 +704,14 @@ export class MockDocumentReference<
         const resolvedValue = getFieldValue(finalData, fieldPath);
         this.firestore.updateFieldPathForChange(
           changePath,
-          isFieldValueMissing(finalData, fieldPath)
-            ? FirestoreDeleted
-            : resolvedValue,
+          isFieldValueMissing(finalData, fieldPath) ? FirestoreDeleted : resolvedValue,
         );
       }
     } else if (options && "merge" in options && options.merge) {
       // Apply merge object and track changes. Copy logic from update() below.
       finalData = merge(this.getDataOrDefault()) as any; // Deep copy.
 
-      for (const [fieldPath, change] of Object.entries(
-        flattenObject(newData),
-      )) {
+      for (const [fieldPath, change] of Object.entries(flattenObject(newData))) {
         // Update newData with the change.
         updateFieldPath(finalData, fieldPath, change);
 
@@ -778,9 +720,7 @@ export class MockDocumentReference<
         const resolvedValue = getFieldValue(finalData, fieldPath);
         this.firestore.updateFieldPathForChange(
           changePath,
-          isFieldValueMissing(finalData, fieldPath)
-            ? FirestoreDeleted
-            : resolvedValue,
+          isFieldValueMissing(finalData, fieldPath) ? FirestoreDeleted : resolvedValue,
         );
       }
     } else {
@@ -803,10 +743,7 @@ export class MockDocumentReference<
     this.firestore.writeDocument(this, finalData);
   }
 
-  public async set(
-    newData: PartialDocumentData<T, T[U]>,
-    options?: SetOptions,
-  ) {
+  public async set(newData: PartialDocumentData<T, T[U]>, options?: SetOptions) {
     debug("set", this.path, newData);
 
     await wait(); // Some callers will expect a Promise to be returned.
@@ -819,9 +756,7 @@ export class MockDocumentReference<
     if (!this.exists()) {
       // Grab the current call stack before we return a promise (by using the
       // await keyword).
-      const error = new Error(
-        `Tried to update missing document at "${this.path}"`,
-      );
+      const error = new Error(`Tried to update missing document at "${this.path}"`);
       await wait(); // Some callers will expect a Promise to be returned.
       throw error;
     }
@@ -842,9 +777,7 @@ export class MockDocumentReference<
       const resolvedValue = getFieldValue(finalData, fieldPath);
       this.firestore.updateFieldPathForChange(
         changePath,
-        isFieldValueMissing(finalData, fieldPath)
-          ? FirestoreDeleted
-          : resolvedValue,
+        isFieldValueMissing(finalData, fieldPath) ? FirestoreDeleted : resolvedValue,
       );
     }
 
@@ -862,10 +795,7 @@ export class MockDocumentReference<
   }
 }
 
-export class MockDocumentSnapshot<
-  T extends MockFirestoreCollections,
-  U extends keyof T,
-> {
+export class MockDocumentSnapshot<T extends MockFirestoreCollections, U extends keyof T> {
   public metadata = {};
 
   constructor(
@@ -950,9 +880,7 @@ class MockFirestoreWriteBatch<T extends MockFirestoreCollections> {
     return this;
   }
 
-  public delete(
-    documentRef: MockDocumentReference<T, any>,
-  ): MockFirestoreWriteBatch<T> {
+  public delete(documentRef: MockDocumentReference<T, any>): MockFirestoreWriteBatch<T> {
     this.operations.push(() => documentRef.delete());
     return this;
   }
@@ -986,9 +914,7 @@ class MockFirestoreTransaction<T extends MockFirestoreCollections> {
     documentRef: MockDocumentReference<T, U>,
   ): Promise<MockDocumentSnapshot<T, U>> {
     if (this.preventReads) {
-      throw new Error(
-        "Cannot read from a transaction after data has been written.",
-      );
+      throw new Error("Cannot read from a transaction after data has been written.");
     }
 
     return documentRef.get();
@@ -1020,9 +946,7 @@ class MockFirestoreTransaction<T extends MockFirestoreCollections> {
     return this;
   }
 
-  public delete(
-    documentRef: MockDocumentReference<T, any>,
-  ): MockFirestoreTransaction<T> {
+  public delete(documentRef: MockDocumentReference<T, any>): MockFirestoreTransaction<T> {
     this.preventReads = true;
     this.batch.delete(documentRef);
     return this;

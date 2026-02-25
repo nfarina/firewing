@@ -129,16 +129,10 @@ export class FirestoreHelper {
         throw new Error(`The document at "${ref.path}" does not exist.`);
       } else if ("_path" in ref) {
         throw new Error(
-          `The query on ${(ref as any)._path.segments.join(
-            "/",
-          )} returned zero results.`,
+          `The query on ${(ref as any)._path.segments.join("/")} returned zero results.`,
         );
       } else if ("_query" in ref) {
-        throw new Error(
-          `The query on ${(
-            ref as any
-          )._query.toString()} returned zero results.`,
-        );
+        throw new Error(`The query on ${(ref as any)._query.toString()} returned zero results.`);
       } else {
         throw new Error("The query for getOne() returned zero results.");
       }
@@ -225,10 +219,7 @@ export class FirestoreHelper {
   /**
    * Deletes the given document from Firestore.
    */
-  public static async delete(
-    batch: WriteBatch | null | undefined,
-    documentRef: DocumentReference,
-  ) {
+  public static async delete(batch: WriteBatch | null | undefined, documentRef: DocumentReference) {
     if (batch) {
       batch.delete(documentRef);
     } else {
@@ -276,8 +267,7 @@ export async function getAutoId(specifier: string): Promise<string> {
       const prefix = getAutoName(keyName || collectionPath); // Like "report" from "accounting/reports"
 
       const document =
-        documentId &&
-        (await firestore().collection(collectionPath).doc(documentId).get());
+        documentId && (await firestore().collection(collectionPath).doc(documentId).get());
 
       while (true) {
         // Vend an ID from the storage map (that is automatically reset between tests
@@ -302,10 +292,7 @@ export async function getAutoId(specifier: string): Promise<string> {
           }
         } else {
           // Make sure this document doesn't exist already!
-          const maybeExisting = await firestore()
-            .collection(collectionPath)
-            .doc(newId)
-            .get();
+          const maybeExisting = await firestore().collection(collectionPath).doc(newId).get();
           if (!maybeExisting.exists) {
             return newId;
           }
