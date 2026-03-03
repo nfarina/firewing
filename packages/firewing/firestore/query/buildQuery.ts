@@ -188,7 +188,7 @@ function getValue(value: string | SqlWhereLogic): string | number | boolean | nu
       return Number(value);
     } else if (value.match(/^`{1}.*`{1}$/)) {
       // String wrapped in backticks for runtime eval, like `Date.now()`.
-      return eval(value.slice(1, -1));
+      return (0, eval)(value.slice(1, -1));
     } else {
       // Unquoted string.
       return value;
