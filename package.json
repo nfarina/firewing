@@ -66,5 +66,5 @@
     "react-is": "0.0.0-experimental-f9ae0a4c-20250527",
     "vite": "6.3.5"
   },
-  "packageManager": "yarn@4.9.2"
+  "packageManager": "yarn@4.13.0"
 }
