@@ -42,8 +42,7 @@
   },
   "scripts": {
     "build": "./build.sh",
-    "deploy": "npm run build && cd dist && npm publish",
-    "deploy:yalc": "npm run build && cd dist && yalc publish"
+    "deploy": "yarn build && cd dist && npm publish"
   },
   "dependencies": {
     "debug": "^4.4.3",
