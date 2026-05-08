@@ -122,13 +122,22 @@ export function cloneWithUpdates<T extends object>(
 /**
  * Flattens an object of the form { a: { b: { c: 1 } } } into
  * { "a.b.c": 1 }.
+ *
+ * Empty plain objects are treated as leaf values, not recursed into. This
+ * matches Firestore's `set merge:true` behavior, where writing an empty map
+ * at a field path overwrites any existing value at that path with an empty
+ * map (rather than being a no-op).
  */
 export function flattenObject(data: any): { [fieldPath: string]: any } {
   const flattened: any = {};
 
   function addValues(obj: any, path: string[]) {
     for (const [key, value] of Object.entries(obj)) {
-      if (typeof value === "object" && isPlainObject(value)) {
+      if (
+        typeof value === "object" &&
+        isPlainObject(value) &&
+        Object.keys(value as object).length > 0
+      ) {
         addValues(value, [...path, key]);
       } else {
         flattened[[...path, key].join(".")] = value;
