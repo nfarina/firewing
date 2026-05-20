@@ -9,11 +9,19 @@
  * - Backtick expressions like `` `data.foo + 1` AS foo `` are evaluated with
  *   the row's own keys (plus `data` and any caller-supplied `evalScope`) in
  *   scope.
+ * - When `includeMissing` is true, explicitly-requested columns that are
+ *   absent on the doc are returned with `undefined` values instead of being
+ *   silently dropped. Useful for callers (like the CLI query script) that
+ *   want to make "field not present on this doc" visible.
  */
 export function filterColumns(
   obj: any,
   columns: string[],
-  { ret = {}, evalScope }: { ret?: any; evalScope?: Record<string, any> } = {},
+  {
+    ret = {},
+    evalScope,
+    includeMissing = false,
+  }: { ret?: any; evalScope?: Record<string, any>; includeMissing?: boolean } = {},
 ): any {
   let nextAutoColumn = 1;
 
@@ -57,10 +65,13 @@ export function filterColumns(
         filterColumns(obj[key], [rest.join(".")], {
           ret: ret[alias ?? key],
           evalScope,
+          includeMissing,
         });
       } else {
         ret[alias ?? key] = obj[key];
       }
+    } else if (includeMissing) {
+      ret[alias ?? key] = undefined;
     }
   }
 
