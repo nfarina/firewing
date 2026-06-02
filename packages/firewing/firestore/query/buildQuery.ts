@@ -8,11 +8,7 @@ import {
 } from "firebase/firestore";
 import { FirebaseAppAccessor } from "../../FirebaseAppProvider.js";
 import { WrappedAggregateQuery, WrappedQuery } from "../../wrapped/WrappedFirestore.js";
-import {
-  ParsedQuery,
-  ParsedPropertyType,
-  parseQuery,
-} from "./parseQuery.js";
+import { ParsedQuery, ParsedPropertyType, parseQuery } from "./parseQuery.js";
 
 export interface BuiltQuery<T = any> {
   collection: string;
@@ -56,7 +52,15 @@ export function buildQuery<T>(app: FirebaseAppAccessor, queryText: string): Buil
 
 /** Compiles a parsed SQL query against the client Firebase SDK. */
 export function compileQuery<T>(app: FirebaseAppAccessor, parsed: ParsedQuery): BuiltQuery<T> {
-  const { collection: collectionName, columns, filters: parsedFilters, orderBy, limit, limitToLast, aggregates } = parsed;
+  const {
+    collection: collectionName,
+    columns,
+    filters: parsedFilters,
+    orderBy,
+    limit,
+    limitToLast,
+    aggregates,
+  } = parsed;
 
   const filters: QueryFilter[] = [];
 

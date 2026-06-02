@@ -235,9 +235,7 @@ const AGGREGATE_FUNCTIONS = ["sum", "count", "average"];
  */
 function parseAggregateColumn(column: string): ParsedAggregate | null {
   // Field may be a dotted path like "usage.completionTokens".
-  const match = column
-    .trim()
-    .match(/^([a-z]+)\(([a-z0-9_.*]+)\)(?:\s+as\s+([a-z0-9_]+))?$/i);
+  const match = column.trim().match(/^([a-z]+)\(([a-z0-9_.*]+)\)(?:\s+as\s+([a-z0-9_]+))?$/i);
 
   if (!match) return null;
 

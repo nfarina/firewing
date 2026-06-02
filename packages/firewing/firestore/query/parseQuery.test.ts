@@ -60,9 +60,10 @@ describe("parseQuery", () => {
   });
 
   test("in / not in", () => {
-    expect(
-      parseQuery("select * from users where id in (abc or def)")?.filters[0],
-    ).toMatchObject({ op: "in", value: ["abc", "def"] });
+    expect(parseQuery("select * from users where id in (abc or def)")?.filters[0]).toMatchObject({
+      op: "in",
+      value: ["abc", "def"],
+    });
 
     // A single value still becomes an array for `in`.
     expect(parseQuery("select * from users where id not in abc")?.filters[0]).toMatchObject({
@@ -173,9 +174,7 @@ describe("parseQuery", () => {
   });
 
   test("sum() accepts dotted field paths", () => {
-    const result = parseQuery(
-      "select sum(usage.completionTokens) as tokens from billing",
-    );
+    const result = parseQuery("select sum(usage.completionTokens) as tokens from billing");
     expect(result?.aggregates).toEqual([
       { type: "sum", field: "usage.completionTokens", as: "tokens" },
     ]);

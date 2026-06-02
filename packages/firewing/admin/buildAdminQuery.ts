@@ -7,10 +7,7 @@ import {
   Firestore,
   Query,
 } from "firebase-admin/firestore";
-import {
-  ParsedQuery,
-  parseQuery,
-} from "../firestore/query/parseQuery.js";
+import { ParsedQuery, parseQuery } from "../firestore/query/parseQuery.js";
 
 export interface BuiltAdminQuery<T = any> {
   collection: string;
@@ -43,8 +40,19 @@ export function buildAdminQuery<T>(
   return compileAdminQuery<T>(firestore, parsed);
 }
 
-export function compileAdminQuery<T>(firestore: Firestore, parsed: ParsedQuery): BuiltAdminQuery<T> {
-  const { collection: collectionName, columns, filters, orderBy, limit, limitToLast, aggregates } = parsed;
+export function compileAdminQuery<T>(
+  firestore: Firestore,
+  parsed: ParsedQuery,
+): BuiltAdminQuery<T> {
+  const {
+    collection: collectionName,
+    columns,
+    filters,
+    orderBy,
+    limit,
+    limitToLast,
+    aggregates,
+  } = parsed;
 
   let compiled: Query<T> | null = firestore.collection(collectionName) as unknown as Query<T>;
 
@@ -63,8 +71,7 @@ export function compileAdminQuery<T>(firestore: Firestore, parsed: ParsedQuery):
   if (aggregates.length > 0) {
     const combinedSpec: AggregateSpec = {};
     for (const { type, field, as } of aggregates) {
-      combinedSpec[as] =
-        type === "sum" ? AggregateField.sum(field) : AggregateField.average(field);
+      combinedSpec[as] = type === "sum" ? AggregateField.sum(field) : AggregateField.average(field);
     }
     aggregate = compiled.aggregate(combinedSpec);
     compiled = null;
