@@ -3,6 +3,7 @@ import {
   FieldPath,
   WhereFilterOp,
   average,
+  count,
   documentId,
   sum,
 } from "firebase/firestore";
@@ -86,7 +87,8 @@ export function compileQuery<T>(app: FirebaseAppAccessor, parsed: ParsedQuery): 
   if (aggregates.length > 0) {
     const combinedSpec: AggregateSpec = {};
     for (const { type, field, as } of aggregates) {
-      combinedSpec[as] = type === "sum" ? sum(field) : average(field);
+      combinedSpec[as] =
+        type === "count" ? count() : type === "sum" ? sum(field) : average(field);
     }
     aggregate = compiled.aggregate(combinedSpec);
     compiled = null;

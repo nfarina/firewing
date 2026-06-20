@@ -71,7 +71,12 @@ export function compileAdminQuery<T>(
   if (aggregates.length > 0) {
     const combinedSpec: AggregateSpec = {};
     for (const { type, field, as } of aggregates) {
-      combinedSpec[as] = type === "sum" ? AggregateField.sum(field) : AggregateField.average(field);
+      combinedSpec[as] =
+        type === "count"
+          ? AggregateField.count()
+          : type === "sum"
+            ? AggregateField.sum(field)
+            : AggregateField.average(field);
     }
     aggregate = compiled.aggregate(combinedSpec);
     compiled = null;

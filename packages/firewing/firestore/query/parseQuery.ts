@@ -20,7 +20,7 @@ export type ParsedOrderDirection = "asc" | "desc";
 
 export type ParsedPropertyType = "fieldName" | "documentId";
 
-export type ParsedAggregateType = "sum" | "average";
+export type ParsedAggregateType = "sum" | "average" | "count";
 
 export interface ParsedQuery {
   collection: string;
@@ -230,28 +230,35 @@ function getOperator(op: string, value: any): ParsedWhereOp {
 const AGGREGATE_FUNCTIONS = ["sum", "count", "average"];
 
 /**
- * Parses a column like `sum(book.price)` or `average(population) as avgPop`
- * into a ParsedAggregate, or null if it's not an aggregate column.
+ * Parses a column like `sum(book.price)`, `average(population) as avgPop`, or
+ * `count(*) as total` into a ParsedAggregate, or null if it's not an aggregate
+ * column. `count` takes no field, so its parens may be empty or hold `*`.
  */
 function parseAggregateColumn(column: string): ParsedAggregate | null {
-  // Field may be a dotted path like "usage.completionTokens".
-  const match = column.trim().match(/^([a-z]+)\(([a-z0-9_.*]+)\)(?:\s+as\s+([a-z0-9_]+))?$/i);
+  // Field may be a dotted path like "usage.completionTokens", "*" or empty
+  // (the latter two only for count()).
+  const match = column.trim().match(/^([a-z]+)\(([a-z0-9_.*]*)\)(?:\s+as\s+([a-z0-9_]+))?$/i);
 
   if (!match) return null;
 
   let [, func, field, as] = match;
-  if (!as) as = field;
 
   const lower = func.toLowerCase();
   switch (lower) {
     case "count":
-      throw new Error(
-        "count() is not supported in queries, but you can see the count under the query box.",
-      );
+      // count() / count(*) — no field to sum over; default the alias to "count".
+      if (field && field !== "*") {
+        throw new Error("count() does not take a field; use count() or count(*).");
+      }
+      return { type: "count", field: "", as: as || "count" };
     case "sum":
-      return { type: "sum", field, as };
+      if (!field || field === "*") throw new Error("sum() requires a field, like sum(cost).");
+      return { type: "sum", field, as: as || field };
     case "average":
-      return { type: "average", field, as };
+      if (!field || field === "*") {
+        throw new Error("average() requires a field, like average(cost).");
+      }
+      return { type: "average", field, as: as || field };
     default:
       throw new Error(
         `Only the ${joinWithAnd(AGGREGATE_FUNCTIONS.map((f) => f + "()"))} aggregate functions are supported.`,

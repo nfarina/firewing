@@ -180,8 +180,20 @@ describe("parseQuery", () => {
     ]);
   });
 
-  test("count() throws with a helpful message", () => {
-    expect(() => parseQuery("select count(*) from users")).toThrow(/count/i);
+  test("count(*) and count() are parsed as aggregates", () => {
+    expect(parseQuery("select count(*) from users")?.aggregates).toEqual([
+      { type: "count", field: "", as: "count" },
+    ]);
+    expect(parseQuery("select count() from users")?.aggregates).toEqual([
+      { type: "count", field: "", as: "count" },
+    ]);
+    expect(parseQuery("select count(*) as total from users")?.aggregates).toEqual([
+      { type: "count", field: "", as: "total" },
+    ]);
+  });
+
+  test("count() rejects a field argument", () => {
+    expect(() => parseQuery("select count(id) from users")).toThrow(/count/i);
   });
 
   test("mixing aggregate and non-aggregate columns is rejected", () => {
