@@ -4,6 +4,12 @@ import { HttpsError } from "firebase-functions/v2/identity";
 export type UserFacingErrorOptions = Record<string, string | number | boolean> & {
   /** If true, the error should not be sent to alert destinations like Discord. */
   silent?: boolean;
+  /**
+   * Set to false when thrown from a task to mark the failure as permanent:
+   * the task is recorded as errored and alerted once, but Cloud Tasks is told
+   * not to redeliver it.
+   */
+  retryable?: boolean;
   /** A code describing the nature of the error, can be converted to a HTTP status code. */
   code?: FunctionsErrorCode;
 };
