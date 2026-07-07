@@ -321,6 +321,9 @@ export class MockQuery<T extends MockFirestoreCollections, U extends keyof T> {
         case "array-contains":
           if (!((foundValue as any[]) || []).includes(value)) return false;
           break;
+        case "in":
+          if (!((value as any[]) || []).includes(foundValue)) return false;
+          break;
         case "==":
           if (foundValue !== value) return false;
           break;
