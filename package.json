@@ -1,6 +1,8 @@
 {
   "//": [
-    "eslint-plugin-react-hooks is pinned because the latest version omits rules used by the canonical lint configuration."
+    "React is pinned to ensure Storybook uses the same versions, also we need Canary for ViewTransition.",
+    "eslint-plugin-react-hooks is pinned because the latest version introduces tedious errors, will wait for React Compiler rewrite in Rust. https://github.com/facebook/react/pull/36173",
+    "The debug package is pinned to prevent a million different versions getting installed."
   ],
   "name": "firewing-monorepo",
   "type": "module",
@@ -28,44 +30,43 @@
     "clean": "npm run clean:node_modules && npm run clean:yarn && npm run clean:tsc"
   },
   "devDependencies": {
-    "@storybook/addon-vitest": "^9.0.6",
-    "@storybook/react": "^9.0.6",
-    "@storybook/react-vite": "^9.0.6",
-    "@types/debug": "^4.1.12",
+    "@storybook/addon-vitest": "^10.5.0",
+    "@storybook/react": "^10.5.0",
+    "@storybook/react-vite": "^10.5.0",
+    "@types/debug": "^4.1.13",
     "@types/minimist": "^1.2.5",
-    "@types/react": "^19.1.7",
-    "@types/react-dom": "^19.1.6",
-    "@types/react-is": "^19.0.0",
+    "@types/react": "^19.2.17",
+    "@types/react-dom": "^19.2.3",
+    "@types/react-is": "^19.2.0",
     "@types/react-transition-group": "^4.4.12",
     "@typescript/native-preview": "7.0.0-dev.20260707.2",
-    "@vitejs/plugin-react": "^4.5.1",
-    "babel-plugin-react-compiler": "^19.1.0-rc.2",
+    "@vitejs/plugin-react": "^6.0.3",
+    "babel-plugin-react-compiler": "^1.0.0",
     "eslint-plugin-react-hooks": "7.1.1",
-    "firebase": "^11.9.0",
-    "firebase-admin": "^13.4.0",
-    "firebase-functions": "^6.3.2",
+    "firebase": "^12.16.0",
+    "firebase-admin": "^14.1.0",
+    "firebase-functions": "^7.2.5",
     "oxfmt": "^0.58.0",
     "oxlint": "^1.73.0",
-    "react": "^19.1.0",
-    "react-dom": "^19.1.0",
-    "storybook": "^9.0.6",
+    "react": "^19.2.7",
+    "react-dom": "^19.2.7",
+    "storybook": "^10.5.0",
     "timemachine": "^0.3.2",
     "typescript": "^7.0.2",
-    "vite": "^6.3.5",
-    "vite-node": "3.2.3",
-    "vite-plugin-svgr": "^4.3.0",
-    "vitest": "^3.2.3"
+    "vite": "^8.1.4",
+    "vite-node": "6.0.0",
+    "vite-plugin-svgr": "^5.2.0",
+    "vitest": "^4.1.10"
   },
   "peerDependencies": {
     "vite": "^6.0.7"
   },
   "resolutions": {
-    "debug": "4.4.1",
+    "debug": "4.4.3",
     "eslint-plugin-react-hooks": "7.1.0-canary-2ba30655-20260219",
-    "react": "0.0.0-experimental-f9ae0a4c-20250527",
-    "react-dom": "0.0.0-experimental-f9ae0a4c-20250527",
-    "react-is": "0.0.0-experimental-f9ae0a4c-20250527",
-    "vite": "6.3.5"
+    "react": "19.3.0-canary-d5736f09-20260507",
+    "react-dom": "19.3.0-canary-d5736f09-20260507",
+    "react-is": "19.3.0-canary-d5736f09-20260507"
   },
   "packageManager": "yarn@4.17.1"
 }
