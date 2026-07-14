@@ -1,5 +1,7 @@
 {
-  "//": [],
+  "//": [
+    "eslint-plugin-react-hooks is pinned because the latest version omits rules used by the canonical lint configuration."
+  ],
   "name": "firewing-monorepo",
   "type": "module",
   "private": true,
@@ -10,25 +12,22 @@
   ],
   "scripts": {
     "dev": "npx @crosswing/cli --port 2750",
-    "test": "npm run prettier && npm run circular && npm run typecheck && npm run lint && npm run vitest",
+    "test": "npm run fmt && npm run circular && npm run typecheck && npm run lint && npm run vitest",
     "vitest": "vitest --run",
     "check-imports": "npx npm-check",
-    "prettier": "prettier --check 'packages/**/*.ts?(x)'",
-    "prettier:fix": "npm run prettier -- --write",
+    "fmt": "oxfmt --check 'packages/**/*.ts' 'packages/**/*.tsx'",
+    "fmt:fix": "oxfmt 'packages/**/*.ts' 'packages/**/*.tsx'",
     "circular": "npx madge --extensions ts,tsx --exclude 'lib' --circular packages",
-    "lint": "eslint",
-    "typecheck": "tsc",
+    "lint": "oxlint",
+    "typecheck": "tsgo",
     "storybook": "storybook dev --ci -p 2752",
     "build:storybook": "storybook build",
-    "build:linters": "tsc -p .eslint/tsconfig.json",
     "clean:node_modules": "rm -rf node_modules packages/*/node_modules",
     "clean:yarn": "rm yarn.lock",
     "clean:tsc": "find . -type f -name 'tsconfig.tsbuildinfo' ! -path '*/node_modules/*' -exec rm {} +",
     "clean": "npm run clean:node_modules && npm run clean:yarn && npm run clean:tsc"
   },
   "devDependencies": {
-    "@eslint/compat": "^1.2.9",
-    "@eslint/js": "^9.28.0",
     "@storybook/addon-vitest": "^9.0.6",
     "@storybook/react": "^9.0.6",
     "@storybook/react-vite": "^9.0.6",
@@ -38,19 +37,20 @@
     "@types/react-dom": "^19.1.6",
     "@types/react-is": "^19.0.0",
     "@types/react-transition-group": "^4.4.12",
+    "@typescript/native-preview": "7.0.0-dev.20260707.2",
     "@vitejs/plugin-react": "^4.5.1",
     "babel-plugin-react-compiler": "^19.1.0-rc.2",
-    "eslint": "^9.28.0",
+    "eslint-plugin-react-hooks": "7.1.1",
     "firebase": "^11.9.0",
     "firebase-admin": "^13.4.0",
     "firebase-functions": "^6.3.2",
-    "prettier": "^3.5.3",
+    "oxfmt": "^0.58.0",
+    "oxlint": "^1.73.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "storybook": "^9.0.6",
     "timemachine": "^0.3.2",
-    "typescript": "^5.8.3",
-    "typescript-eslint": "^8.34.0",
+    "typescript": "^7.0.2",
     "vite": "^6.3.5",
     "vite-node": "3.2.3",
     "vite-plugin-svgr": "^4.3.0",
@@ -61,10 +61,11 @@
   },
   "resolutions": {
     "debug": "4.4.1",
+    "eslint-plugin-react-hooks": "7.1.0-canary-2ba30655-20260219",
     "react": "0.0.0-experimental-f9ae0a4c-20250527",
     "react-dom": "0.0.0-experimental-f9ae0a4c-20250527",
     "react-is": "0.0.0-experimental-f9ae0a4c-20250527",
     "vite": "6.3.5"
   },
-  "packageManager": "yarn@4.13.0"
+  "packageManager": "yarn@4.17.1"
 }

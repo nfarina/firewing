@@ -4,16 +4,18 @@
   "version": "2.0.0",
   "tasks": [
     {
-      "type": "typescript",
-      "tsconfig": "tsconfig.json",
-      "options": {
-        "watch": "watch",
-        "build": "build"
-      },
-      "problemMatcher": ["$tsc-watch"],
-      "runOptions": {
-        "runOn": "folderOpen"
-      },
+      "label": "tsgo watch",
+      "type": "shell",
+      "command": "npm run typecheck -- --watch --preserveWatchOutput",
+      "problemMatcher": "$tsc-watch",
+      "isBackground": true,
+      "group": "build"
+    },
+    {
+      "label": "oxlint: run",
+      "type": "shell",
+      "command": "npm run lint -- -f stylish",
+      "problemMatcher": ["$eslint-stylish"],
       "group": "build"
     }
   ]

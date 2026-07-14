@@ -8,6 +8,7 @@ mkdir -p dist
 rsync -av \
   --exclude="node_modules" \
   --exclude="dist" \
+  --exclude="lib" \
   --exclude="build.sh" \
   --exclude="tsconfig.dist.json" \
   --exclude=".DS_Store" \

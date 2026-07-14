@@ -1,0 +1,51 @@
+{
+  "ignorePatterns": ["packages/crosswing/**", "packages/submodules/**"],
+  "jsPlugins": [
+    { "name": "react-hooks-js", "specifier": "eslint-plugin-react-hooks" }
+  ],
+  "rules": {
+    "no-unused-vars": "off",
+    "typescript/no-explicit-any": "off",
+    "typescript/no-unsafe-function-type": "off",
+    "prefer-const": "off",
+    "no-empty-pattern": "off",
+    "no-eval": "off",
+    "no-useless-spread": "off",
+    "no-unassigned-vars": "off",
+    "no-unused-expressions": "off",
+    "no-thenable": "off",
+    "no-control-regex": "off",
+    "unicorn/no-empty-file": "off",
+    "unicorn/no-useless-fallback-in-spread": "off",
+
+    "react-hooks-js/component-hook-factories": "error",
+    "react-hooks-js/config": "error",
+    "react-hooks-js/error-boundaries": "error",
+    "react-hooks-js/gating": "error",
+    "react-hooks-js/globals": "error",
+    "react-hooks-js/immutability": "off",
+    "react-hooks-js/incompatible-library": "error",
+    "react-hooks-js/preserve-manual-memoization": "error",
+    "react-hooks-js/purity": "off",
+    "react-hooks-js/refs": "off",
+    "react-hooks-js/set-state-in-effect": "off",
+    "react-hooks-js/set-state-in-render": "off",
+    "react-hooks-js/static-components": "error",
+    "react-hooks-js/unsupported-syntax": "error",
+    "react-hooks-js/use-memo": "error",
+
+    "react-hooks-js/void-use-memo": "error",
+
+    "react-hooks-js/automatic-effect-dependencies": "error",
+    "react-hooks-js/capitalized-calls": "off",
+    "react-hooks-js/fbt": "error",
+    "react-hooks-js/fire": "error",
+    "react-hooks-js/hooks": "error",
+    "react-hooks-js/invariant": "error",
+    "react-hooks-js/memoized-effect-dependencies": "error",
+    "react-hooks-js/no-deriving-state-in-effects": "error",
+    "react-hooks-js/rule-suppression": "error",
+    "react-hooks-js/syntax": "error",
+    "react-hooks-js/todo": "error"
+  }
+}
