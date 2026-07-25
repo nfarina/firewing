@@ -3812,13 +3812,13 @@ __metadata:
     "@svgr/core": "npm:^8.1.0"
     "@svgr/plugin-jsx": "npm:^8.1.0"
     "@svgr/plugin-svgo": "npm:^8.1.0"
-    dayjs: "npm:^1.11.21"
+    dayjs: "npm:^1.11.19"
     debug: "npm:^4.4.3"
-    glob: "npm:^13.0.6"
-    prettier: "npm:^3.9.5"
-    react: "npm:^19.2.7"
-    react-dom: "npm:^19.2.7"
-    react-is: "npm:^19.2.7"
+    glob: "npm:^13.0.0"
+    prettier: "npm:^3.7.4"
+    react: "npm:^19.2.2"
+    react-dom: "npm:^19.2.2"
+    react-is: "npm:^19.2.2"
     react-transition-group: "npm:^4.4.5"
   peerDependencies:
     react: "*"
@@ -3916,7 +3916,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"dayjs@npm:^1.11.21":
+"dayjs@npm:^1.11.19":
   version: 1.11.21
   resolution: "dayjs@npm:1.11.21"
   checksum: 10c0/bd97dfdc4bfea3c66268635690313828b386faa040fbc1f829ff42a2bd748b72c9d9b3c8f9616ce9e61fcb78923f1461a462c969c54b1084458ae1b715898fb0
@@ -4680,10 +4680,10 @@ __metadata:
     crosswing: "workspace:^"
     debug: "npm:^4.4.3"
     pluralize: "npm:^8.0.0"
-    react: "npm:^19.2.7"
-    react-dom: "npm:^19.2.7"
-    react-is: "npm:^19.2.7"
-    styled-components: "npm:^6.4.3"
+    react: "npm:^19.2.8"
+    react-dom: "npm:^19.2.8"
+    react-is: "npm:^19.2.8"
+    styled-components: "npm:^6.4.4"
   peerDependencies:
     crosswing: "workspace:^"
     firebase: "*"
@@ -4921,7 +4921,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"glob@npm:^13.0.0, glob@npm:^13.0.1, glob@npm:^13.0.6":
+"glob@npm:^13.0.0, glob@npm:^13.0.1":
   version: 13.0.6
   resolution: "glob@npm:13.0.6"
   dependencies:
@@ -6551,12 +6551,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"prettier@npm:^3.9.5":
-  version: 3.9.5
-  resolution: "prettier@npm:3.9.5"
+"prettier@npm:^3.7.4":
+  version: 3.9.6
+  resolution: "prettier@npm:3.9.6"
   bin:
     prettier: bin/prettier.cjs
-  checksum: 10c0/0349dd9e6d8010965de6f69e6b6ee2484b8caf78c66675afced6c75ad60ff24c3a2a4f41153fb8adeaee4d8f539641b48cebc71d283cec4d146e9962126c5ceb
+  checksum: 10c0/9f7ddae234035868f3daab3dc34e6de7e54622185afb017378029f0c09a9c023248ccf6f34def0b17a0538e18c47aa1b3188bab72965d1bf735919baa0747e99
   languageName: node
   linkType: hard
 
@@ -7322,9 +7322,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"styled-components@npm:^6.4.3":
-  version: 6.4.3
-  resolution: "styled-components@npm:6.4.3"
+"styled-components@npm:^6.4.4":
+  version: 6.4.4
+  resolution: "styled-components@npm:6.4.4"
   dependencies:
     "@emotion/is-prop-valid": "npm:1.4.0"
     css-to-react-native: "npm:3.2.0"
@@ -7342,7 +7342,7 @@ __metadata:
       optional: true
     react-native:
       optional: true
-  checksum: 10c0/158514feb0a502dfa7f95610a8270faa56be2572c12902b7bf5c2855bf9fdd5d76a5909d67dcbecf627ee40511f4161f8016b23f9fef22c14f7911337359647c
+  checksum: 10c0/ed574b053a85adab543958bde7eb80ea9bf6075dc0c54f8763b2d7251c4ce940a5151513fbc7af8c5be5100c387a55d0b175c0270a829ff37ec6f88b72ac4bca
   languageName: node
   linkType: hard
 
