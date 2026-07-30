@@ -98,5 +98,11 @@ export function useInfiniteFirestoreQuery<T extends { id?: string }>(
     }
   }, [rawItems, limit]);
 
-  return [items, onScroll, atEnd];
+  // Fall back to the raw query result until the effect above has accumulated
+  // it. This matters on a fresh mount: useFirestoreQuery can seed itself
+  // synchronously from the memory cache (see firestoreMemoryCache), and without
+  // this we'd throw that away and render a loading state anyway while waiting a
+  // full render cycle for the effect. `items` still owns accumulation across
+  // pages; it's only the very first paint that needs rescuing.
+  return [items ?? rawItems, onScroll, atEnd];
 }

@@ -16,7 +16,9 @@ import {
   WriteBatch,
   collection,
   deleteDoc,
+  disableNetwork,
   doc,
+  enableNetwork,
   endAt,
   endBefore,
   getAggregateFromServer,
@@ -50,6 +52,20 @@ export class WrappedFirestore {
 
   public batch(): WrappedWriteBatch {
     return new WrappedWriteBatch(writeBatch(this.firestore));
+  }
+
+  /**
+   * Tears down the SDK's backend connection. Pending writes are retained and
+   * flushed once the network is re-enabled. See useFirestoreConnectionHealth
+   * for why we ever want to do this deliberately.
+   */
+  public async disableNetwork(): Promise<void> {
+    await disableNetwork(this.firestore);
+  }
+
+  /** Re-establishes the backend connection with brand new streams. */
+  public async enableNetwork(): Promise<void> {
+    await enableNetwork(this.firestore);
   }
 }
 

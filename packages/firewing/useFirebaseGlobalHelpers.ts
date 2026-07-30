@@ -1,6 +1,7 @@
 import Debug from "debug";
 import { use, useEffect } from "react";
 import { FirebaseAppContext } from "./FirebaseAppProvider.js";
+import { blackholeFirestore, wedgeFirestore } from "./firestore/firestoreFaults.js";
 import { useFirestoreHelper } from "./firestore/useFirestoreHelper.js";
 import { useFirebaseRpc } from "./functions/useFirebaseRpc.js";
 
@@ -19,6 +20,9 @@ export function useFirebaseGlobalHelpers(varName?: string) {
       app,
       helper,
       rpc,
+      // Fault injection for the connection-stall bugs; see firestoreFaults.
+      blackholeFirestore,
+      wedgeFirestore: () => wedgeFirestore(app()),
     };
 
     const targetWindow = getTargetWindow();

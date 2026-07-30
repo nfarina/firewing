@@ -81,6 +81,10 @@ export class MockFirestore<
   /** Always false for MockFirestore. */
   public readonly persistenceEnabled: boolean = false;
 
+  /** There's no backend connection to cycle, so these are no-ops. */
+  public async disableNetwork(): Promise<void> {}
+  public async enableNetwork(): Promise<void> {}
+
   /**
    * During a batch, we want to defer any calls to the "change" event until the
    * batch is committed.

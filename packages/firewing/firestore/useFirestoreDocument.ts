@@ -2,8 +2,14 @@ import { useResettableState } from "crosswing/hooks/useResettableState";
 import Debug from "debug";
 import { DocumentSnapshot } from "firebase/firestore";
 import { DependencyList, use, useEffect } from "react";
-import { Falsy, FirebaseAppAccessor, FirebaseAppContext } from "../FirebaseAppProvider.js";
+import {
+  Falsy,
+  FirebaseAppAccessor,
+  FirebaseAppContext,
+  newFirestoreListenerId,
+} from "../FirebaseAppProvider.js";
 import { WrappedDocumentReference } from "../wrapped/WrappedFirestore.js";
+import { documentCacheKey, getCachedValue, setCachedValue } from "./firestoreMemoryCache.js";
 
 const debug = Debug("firewing:document");
 
@@ -25,11 +31,22 @@ export function useFirestoreDocument<T extends { id?: string }>(
   { loaded }: UseFirestoreDocumentOptions<T> = {},
 ): T | null | undefined {
   const app = use(FirebaseAppContext);
-  const persistenceEnabled = app().firestore().persistenceEnabled;
 
   // Use resettable state so that if our deps change, our value gets cleared
-  // out right away.
-  const [value, setValue] = useResettableState<T | null | undefined>(undefined, deps);
+  // out right away — except we'd rather seed it with this document's last known
+  // value, if we've rendered it before, so revisiting doesn't flash a loading
+  // state. See firestoreMemoryCache.
+  const [value, setValue] = useResettableState<T | null | undefined>(() => {
+    if (loaded) return undefined;
+    try {
+      const resolved = ref(app);
+      if (!resolved) return undefined;
+      return getCachedValue<T | null>(app(), documentCacheKey(resolved.path));
+    } catch {
+      // Seeding is an optimization; never let it break a render.
+      return undefined;
+    }
+  }, deps);
 
   useEffect(() => {
     // We always have to call useEffect() because of Rules for Hooks.
@@ -43,25 +60,46 @@ export function useFirestoreDocument<T extends { id?: string }>(
 
       debug("Loading " + descriptor);
 
+      const listenerId = newFirestoreListenerId();
+      app.events.emit("listenStart", { listenerId, descriptor });
+
       function snapshotHandler(snapshot: DocumentSnapshot<T>) {
+        // Server contact is the health signal the connection monitor watches
+        // for; cache-only snapshots prove nothing about the connection.
+        if (!snapshot.metadata.fromCache) {
+          app.events.emit("listenServerSnapshot", { listenerId });
+        }
+
         // If the network is down, we'll get snapshots with `fromCache` as true
         // and `exists` as false. We don't want to pretend we *know* this data
-        // doesn't exist, becuase of course we don't know anything yet! But
-        // we don't do this check if persistence is enabled.
-        if (!persistenceEnabled && !snapshot.exists() && snapshot.metadata.fromCache) {
+        // doesn't exist, because of course we don't know anything yet!
+        //
+        // This holds whether or not persistence is enabled: Firestore gives us
+        // the identical snapshot for "the server confirmed this is gone" and
+        // "we've simply never fetched this", so there is no way to tell them
+        // apart. Reporting "still loading" costs a spinner on a document that
+        // really was deleted; reporting `null` puts a "not found" screen over a
+        // document that exists. The spinner is the better wrong answer.
+        if (!snapshot.exists() && snapshot.metadata.fromCache) {
           setValue(undefined);
         } else {
-          setValue(snapshotToObject<T>(snapshot));
+          const object = snapshotToObject<T>(snapshot);
+          setCachedValue(app(), documentCacheKey(descriptor), object);
+          setValue(object);
         }
       }
 
       function errorHandler(error: Error) {
+        // The SDK tears the listener down on error, so it's no longer waiting
+        // on the server and shouldn't count as a stalled connection.
+        app.events.emit("listenStop", { listenerId });
+
         // Include the descriptor in the error printout so you can figure out
         // which Firestore query went wrong!
         console.error("Error loading " + descriptor + "\n" + error.stack);
       }
 
-      return resolved.onSnapshot(
+      const unsubscribe = resolved.onSnapshot(
         // Really important - we want to be called back for critical changes
         // like "this data is now from the server instead of from cache"
         // even if the data hasn't changed, so we can actually display it.
@@ -69,6 +107,11 @@ export function useFirestoreDocument<T extends { id?: string }>(
         snapshotHandler,
         errorHandler,
       );
+
+      return () => {
+        app.events.emit("listenStop", { listenerId });
+        unsubscribe();
+      };
     } else if (!resolved) {
       // You returned a falsy value. Check if you actually returned null,
       // because that would really mean "doesn't exist".

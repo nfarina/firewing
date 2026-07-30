@@ -66,6 +66,18 @@ describe("filterColumns", () => {
     expect(result).toEqual({ shouty: "NICK" });
   });
 
+  test("dotted path into a null field is treated as missing, not a crash", () => {
+    const r = { id: "abc", source: null };
+    expect(() => filterColumns(r, ["source.type"])).not.toThrow();
+    expect(filterColumns(r, ["source.type"])).toEqual({});
+    expect("source" in filterColumns(r, ["source.type"], { includeMissing: true })).toBe(true);
+  });
+
+  test("dotted path into a primitive field is treated as missing", () => {
+    const r = { source: "import" };
+    expect(filterColumns(r, ["source.type"])).toEqual({});
+  });
+
   test("evalScope makes extra helpers available in backtick expressions", () => {
     const r = { items: { a: { v: 1 }, b: { v: 2 } } };
     const result = filterColumns(r, ["`flatten(items).length` AS n"], {

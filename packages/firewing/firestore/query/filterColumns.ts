@@ -61,6 +61,14 @@ export function filterColumns(
 
     if (obj[key] !== undefined) {
       if (rest.length > 0) {
+        // A dotted path can bottom out early: `source.type` on a doc whose
+        // `source` is null (or a primitive) has nowhere left to descend.
+        // Treat that as a missing column rather than recursing into null,
+        // which used to throw and abort the whole query.
+        if (obj[key] === null || typeof obj[key] !== "object") {
+          if (includeMissing) ret[alias ?? key] = undefined;
+          continue;
+        }
         ret[alias ?? key] = ret[key] ?? {};
         filterColumns(obj[key], [rest.join(".")], {
           ret: ret[alias ?? key],
