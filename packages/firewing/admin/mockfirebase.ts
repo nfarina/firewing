@@ -1,7 +1,7 @@
 import { diff } from "crosswing/shared/diff";
 import { merge } from "crosswing/shared/merge";
 import { App, getApp, initializeApp } from "firebase-admin/app";
-import { getAuth } from "firebase-admin/auth";
+import { getAuth, UserRecord } from "firebase-admin/auth";
 import { getFirestore } from "firebase-admin/firestore";
 import { getStorage } from "firebase-admin/storage";
 import { MockAuth } from "../mocks/MockAuth.js";
@@ -261,48 +261,46 @@ export async function populateEmulatorData(
 
   // Populate auth data.
   for (const [uid, user] of Object.entries(data.auth || {})) {
-    try {
-      // Will throw if the user doesn't exist.
-      await auth().getUser(uid);
-
-      // Updating existing user.
-      promises.push(
-        auth().updateUser(uid, {
-          phoneNumber: user.phone,
-          email: user.email,
-          emailVerified: true,
-        }),
-      );
-    } catch {
-      // Look for existing users with the same phone or email and delete them.
-      if (user.email) {
-        try {
-          const existing = await auth().getUserByEmail(user.email);
-          await auth().deleteUser(existing.uid);
-        } catch {
-          // Ignore.
-        }
+    // Take this user's identifiers back from anyone else holding them. Auth
+    // enforces uniqueness on email and phone, so a stray account holding one
+    // makes the write fail — and the usual way a stray account appears is
+    // signing in with an identifier the fixtures hadn't seeded, which then
+    // blocks the very run that would have seeded it. Has to happen for
+    // existing users too, not just new ones: updateUser hits the same
+    // conflict createUser does.
+    const release = async (lookup: () => Promise<UserRecord>) => {
+      try {
+        const existing = await lookup();
+        if (existing.uid !== uid) await auth().deleteUser(existing.uid);
+      } catch {
+        // Nobody holds it, which is the normal case.
       }
+    };
 
-      if (user.phone) {
-        try {
-          const existing = await auth().getUserByPhoneNumber(user.phone);
-          await auth().deleteUser(existing.uid);
-        } catch {
-          // Ignore.
-        }
-      }
+    const { email, phone } = user;
+    if (email) await release(() => auth().getUserByEmail(email));
+    if (phone) await release(() => auth().getUserByPhoneNumber(phone));
 
-      // Create new user.
-      promises.push(
-        auth().createUser({
-          uid,
-          phoneNumber: user.phone,
-          email: user.email,
-          emailVerified: true,
-        }),
-      );
-    }
+    // Will throw if the user doesn't exist yet.
+    const exists = await auth()
+      .getUser(uid)
+      .then(() => true)
+      .catch(() => false);
+
+    promises.push(
+      exists
+        ? auth().updateUser(uid, {
+            phoneNumber: phone,
+            email,
+            emailVerified: true,
+          })
+        : auth().createUser({
+            uid,
+            phoneNumber: phone,
+            email,
+            emailVerified: true,
+          }),
+    );
   }
 
   // Populate Firestore data.
