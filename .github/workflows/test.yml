@@ -33,11 +33,6 @@ jobs:
             ${{ runner.os }}-yarn-
             ${{ runner.os }}-
 
-      # This is useful for debugging; you can install upterm on your machine
-      # and connect to the Github server currently running this action.
-      # - name: Setup upterm session
-      #   uses: lhotari/action-upterm@v1
-
       - name: Install dependencies
         run: yarn
 
