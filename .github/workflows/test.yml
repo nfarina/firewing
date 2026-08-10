@@ -12,8 +12,6 @@ jobs:
     steps:
       # Check out the repo.
       - uses: actions/checkout@v7
-        with:
-          submodules: true
 
       - name: Set yarn version
         run: corepack enable && yarn set version stable

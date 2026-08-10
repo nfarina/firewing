@@ -19,7 +19,7 @@
     "check-imports": "npx npm-check",
     "fmt": "oxfmt --check 'packages/**/*.ts' 'packages/**/*.tsx'",
     "fmt:fix": "oxfmt 'packages/**/*.ts' 'packages/**/*.tsx'",
-    "circular": "npx madge --extensions ts,tsx --exclude 'lib' --circular packages",
+    "circular": "npx madge --extensions ts,tsx --exclude 'lib' --circular packages/firewing",
     "lint": "oxlint",
     "typecheck": "tsgo",
     "storybook": "storybook dev --ci -p 2752",

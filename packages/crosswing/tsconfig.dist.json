@@ -1,0 +1,13 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "sourceMap": true,
+    "noEmit": false,
+    "incremental": false,
+    "types": ["node", "react/experimental", "vite/client"]
+  },
+  "include": ["dist/**/*.ts", "dist/**/*.tsx", "../../types.d.ts"],
+  // Remove the "dist" exclusion from the root tsconfig.json since that's
+  // exactly what we DO want to compile here!
+  "exclude": []
+}
