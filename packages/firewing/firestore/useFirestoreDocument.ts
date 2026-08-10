@@ -16,6 +16,13 @@ const debug = Debug("firewing:document");
 export interface UseFirestoreDocumentOptions<T extends { id?: string }> {
   /** The already-loaded data, if known. Turns this function into a no-op. */
   loaded?: T | null;
+  /**
+   * Called if the listener fails — most usefully when security rules deny the
+   * read. Without this, the hook stays `undefined` forever (the SDK tears the
+   * listener down), which renders as a permanent loading state, so any screen
+   * that can legitimately be denied should handle the error.
+   */
+  onError?: (error: Error) => void;
 }
 
 /**
@@ -28,7 +35,7 @@ export interface UseFirestoreDocumentOptions<T extends { id?: string }> {
 export function useFirestoreDocument<T extends { id?: string }>(
   ref: (app: FirebaseAppAccessor) => WrappedDocumentReference<T> | Falsy,
   deps: DependencyList,
-  { loaded }: UseFirestoreDocumentOptions<T> = {},
+  { loaded, onError }: UseFirestoreDocumentOptions<T> = {},
 ): T | null | undefined {
   const app = use(FirebaseAppContext);
 
@@ -97,6 +104,8 @@ export function useFirestoreDocument<T extends { id?: string }>(
         // Include the descriptor in the error printout so you can figure out
         // which Firestore query went wrong!
         console.error("Error loading " + descriptor + "\n" + error.stack);
+
+        onError?.(error);
       }
 
       const unsubscribe = resolved.onSnapshot(
