@@ -9,10 +9,13 @@ export function UnreadBadge({
   style,
   color = colors.white,
   backgroundColor = colors.red,
+  max,
   ...rest
 }: Omit<HTMLAttributes<HTMLDivElement>, "color" | "backgroundColor"> & {
   color?: ColorBuilder;
   backgroundColor?: ColorBuilder;
+  /** Clamp numeric children, so 150 renders as (say) "99+" instead of growing the badge. */
+  max?: number;
 }) {
   const cssProps = {
     ["--background-color"]: backgroundColor(),
@@ -20,9 +23,11 @@ export function UnreadBadge({
     style,
   } as CSSProperties;
 
+  const clamped = max != null && typeof children === "number" && children > max;
+
   return (
     <StyledUnreadBadge style={cssProps} {...rest}>
-      {children}
+      {clamped ? `${max}+` : children}
     </StyledUnreadBadge>
   );
 }

@@ -94,7 +94,7 @@ export function NewSiteHeader({
           onClick={() => setSidebarVisible(!sidebarVisible)}
           {...tooltip("Open sidebar", { hotkey: "ctrl+s" })}
         />
-        {showSidebarBadge && <UnreadBadge>{sidebarBadge}</UnreadBadge>}
+        {showSidebarBadge && <UnreadBadge max={99}>{sidebarBadge}</UnreadBadge>}
       </div>
       {overflowAccessory && <div className="overflow-accessory">{overflowAccessory}</div>}
       <div className="title-left" />
