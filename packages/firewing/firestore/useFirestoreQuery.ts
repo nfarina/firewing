@@ -135,11 +135,20 @@ export function useFirestoreQuery<T extends { id?: string }>(
         // on the server and shouldn't count as a stalled connection.
         app.events.emit("listenStop", { listenerId });
 
-        // Include the descriptor in the error printout so you can figure out
+        // Supplying `onError` means you've taken responsibility for this — some
+        // failures are expected (a query you may legitimately not be allowed to
+        // run) and logging them anyway buries the real ones. Note that in apps
+        // which funnel console.error into a session log, an expected failure
+        // logged here doesn't just make noise, it consumes the log.
+        //
+        // Otherwise include the descriptor in the printout so you can figure out
         // which Firestore query went wrong!
-        console.error("Error loading " + descriptor + "\n" + error.stack);
-        console.error("Called from:\n" + callingStack);
-        onError?.(error);
+        if (onError) {
+          onError(error);
+        } else {
+          console.error("Error loading " + descriptor + "\n" + error.stack);
+          console.error("Called from:\n" + callingStack);
+        }
       }
 
       const unsubscribe = q.onSnapshot(
