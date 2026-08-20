@@ -2,6 +2,7 @@ import { AlertTriangle } from "lucide-react";
 import { FormEvent, KeyboardEvent, ReactNode, useState } from "react";
 import { styled } from "styled-components";
 import { colors } from "../../colors/colors.js";
+import { fonts } from "../../fonts/fonts.js";
 import { Modal } from "../../modals/context/useModal.js";
 import { DialogView } from "../../modals/dialog/DialogView.js";
 import { useDialog } from "../../modals/dialog/useDialog.js";
@@ -15,7 +16,10 @@ export type Prompt<T> = RequiredPrompt<T> | NullablePrompt<T>;
 
 export type BasePrompt<T> = {
   title?: ReactNode;
+  /** The body of the dialog — rendered as content above the input, not as DialogView's one-line subtitle. */
   message?: ReactNode;
+  /** A short line under the title, for the rare prompt that wants one. */
+  subtitle?: ReactNode;
   children?: ReactNode;
   footer?: ReactNode;
   placeholder?: string;
@@ -66,6 +70,7 @@ export function PromptView<T = string>({
   const {
     title,
     message,
+    subtitle,
     children,
     footer,
     placeholder,
@@ -169,7 +174,7 @@ export function PromptView<T = string>({
   return (
     <StyledPromptDialogView
       title={title}
-      subtitle={message}
+      subtitle={subtitle}
       onClose={onClose}
       hideCloseButton
       footer={footer}
@@ -177,6 +182,7 @@ export function PromptView<T = string>({
       onSubmit={onFormSubmit}
     >
       <StyledPromptContent>
+        {message && <div className="message">{message}</div>}
         {children}
         <TextArea
           newStyle
@@ -204,6 +210,10 @@ const StyledPromptDialogView = styled(DialogView)`
 `;
 
 const StyledPromptContent = styled.div`
+  > .message {
+    margin-bottom: 10px;
+  }
+
   > .error {
     margin-top: 10px;
   }

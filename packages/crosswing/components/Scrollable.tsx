@@ -1,4 +1,4 @@
-import { HTMLAttributes, ReactElement, use } from "react";
+import { HTMLAttributes, ReactElement, Ref, use } from "react";
 import { styled } from "styled-components";
 import { HostContext } from "../host/context/HostContext.js";
 
@@ -13,6 +13,8 @@ export function Scrollable({
   alwaysBounce = "vertical",
   ...rest
 }: HTMLAttributes<HTMLDivElement> & {
+  /** The scrolling element itself, for callers that scroll imperatively. */
+  ref?: Ref<HTMLDivElement>;
   alwaysBounce?: ScrollBounce;
   /**
    * We enforce rendering only a single child. This is to prevent many common

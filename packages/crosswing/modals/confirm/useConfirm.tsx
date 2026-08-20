@@ -1,12 +1,23 @@
 import { ReactNode } from "react";
 import { styled } from "styled-components";
+import { colors } from "../../colors/colors.js";
+import { fonts } from "../../fonts/fonts.js";
 import { Modal } from "../context/useModal.js";
 import { DialogView } from "../dialog/DialogView.js";
 import { useDialog } from "../dialog/useDialog.js";
 
 export interface Confirm {
   title?: ReactNode;
+  /**
+   * The body of the dialog — rendered as content below the header, above any
+   * children. (It used to land in DialogView's subtitle, which is styled for
+   * one short line; a "message" invites full sentences.)
+   */
   message?: ReactNode;
+  /** A short line under the title, for the rare confirm that wants one. */
+  subtitle?: ReactNode;
+  /** Rendered in the dialog header's top-right, like DialogView's accessories (e.g. a badge marking what confirming will spend). */
+  accessories?: ReactNode;
   children?: ReactNode;
   /** If true, the dialog children will be rendered with an alternative background color to set it apart from the header/footer. */
   childrenAltBackground?: boolean;
@@ -31,6 +42,8 @@ export function useConfirm<T extends any[]>(
     const {
       title,
       message,
+      subtitle,
+      accessories,
       children,
       childrenAltBackground,
       okText,
@@ -43,8 +56,16 @@ export function useConfirm<T extends any[]>(
     return (
       <StyledConfirmDialogView
         title={title}
-        subtitle={message}
-        children={children}
+        subtitle={subtitle}
+        accessories={accessories}
+        children={
+          message || children ? (
+            <>
+              {message && <div className="message">{message}</div>}
+              {children}
+            </>
+          ) : undefined
+        }
         childrenAltBackground={childrenAltBackground}
         onClose={dialog.hide}
         hideCloseButton
@@ -74,4 +95,7 @@ export function useConfirm<T extends any[]>(
 
 const StyledConfirmDialogView = styled(DialogView)`
   width: 350px;
+
+  > .children > .message {
+  }
 `;
