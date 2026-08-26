@@ -137,6 +137,14 @@ export async function shareFile(args: {
   await send("shareFile", args);
 }
 
+export async function printUrl(args: { url: string; jobName?: string }) {
+  // Use send() so the returned Promise resolves once the print sheet is
+  // actually on screen. Printing a URL means the host has to fetch and render
+  // the page first, which is slow enough that the caller wants to show a
+  // working state until it's up.
+  await send("printUrl", args);
+}
+
 export async function showMessageSheet(args: { to: string; body: string }) {
   post("showMessageSheet", args);
 }

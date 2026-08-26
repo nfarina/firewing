@@ -46,6 +46,7 @@ export function defaultHostContext(merge?: Partial<HostContextValue>): HostConte
     readFromClipboard: () => navigator.clipboard.readText(),
     showShareSheet: () => {},
     shareFile: async () => {},
+    printUrl: async () => {},
     showMessageSheet: () => {},
     showEmailSheet: () => {},
     getContacts: async () => [],

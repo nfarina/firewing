@@ -20,6 +20,8 @@ export interface HostContextValue {
   supportsShareSheet?: boolean;
   /** Whether the host can share/save a binary file (e.g. an export). */
   supportsFileShare?: boolean;
+  /** Whether the host can present a native print sheet for a URL (iOS AirPrint). */
+  supportsPrint?: boolean;
   supportsMessageSheet?: boolean;
   supportsEmailSheet?: boolean;
   supportsContacts?: boolean;
@@ -66,6 +68,18 @@ export interface HostContextValue {
    * save to Files, AirDrop, etc. Only meaningful when `supportsFileShare`.
    */
   shareFile(args: { blob: Blob; fileName: string }): Promise<void>;
+  /**
+   * Renders `url` offscreen and presents the OS print sheet for it — the
+   * printer picker, preview, and copies, without ever leaving the app. Only
+   * meaningful when `supportsPrint`; elsewhere, open the URL and let the
+   * browser's own print command do it.
+   *
+   * Resolves once the sheet is on screen, and rejects if the page couldn't be
+   * loaded, so the caller can show a working state in between. The page is
+   * loaded with `print=1` appended, which is how our print-only layouts know
+   * to render themselves — there's no browser print mode to detect here.
+   */
+  printUrl(args: { url: string; jobName?: string }): Promise<void>;
   /** Displays the system message compose sheet, if supported. */
   showMessageSheet(args: { to: string; body: string }): void;
   /** Displays the system email compose sheet, if supported. */
@@ -148,6 +162,8 @@ export interface HostFeatures {
   shareSheet?: boolean;
   /** Whether this host supports sharing/saving a binary file. */
   fileShare?: boolean;
+  /** Whether this host supports presenting a native print sheet for a URL. */
+  print?: boolean;
   /** Whether this host supports displaying a form for composing a text message. */
   messageSheet?: boolean;
   /** Whether this host supports displaying a form for composing an email. */

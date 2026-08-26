@@ -13,6 +13,7 @@ import {
   openSettings,
   openUrl,
   post,
+  printUrl,
   requestReview,
   requestLocationUpdate,
   requestLocationWhenInUseAuthorization,
@@ -89,6 +90,7 @@ export function HostProvider({
           supportsNotifications: container === "android" || !!features.notifications, // All android devices support notifications without prompting.
           supportsShareSheet: !!features.shareSheet,
           supportsFileShare: !!features.fileShare,
+          supportsPrint: !!features.print,
           supportsMessageSheet: !!features.messageSheet,
           supportsEmailSheet: !!features.emailSheet,
           supportsContacts: !!features.contacts,
@@ -122,6 +124,7 @@ export function HostProvider({
             const data = await blobToBase64(blob);
             await ipcShareFile({ data, fileName, mimeType: blob.type });
           },
+          printUrl,
           showMessageSheet,
           showEmailSheet,
           getContacts,
