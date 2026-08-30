@@ -209,6 +209,11 @@ export function PopupMenuText({
 
   function onButtonClick(e: MouseEvent<HTMLElement>) {
     onClick?.(e);
+    // Deliberately `onClick` only — a `to`-only item navigates and leaves
+    // the menu open. That looks like a bug (and has been "fixed" here at
+    // least once), but it's a choice: menus often survive navigation on
+    // purpose. A `to` item that should close the menu passes an onClick too,
+    // typically one that calls the popup's own hide().
     if (onClick && !leaveOpen) onClose?.();
   }
 

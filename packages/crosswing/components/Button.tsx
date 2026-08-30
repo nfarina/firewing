@@ -81,12 +81,16 @@ export const StyledButton = styled(Clickable)`
   min-height: 32px;
   padding: 6px 16px;
   border: none;
-  border-radius: 6px;
+  border-radius: 9px;
   color: ${colors.text()};
   font: ${fonts.displayBold({ size: 15 })};
   align-items: center;
   justify-content: center;
   text-decoration: none;
+
+  @media (pointer: coarse) {
+    min-height: 44px;
+  }
 
   > * {
     flex-shrink: 0;
@@ -122,12 +126,20 @@ export const StyledButton = styled(Clickable)`
     font: ${fonts.displayBold({ size: 14 })};
     padding: 6px 18px;
     min-height: 30px;
+
+    @media (pointer: coarse) {
+      min-height: 36px;
+    }
   }
 
   &[data-size="larger"] {
     font: ${fonts.displayBold({ size: 16 })};
     padding: 10px 20px;
     min-height: 40px;
+
+    @media (pointer: coarse) {
+      min-height: 50px;
+    }
   }
 
   &[data-size="largest"] {
