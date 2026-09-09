@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { createGlobalStyle, styled } from "styled-components";
+import { CrosswingAppStyleContext } from "./app.js";
 import { getBuilderVarCSS } from "./colors/builders.js";
 import { ColorBuilder, colors, shadows } from "./colors/colors.js";
 import {
@@ -49,7 +50,12 @@ export function CrosswingAppDecorator({
     useFontSizeHotKeys();
 
     return (
-      <>
+      // The layouts below install global styles rather than rendering
+      // <CrosswingApp>, so publish the resolved style ourselves — otherwise
+      // anything reading it in a story falls back to the bare defaults.
+      <CrosswingAppStyleContext
+        value={{ colors: resolvedColors, faces: resolvedFaces, fonts: resolvedFonts }}
+      >
         <CrosswingFontFaceStyle faces={resolvedFaces} />
         {layout === "centered" && (
           <CenteredLayoutGlobalStyle
@@ -80,7 +86,7 @@ export function CrosswingAppDecorator({
           />
         )}
         <Story />
-      </>
+      </CrosswingAppStyleContext>
     );
   }
 

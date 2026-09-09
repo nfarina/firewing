@@ -1,4 +1,4 @@
-import { HTMLAttributes } from "react";
+import { createContext, HTMLAttributes } from "react";
 import { styled } from "styled-components";
 import { getBuilderVarCSS } from "./colors/builders.js";
 import { ColorBuilder, colors, shadows } from "./colors/colors.js";
@@ -11,6 +11,25 @@ import {
   GlobalFontFace,
 } from "./fonts/fonts.js";
 import { BROWSER_SAFE_AREA, getSafeAreaCSS, SafeArea } from "./safearea/safeArea.js";
+
+/**
+ * The colors, fonts, and font faces the app is actually rendered with — our
+ * defaults plus whatever the project overrode. Anything that has to restate our
+ * styling somewhere it can't be inherited (a preview document written into an
+ * iframe, say) should build it from this rather than from the raw defaults,
+ * which is how you end up with Fira Sans in a project that uses system fonts.
+ */
+export type CrosswingAppStyle = {
+  colors: ColorBuilder[];
+  faces: GlobalFontFace[];
+  fonts: FontBuilder[];
+};
+
+export const CrosswingAppStyleContext = createContext<CrosswingAppStyle>({
+  colors: [...Object.values(colors), ...Object.values(shadows)],
+  faces: Object.values(faces),
+  fonts: Object.values(fonts),
+});
 
 export function CrosswingApp({
   colors: overriddenColors = [],
@@ -33,16 +52,20 @@ export function CrosswingApp({
   const resolvedFonts = [...Object.values(fonts), ...overriddenFonts];
 
   return (
-    <StyledCrosswingApp
-      $colors={resolvedColors}
-      $fonts={resolvedFonts}
-      $safeArea={overriddenSafeArea}
-      data-transparent={!!transparent}
-      {...rest}
+    <CrosswingAppStyleContext
+      value={{ colors: resolvedColors, faces: resolvedFaces, fonts: resolvedFonts }}
     >
-      <CrosswingFontFaceStyle faces={resolvedFaces} />
-      {children}
-    </StyledCrosswingApp>
+      <StyledCrosswingApp
+        $colors={resolvedColors}
+        $fonts={resolvedFonts}
+        $safeArea={overriddenSafeArea}
+        data-transparent={!!transparent}
+        {...rest}
+      >
+        <CrosswingFontFaceStyle faces={resolvedFaces} />
+        {children}
+      </StyledCrosswingApp>
+    </CrosswingAppStyleContext>
   );
 }
 
