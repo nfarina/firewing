@@ -1,10 +1,11 @@
 import { ReactNode, RefObject } from "react";
-import { styled } from "styled-components";
+import { styled, css } from "styled-components";
 import { colors } from "../colors/colors.js";
 import { fonts } from "../fonts/fonts.js";
 import { Link } from "../router/Link.js";
 import { Clickable } from "./Clickable.js";
 import { Spinner, StyledSpinner } from "./Spinner.js";
+import { coarsePointer } from "../host/util/pointer.js";
 
 export type ButtonSize = "smaller" | "normal" | "larger" | "largest";
 
@@ -88,9 +89,9 @@ export const StyledButton = styled(Clickable)`
   justify-content: center;
   text-decoration: none;
 
-  @media (pointer: coarse) {
+  ${coarsePointer(css`
     min-height: 44px;
-  }
+  `)}
 
   > * {
     flex-shrink: 0;
@@ -127,9 +128,9 @@ export const StyledButton = styled(Clickable)`
     padding: 6px 18px;
     min-height: 30px;
 
-    @media (pointer: coarse) {
+    ${coarsePointer(css`
       min-height: 36px;
-    }
+    `)}
   }
 
   &[data-size="larger"] {
@@ -137,9 +138,9 @@ export const StyledButton = styled(Clickable)`
     padding: 10px 20px;
     min-height: 40px;
 
-    @media (pointer: coarse) {
+    ${coarsePointer(css`
       min-height: 50px;
-    }
+    `)}
   }
 
   &[data-size="largest"] {
@@ -197,6 +198,20 @@ export const StyledButton = styled(Clickable)`
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
+    }
+
+    /*
+     * Callers who want a spinner without the disabled state that \`working\`
+     * brings can render one as a child. It lands inside .children along with
+     * the label, so lay that out as a row instead of letting the spinner wrap
+     * underneath the text.
+     */
+    > .children:has(> ${StyledSpinner}) {
+      display: flex;
+      flex-flow: row;
+      align-items: center;
+      gap: 10px;
+      overflow: visible;
     }
 
     > .right {

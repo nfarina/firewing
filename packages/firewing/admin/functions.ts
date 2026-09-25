@@ -10,6 +10,12 @@ export type UserFacingErrorOptions = Record<string, string | number | boolean> &
    * not to redeliver it.
    */
   retryable?: boolean;
+  /**
+   * A machine-readable reason carried onto the task's recorded error, so a
+   * client can offer a remedy for one kind of failure without matching on the
+   * message text.
+   */
+  reason?: string;
   /** A code describing the nature of the error, can be converted to a HTTP status code. */
   code?: FunctionsErrorCode;
 };

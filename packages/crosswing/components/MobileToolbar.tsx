@@ -44,7 +44,7 @@ export const StyledMobileToolbar = styled.div`
   flex-flow: row;
   align-items: center;
   justify-content: flex-end;
-  padding-bottom: ${safeArea.top()};
+  padding-bottom: ${safeArea.bottom()};
   padding-left: ${safeArea.left()};
   padding-right: ${safeArea.right()};
 

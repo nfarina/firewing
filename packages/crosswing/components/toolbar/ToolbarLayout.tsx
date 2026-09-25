@@ -121,7 +121,7 @@ export const StyledToolbarLayout = styled.div`
   }
 
   /* Mobile layout */
-  @media (max-width: 950px) {
+  @container viewport (max-width: 950px) {
     &[data-has-toolbar-layout-descendent="true"] > ${StyledToolbar} {
       display: none;
     }

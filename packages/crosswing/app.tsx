@@ -1,4 +1,4 @@
-import { createContext, HTMLAttributes } from "react";
+import { createContext, HTMLAttributes, use } from "react";
 import { styled } from "styled-components";
 import { getBuilderVarCSS } from "./colors/builders.js";
 import { ColorBuilder, colors, shadows } from "./colors/colors.js";
@@ -10,6 +10,7 @@ import {
   getFontVarCSS,
   GlobalFontFace,
 } from "./fonts/fonts.js";
+import { HostContext, hasHostProvider } from "./host/context/HostContext.js";
 import { BROWSER_SAFE_AREA, getSafeAreaCSS, SafeArea } from "./safearea/safeArea.js";
 
 /**
@@ -35,7 +36,7 @@ export function CrosswingApp({
   colors: overriddenColors = [],
   faces: overriddenFaces = [],
   fonts: overriddenFonts = [],
-  safeArea: overriddenSafeArea = BROWSER_SAFE_AREA,
+  safeArea: overriddenSafeArea,
   children,
   transparent,
   ...rest
@@ -48,6 +49,14 @@ export function CrosswingApp({
 } & HTMLAttributes<HTMLDivElement>) {
   const resolvedColors = [...Object.values(colors), ...Object.values(shadows), ...overriddenColors];
 
+  // We publish the safe area again here, which hides whatever an enclosing
+  // host provider published, so restate the host's: it knows about more than
+  // CSS does (the keyboard covering the bottom inset, our bar strip in Split
+  // View on the iPhone Duo). Without a host, it's whatever the browser says.
+  const host = use(HostContext);
+  const safeArea =
+    overriddenSafeArea ?? (hasHostProvider(host) ? host.safeArea : BROWSER_SAFE_AREA);
+
   const resolvedFaces = [...Object.values(faces), ...overriddenFaces];
   const resolvedFonts = [...Object.values(fonts), ...overriddenFonts];
 
@@ -58,7 +67,7 @@ export function CrosswingApp({
       <StyledCrosswingApp
         $colors={resolvedColors}
         $fonts={resolvedFonts}
-        $safeArea={overriddenSafeArea}
+        $safeArea={safeArea}
         data-transparent={!!transparent}
         {...rest}
       >

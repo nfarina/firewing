@@ -132,7 +132,16 @@ export const StyledToolbarPanelButton = styled(ToolbarButton)`
   padding: 1px;
   position: relative;
 
-  > div {
+  /*
+   * ToolbarButton is a newStyle Button, which wraps its children in a <span>.
+   * That span would clip our absolutely-positioned glyph and hide it entirely,
+   * so take it out of the box tree.
+   */
+  > .children {
+    display: contents;
+  }
+
+  div[data-edge] {
     --panel-icon-margin: 3.5px;
     --panel-icon-size: 13px;
     --panel-icon-near-radius: 3.5px;
@@ -183,14 +192,14 @@ export const StyledToolbarPanelButton = styled(ToolbarButton)`
     /* Colors from StatusBadge */
     background: ${colors.lightBlue({ lighten: 0.1, alpha: 0.5 })};
 
-    > div {
+    div[data-edge] {
       background: ${colors.lightBlue({ darken: 0.5 })};
     }
 
     @media (prefers-color-scheme: dark) {
       background: ${colors.lightBlue({ darken: 0.6, alpha: 0.8 })};
 
-      > div {
+      div[data-edge] {
         background: ${colors.lightBlue({ lighten: 0.06 })};
       }
     }
@@ -218,7 +227,7 @@ export const ToolbarSearch = styled(SearchInput).attrs({ newStyle: true })`
 
 /** Expands the search input to fill the available space (on mobile only). */
 export const ToolbarFlexSearch = styled(ToolbarSearch)`
-  @media (max-width: 500px) {
+  @container viewport (max-width: 500px) {
     width: auto;
     flex-grow: 1;
   }

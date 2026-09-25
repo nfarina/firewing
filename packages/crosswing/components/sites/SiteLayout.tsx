@@ -11,7 +11,6 @@ import { Menu } from "lucide-react";
 import { styled } from "styled-components";
 import { colors } from "../../colors/colors.js";
 import { flattenChildren } from "../../hooks/flattenChildren.js";
-import { useMatchMedia } from "../../hooks/useMatchMedia.js";
 import { Redirect } from "../../router/redirect/Redirect.js";
 import { Route, Switch } from "../../router/switch/Switch.js";
 import { safeArea } from "../../safearea/safeArea.js";
@@ -19,6 +18,7 @@ import { NoContent } from "../NoContent.js";
 import { SiteHeader, StyledSiteHeader } from "./SiteHeader.js";
 import { SiteHeaderAccessory } from "./SiteHeaderAccessory.js";
 import { PageTitleProvider, SitePageTitleDesktopStyle } from "./SitePageTitle.js";
+import { useViewportSize } from "../../viewport/viewport.js";
 import {
   SiteSidebar,
   SiteSidebarArea,
@@ -67,7 +67,7 @@ export function SiteLayout({
   //   setSidebarOpen(false);
   // }, [location.href({ excludeSearch: true })]);
 
-  const mobileLayout = useMatchMedia("(max-width: 500px)");
+  const mobileLayout = useViewportSize().width <= 500;
 
   function onLinkClick() {
     setSidebarOpen(false);
@@ -297,7 +297,7 @@ export const StyledSiteLayout = styled.div`
   }
 
   /* Mobile layout */
-  @media (max-width: 500px) {
+  @container viewport (max-width: 500px) {
     /* Remove the sidebar from the grid and make it float on the left. */
     grid-template-columns: 1fr;
     grid-template-rows: 60px 1fr;

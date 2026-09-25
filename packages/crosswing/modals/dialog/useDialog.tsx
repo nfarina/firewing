@@ -1,10 +1,12 @@
 import { CSSProperties, ReactNode, useRef } from "react";
-import { keyframes, styled } from "styled-components";
+import { css, keyframes, styled } from "styled-components";
 import { HotKeyContextDataAttributes, useHotKey } from "../../hooks/useHotKey.js";
+import { BarEdgeContext } from "../../host/context/BarEdgeContext.js";
 import { AndroidBackButtonClassName } from "../../host/context/HostContext.js";
-import { safeArea } from "../../safearea/safeArea.js";
+import { NO_SAFE_AREA, provideSafeArea, safeArea } from "../../safearea/safeArea.js";
 import { easing } from "../../shared/easing.js";
 import { Modal, useModal } from "../context/useModal.js";
+import { whenFolded } from "../../host/util/fold.js";
 
 export interface UseDialogOptions {
   /**
@@ -132,7 +134,8 @@ export const DialogContainer = ({
           child to return different elements from render() without triggering
           extra unwanted CSS "appear" animations. */}
       <div className="dialog" aria-modal tabIndex={-1}>
-        {children}
+        {/* Floating clear of the screen edges, so any bars inside run horizontally. */}
+        <BarEdgeContext value={null}>{children}</BarEdgeContext>
       </div>
     </StyledDialogContainer>
   );
@@ -185,12 +188,33 @@ const StyledDialogContainer = styled.div`
   padding-bottom: calc(24px + ${safeArea.bottom()});
   padding-left: calc(24px + ${safeArea.left()});
 
-  @media (max-width: 680px) {
+  @container viewport (max-width: 680px) {
     padding-top: calc(16px + ${safeArea.top()});
     padding-right: calc(16px + ${safeArea.right()});
     padding-bottom: calc(16px + ${safeArea.bottom()});
     padding-left: calc(16px + ${safeArea.left()});
   }
+
+  /* With room to spare, centered on the screen, not between the side safe
+     areas, which a strip down one side (the iPhone Duo) would pull off
+     center. */
+  @container viewport (min-width: 700px) {
+    padding-right: calc(24px + max(${safeArea.left()}, ${safeArea.right()}));
+    padding-left: calc(24px + max(${safeArea.left()}, ${safeArea.right()}));
+  }
+
+  /* Clear of the fold, on the side last tapped (see ModalRootProvider). */
+  ${whenFolded(css`
+    [data-is-modal-root]:not([data-fold-side="right"]) & {
+      padding-right: calc(100% - var(--fold-left) + 24px);
+      padding-left: calc(24px + ${safeArea.left()});
+    }
+
+    [data-is-modal-root][data-fold-side="right"] & {
+      padding-left: calc(var(--fold-right) + 24px);
+      padding-right: calc(24px + ${safeArea.right()});
+    }
+  `)}
 
   /* We render the backdrop as a separate div that we can animate
      opacity on, in hopes that webkit will optimize the animation in
@@ -207,6 +231,9 @@ const StyledDialogContainer = styled.div`
   }
 
   > .dialog {
+    /* We've padded the dialog clear of every screen edge, and of any fold. */
+    --fold: none;
+    ${provideSafeArea(NO_SAFE_AREA)}
     z-index: 1;
     position: relative;
     display: flex;

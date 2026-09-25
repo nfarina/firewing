@@ -60,7 +60,7 @@ export function ListLayout({
 
 export const StyledListLayout = styled(PanelLayout)`
   /* Mobile layout */
-  @media (max-width: 950px) {
+  @container viewport (max-width: 950px) {
     > .overlay {
       display: none;
     }

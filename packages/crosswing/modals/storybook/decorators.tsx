@@ -4,7 +4,8 @@ import { DialogContainer } from "../dialog/useDialog.js";
 import { SheetContainer } from "../sheet/useSheet.js";
 
 /**
- * For Storybook; renders your story inside a <ModalRootProvider>.
+ * For Storybook; renders your story inside a <ModalRootProvider>. Sheets float
+ * like dialogs where there's room, as they do in our apps.
  *
  * You may pass props to the ModalRootProvider by passing an object as the first
  * argument. Otherwise, you should use the decorator without calling it as
@@ -14,9 +15,11 @@ export function ModalDecorator(
   StoryOrParams: (() => any) | Parameters<typeof ModalRootProvider>[0],
 ): any {
   if (typeof StoryOrParams === "function") {
-    return <ModalRootProvider children={<StoryOrParams />} />;
+    return <ModalRootProvider allowDesktopPresentation children={<StoryOrParams />} />;
   } else {
-    return (Story: () => any) => <ModalRootProvider children={<Story />} {...StoryOrParams} />;
+    return (Story: () => any) => (
+      <ModalRootProvider allowDesktopPresentation children={<Story />} {...StoryOrParams} />
+    );
   }
 }
 

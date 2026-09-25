@@ -1,10 +1,10 @@
 {
   "name": "crosswing",
-  "type": "module",
-  "private": true,
   "version": "1.1.0",
+  "private": true,
   "description": "Crosswing UI framework.",
   "author": "nfarina@gmail.com",
+  "type": "module",
   "exports": {
     "./components/*": "./components/*.tsx",
     "./modals/actions": "./modals/actions/useActions.tsx",
@@ -35,8 +35,14 @@
     "./router/listener": "./router/util/useLocationChangeListener.ts",
     "./host/context": "./host/context/HostProvider.tsx",
     "./host/mocks": "./host/mocks/MockHostProvider.tsx",
+    "./host/mocks/device": "./host/mocks/MockDevice.tsx",
+    "./host/mocks/simulator": "./host/mocks/DeviceSimulator.tsx",
+    "./host/mocks/layouts": "./host/mocks/layouts.ts",
     "./host/types": "./host/util/types.ts",
+    "./host/pointer": "./host/util/pointer.ts",
+    "./host/fold": "./host/util/fold.ts",
     "./host/console": "./host/util/attachConsole.ts",
+    "./host/debug": "./host/debug/HostLayoutDebug.tsx",
     "./host/features/*": "./host/features/*.ts",
     "./host/util/smoothScroll": "./host/util/smoothScroll.ts",
     "./host/util/openExternalLink": "./host/util/openExternalLink.ts",
@@ -48,6 +54,7 @@
     "./colors": "./colors/colors.ts",
     "./colors/oklch": "./colors/oklch.ts",
     "./safearea": "./safearea/safeArea.ts",
+    "./viewport": "./viewport/viewport.ts",
     "./app": "./app.tsx",
     "./containers": "./containers.ts",
     "./fonts": "./fonts/fonts.ts",
@@ -66,12 +73,6 @@
     "lucide-react": "^1.28.0",
     "react-transition-group": "^4.4.5"
   },
-  "peerDependencies": {
-    "react": "*",
-    "react-dom": "*",
-    "react-is": "*",
-    "styled-components": "*"
-  },
   "devDependencies": {
     "@svgr/core": "^8.1.0",
     "@svgr/plugin-jsx": "^8.1.0",
@@ -81,5 +82,11 @@
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
     "react-is": "^19.2.8"
+  },
+  "peerDependencies": {
+    "react": "*",
+    "react-dom": "*",
+    "react-is": "*",
+    "styled-components": "*"
   }
 }

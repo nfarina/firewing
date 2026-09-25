@@ -1,4 +1,5 @@
 import { createGlobalStyle } from "styled-components";
+import { viewportContainer } from "./viewport/viewport.js";
 
 /** Top-level styles for a mobile app rendered with Crosswing. */
 export const CrosswingRootStyle = createGlobalStyle`
@@ -16,6 +17,8 @@ export const CrosswingRootStyle = createGlobalStyle`
     margin: 0;
     display: flex;
     flex-flow: column;
+    /* What width-dependent styles respond to (see viewportContainer). */
+    ${viewportContainer}
 
     /* The main <div> you're rendering your Crosswing app into. */
     > #root {

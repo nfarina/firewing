@@ -47,7 +47,7 @@ export const StyledToastContainer = styled.div`
   }
 
   /* On mobile, we want to show the toasts at the top of the screen like a banner. */
-  @media (max-width: 400px) {
+  @container viewport (max-width: 400px) {
     justify-content: flex-start;
     align-items: stretch;
 

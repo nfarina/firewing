@@ -23,7 +23,7 @@ export const DesktopFormLayout = styled.div`
     box-shadow: 1px 0 0 ${colors.separator()};
 
     /* If <ListLayout> collapses, then don't clip our width. */
-    @media (max-width: 950px) {
+    @container viewport (max-width: 950px) {
       max-width: unset;
     }
   }

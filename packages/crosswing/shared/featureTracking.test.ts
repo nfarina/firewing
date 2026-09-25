@@ -5,10 +5,10 @@ test("delivers features to a subscribed listener", () => {
   const seen: string[] = [];
   const unsubscribe = onFeatureUsed((feature) => seen.push(feature));
 
-  trackFeature("cookMode");
+  trackFeature("export");
   trackFeature("search");
 
-  expect(seen).toEqual(["cookMode", "search"]);
+  expect(seen).toEqual(["export", "search"]);
   unsubscribe();
 });
 

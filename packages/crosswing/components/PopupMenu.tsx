@@ -8,7 +8,7 @@ import {
   use,
   useRef,
 } from "react";
-import { styled } from "styled-components";
+import { styled, css } from "styled-components";
 import { colors } from "../colors/colors.js";
 import { fonts } from "../fonts/fonts.js";
 import { PopupPlacement } from "../modals/popup/getPopupPlacement.js";
@@ -21,6 +21,7 @@ import { Select } from "./forms/Select.js";
 import { Toggle } from "./forms/Toggle.js";
 import { TipView } from "./TipView.js";
 import { useListKeyboardNavigationJS } from "./useListKeyboardNavigationJS.js";
+import { coarsePointer } from "../host/util/pointer.js";
 
 // Used to drill the onClose prop down to the PopupMenu children without
 // having to clone elements and deal with "keys".
@@ -209,12 +210,10 @@ export function PopupMenuText({
 
   function onButtonClick(e: MouseEvent<HTMLElement>) {
     onClick?.(e);
-    // Deliberately `onClick` only — a `to`-only item navigates and leaves
-    // the menu open. That looks like a bug (and has been "fixed" here at
-    // least once), but it's a choice: menus often survive navigation on
-    // purpose. A `to` item that should close the menu passes an onClick too,
-    // typically one that calls the popup's own hide().
-    if (onClick && !leaveOpen) onClose?.();
+    // Navigation closes the menu too. It used to stay open to avoid a flicker
+    // when the navigation unmounted the whole page anyway, but stacked
+    // navigation often leaves the page (and its menu) mounted underneath.
+    if ((onClick || to) && !leaveOpen) onClose?.();
   }
 
   function onMouseEnter(e: MouseEvent<HTMLElement>) {
@@ -417,7 +416,7 @@ export const StyledPopupMenuText = styled.div`
   }
 
   /* Enlarged tap targets for touch devices. */
-  @media (hover: none), (pointer: coarse) {
+  ${coarsePointer(css`
     padding: 12px 14px;
     min-height: 44px;
     gap: 12px;
@@ -426,7 +425,7 @@ export const StyledPopupMenuText = styled.div`
       width: 18px;
       height: 18px;
     }
-  }
+  `)}
 `;
 
 export const PopupMenuSelect = styled(Select)`

@@ -22,6 +22,11 @@ export type RouterContextValue = {
    */
   back?: string;
   /**
+   * True for the first page on the right of split <Navs>, whose way back is
+   * the root page beside it (already on screen), so it shows no back button.
+   */
+  besideRoot?: boolean;
+  /**
    * "Parent" router, if this Router is nexted inside another Router.
    */
   parent?: RouterContextValue;

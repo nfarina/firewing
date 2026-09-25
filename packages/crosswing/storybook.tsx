@@ -1,5 +1,7 @@
 import { useEffect } from "react";
 import { createGlobalStyle, styled } from "styled-components";
+import { DeviceSimulator } from "./host/mocks/DeviceSimulator.js";
+import { viewportContainer } from "./viewport/viewport.js";
 import { CrosswingAppStyleContext } from "./app.js";
 import { getBuilderVarCSS } from "./colors/builders.js";
 import { ColorBuilder, colors, shadows } from "./colors/colors.js";
@@ -85,7 +87,15 @@ export function CrosswingAppDecorator({
             $background={background}
           />
         )}
-        <Story />
+        {layout === "mobile" ? (
+          // On a mock device you can switch between every device and pose we
+          // have a layout for, rather than a fixed phone-sized frame.
+          <DeviceSimulator>
+            <Story />
+          </DeviceSimulator>
+        ) : (
+          <Story />
+        )}
       </CrosswingAppStyleContext>
     );
   }
@@ -100,6 +110,7 @@ const CenteredLayoutGlobalStyle = createGlobalStyle<{
 }>`
   html {
     > body {
+      ${viewportContainer}
     /* Define our color and font vars so stories have access to the default theme. */
     ${(p) => getBuilderVarCSS(p.$colors)}
     ${(p) => getFontVarCSS(p.$fonts)}
@@ -129,6 +140,7 @@ const ComponentLayoutGlobalStyle = createGlobalStyle<{
 }>`
   html {
     > body {
+      ${viewportContainer}
     /* Define our color and font vars so stories have access to the default theme. */
     ${(p) => getBuilderVarCSS(p.$colors)}
     ${(p) => getFontVarCSS(p.$fonts)}
@@ -163,6 +175,7 @@ const MobileLayoutGlobalStyle = createGlobalStyle<{
     height: 100%;
 
     > body {
+      ${viewportContainer}
       height: 100%;
 
     /* Define our color and font vars so stories have access to the default theme. */
@@ -177,21 +190,15 @@ const MobileLayoutGlobalStyle = createGlobalStyle<{
       }
 
       > #storybook-root {
-        /* Approximate the visible content area of an iPhone 12 Pro. */
-        width: 390px;
-        height: 715px;
-        overflow: auto;
-
-        /* Make the height shrink down to the viewport. Typically I'm developing with Chrome DevTools open and don't have a lot of height to work with. */
-        max-height: 100%;
+        /* The whole canvas, for a DeviceSimulator (see CrosswingAppDecorator). */
+        width: 100%;
+        height: 100%;
         display: flex;
         flex-flow: column;
 
-        /* Override Storybook's "centered" layout padding to get more space on my small MacBook Air screen. */
+        /* Override Storybook's "centered" layout padding; the simulator
+           centers the device itself. */
         padding: 0 !important;
-
-        /* Make the mobile frame stand out from the default Storybook background. */
-        background: ${colors.textBackground()};
 
         /* StyledCrosswingApp provides a default color. */
         color: ${colors.text()};
@@ -220,6 +227,7 @@ const FullScreenLayoutGlobalStyle = createGlobalStyle<{
   }
 
   body {
+    ${viewportContainer}
     height: 100%;
 
     /* Define our color and font vars so stories have access to the default theme. */

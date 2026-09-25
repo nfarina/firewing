@@ -53,7 +53,7 @@ export function DatePicker({
     <NavLayout
       title={title}
       subtitle={subtitle}
-      left={{ title: "Cancel", back: true, onClick: onClose }}
+      left={{ title: "Cancel", role: "cancel", back: true, onClick: onClose }}
     >
       <PageLayout>
         {notice && <Notice children={notice} size="smaller" />}

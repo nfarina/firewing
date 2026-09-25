@@ -327,13 +327,22 @@ export const StyledCalendarView = styled.div`
             &[data-is-range-start="true"] > .range-inner {
               left: 50%;
               width: 50%;
+              /* Undo the week-edge rounding above when the range starts on a Sunday. */
+              border-top-left-radius: 0;
+              border-bottom-left-radius: 0;
             }
 
+            /*
+             * Mirror of range-start: the bar fills the left half of the cell and
+             * runs flat into the endcap circle. It must NOT round off its right
+             * edge, or the highlight visibly pulls away from the circle.
+             */
             &[data-is-range-end="true"] > .range-inner {
-              border-top-right-radius: 100%;
-              border-bottom-right-radius: 100%;
-              right: 50%;
+              left: 0;
               width: 50%;
+              /* Likewise when the range ends on a Saturday. */
+              border-top-right-radius: 0;
+              border-bottom-right-radius: 0;
             }
 
             > .number {

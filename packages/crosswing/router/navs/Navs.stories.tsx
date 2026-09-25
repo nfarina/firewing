@@ -6,7 +6,12 @@ import { Link } from "../Link.js";
 import { RouterContext } from "../context/RouterContext.js";
 import { Redirect } from "../redirect/Redirect.js";
 import { BrowserSimulator } from "../storybook/BrowserSimulator.js";
-import { NavRoute, Navs } from "./Navs.js";
+import { styled } from "styled-components";
+import { Scrollable } from "../../components/Scrollable.js";
+import { SeparatorLayout, StyledSeparatorLayout } from "../../components/SeparatorLayout.js";
+import { TextCell } from "../../components/forms/TextCell.js";
+import { padSafeArea } from "../../safearea/safeArea.js";
+import { NavLayout, NavRoute, Navs } from "./Navs.js";
 
 export default {
   component: Navs,
@@ -92,4 +97,65 @@ export const RedirectReplacesImportInStack: StoryObj<typeof Navs> = {
       await expect(await canvas.findByText("BOOK bookA")).toBeVisible();
     });
   },
+};
+
+function SettingsPage({ title, links }: { title: string; links: [string, string][] }) {
+  return (
+    <NavLayout isApplicationRoot={title === "Settings"} title={title} extendsUnderBars>
+      <Scrollable>
+        <StyledSettingsPage>
+          <SeparatorLayout bordered>
+            {links.map(([label, to]) => (
+              <TextCell key={to} newStyle to={to} title={label} />
+            ))}
+          </SeparatorLayout>
+        </StyledSettingsPage>
+      </Scrollable>
+    </NavLayout>
+  );
+}
+
+const StyledSettingsPage = styled.div`
+  ${padSafeArea("left", "right", "top", { bottom: "20px" })}
+
+  > ${StyledSeparatorLayout} {
+    margin: 20px 10px;
+  }
+`;
+
+/**
+ * Split <Navs>, like Settings. With room (an iPad, or an iPhone Duo open or
+ * in the book pose), the root stays on the left and what it opens stacks up
+ * on the right; opening another of the root's pages starts that stack over.
+ * About is a full-screen route, so the root's pane steps aside for it.
+ * Anywhere narrower, it's an ordinary stack.
+ */
+export const Split: StoryObj<typeof Navs> = {
+  render: () => (
+    <BrowserSimulator initialPath="/">
+      <Navs split>
+        <NavRoute
+          render={() => (
+            <SettingsPage
+              title="Settings"
+              links={[
+                ["General", "/general"],
+                ["Privacy", "/privacy"],
+              ]}
+            />
+          )}
+        />
+        <NavRoute
+          path="general"
+          render={() => <SettingsPage title="General" links={[["About", "/general/about"]]} />}
+        />
+        <NavRoute
+          path="general/about"
+          fullScreen
+          render={() => <SettingsPage title="About" links={[]} />}
+        />
+        <NavRoute path="privacy" render={() => <SettingsPage title="Privacy" links={[]} />} />
+      </Navs>
+    </BrowserSimulator>
+  ),
 };

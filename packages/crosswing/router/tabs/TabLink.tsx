@@ -47,7 +47,13 @@ export function TabLink({
   };
 
   return (
-    <StyledTabLink to={to} data-active={active} onClick={onClick}>
+    <StyledTabLink
+      to={to}
+      data-active={active}
+      onClick={onClick}
+      // For when the title is hidden, like in the iPhone Duo's strip.
+      title={typeof title === "string" ? title : undefined}
+    >
       <div className="icon" children={icon} />
       <div className="text">{title}</div>
       {!!badge && <UnreadBadge children={badge === "any" ? <>&nbsp;</> : badge} />}

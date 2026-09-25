@@ -20,6 +20,10 @@ export class MockAuth extends EventEmitter<MockAuthEvents> {
     this.user = user ?? null;
   }
 
+  public get currentUser(): User | null {
+    return this.user as User | null;
+  }
+
   public onAuthStateChanged(listener: NextOrObserver<User>): Unsubscribe {
     // Use our own event emitter to implement this firebase-expected method.
     function handler(user: MockedAuth | null) {

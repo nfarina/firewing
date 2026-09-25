@@ -41,13 +41,20 @@ import { useBackButton } from "../util/useBackButton.js";
 import { useClipboard } from "../util/useClipboard.js";
 import { useDeepLinks } from "../util/useDeepLinks.js";
 import { useFeatures } from "../util/useFeatures.js";
+import { useHostLayout } from "../util/useHostLayout.js";
 import { useHostViewport } from "../util/useHostViewport.js";
 import { usePreferredFontSize } from "../util/usePreferredFontSize.js";
 import { useSafeArea } from "../util/useSafeArea.js";
 import { useScrollToTop } from "../util/useScrollToTop.js";
 import { useWindowListener } from "../util/useWindowListener.js";
+import { useMatchMedia } from "../../hooks/useMatchMedia.js";
+import { getFoldStyle } from "../util/fold.js";
+import { COARSE_POINTER_QUERY, getPointerStyle } from "../util/pointer.js";
+import { getBarStripStyle, getSafeAreaCornersStyle, reserveSafeArea } from "../util/barStrip.js";
+import { BarEdgeContext } from "./BarEdgeContext.js";
 import { HostContext } from "./HostContext.js";
 
+export * from "./BarEdgeContext.js";
 export * from "./HostContext.js";
 
 export function HostProvider({
@@ -62,6 +69,7 @@ export function HostProvider({
 }) {
   const features = useFeatures();
   const viewport = useHostViewport();
+  const layout = useHostLayout(features);
   const safeArea = useSafeArea(container, features, viewport);
   const deepLink = useDeepLinks(features);
   const clipboard = useClipboard(features);
@@ -73,13 +81,19 @@ export function HostProvider({
   // Initialize scroll-to-top when tapping status bar on iOS.
   const scrollToTop = useScrollToTop(container);
 
+  // Whether we're pointed at with a finger. Published as --pointer too, for
+  // coarsePointer().
+  const coarse = useMatchMedia(COARSE_POINTER_QUERY);
+
   const value: HostContextValue | null =
     features && viewport && safeArea && deepLink
       ? {
           container,
           platform: (features.platform as HostPlatform) ?? "unknown",
-          safeArea,
+          safeArea: reserveSafeArea(safeArea, layout),
           viewport,
+          pointer: coarse ? "coarse" : "fine",
+          layout,
           preferredFontSize,
           deepLink,
           deviceId: deviceId ?? features.identifier,
@@ -152,8 +166,20 @@ export function HostProvider({
 
   return (
     <HostContext value={value}>
-      {/* We need an actual HTML element in the DOM to attach our CSS custom properties to. */}
-      <StyledHostProvider $safeArea={value.safeArea} {...rest} />
+      <BarEdgeContext value={layout?.barEdge ?? null}>
+        {/* We need an actual HTML element in the DOM to attach our CSS custom properties to. */}
+        <StyledHostProvider
+          $safeArea={value.safeArea}
+          {...rest}
+          style={{
+            ...getPointerStyle(value.pointer),
+            ...getBarStripStyle(layout),
+            ...getFoldStyle(layout),
+            ...getSafeAreaCornersStyle(layout),
+            ...rest.style,
+          }}
+        />
+      </BarEdgeContext>
     </HostContext>
   );
 }

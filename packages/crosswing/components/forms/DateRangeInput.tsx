@@ -1,7 +1,6 @@
 import dayjs from "dayjs";
 import { lazy, Suspense } from "react";
 import { styled } from "styled-components";
-import { useMatchMedia } from "../../hooks/useMatchMedia.js";
 import { PopupView } from "../../modals/popup/PopupView.js";
 import { usePopup } from "../../modals/popup/usePopup.js";
 import { useSheet } from "../../modals/sheet/useSheet.js";
@@ -10,6 +9,7 @@ import { PopupButton } from "../PopupButton.js";
 import { ToolbarPopupButton } from "../toolbar/Toolbar.js";
 import { AllDateRangePresets, areDateRangesEqual, DateRange } from "./DateRange.js";
 import DateRangePicker from "./DateRangePicker.js";
+import { useViewportSize } from "../../viewport/viewport.js";
 
 const DateRangeControl = lazy(() => import("./DateRangeControl.js"));
 
@@ -32,30 +32,36 @@ export function DateRangeInput({
   inToolbar?: boolean;
 }) {
   // Use a Popup for desktop layouts with lots of space.
-  const popup = usePopup(() => (
-    <DateRangePopupView>
-      <Suspense fallback={<LoadingCurtain lazy />}>
-        <DateRangeControl
-          value={value}
-          onValueChange={(newValue, type) => {
-            onValueChange(newValue);
-            if (type === "preset" || type === "custom") {
-              // Hide the popup if you entered a custom value or clicked a preset
-              // date range button.
-              popup.hide();
-            }
-          }}
-        />
-      </Suspense>
-    </DateRangePopupView>
-  ));
+  const popup = usePopup(
+    () => (
+      <DateRangePopupView>
+        <Suspense fallback={<LoadingCurtain lazy />}>
+          <DateRangeControl
+            value={value}
+            onValueChange={(newValue, type) => {
+              onValueChange(newValue);
+              if (type === "preset" || type === "custom") {
+                // Hide the popup if you entered a custom value or clicked a preset
+                // date range button.
+                popup.hide();
+              }
+            }}
+          />
+        </Suspense>
+      </DateRangePopupView>
+    ),
+    // The popup area's default is 80% of the window, which stretches the
+    // calendar grid across very wide screens. Cap it just past the 475px
+    // threshold where DateRangeControl switches to its desktop layout.
+    { maxWidth: `${POPUP_MAX_WIDTH}px` },
+  );
 
   // Use a sheet for mobile layouts.
   const sheet = useSheet(() => (
     <DateRangePicker onClose={sheet.hide} defaultRange={value} onDateSelected={onValueChange} />
   ));
 
-  const mobileLayout = useMatchMedia("(max-width: 500px)");
+  const mobileLayout = useViewportSize().width <= 500;
 
   function renderTitle() {
     // Does the value match one of the presets?
@@ -136,9 +142,11 @@ export const StyledDateRangeInput = styled(PopupButton)`
   }
 `;
 
+/** Also applied via usePopup's maxWidth, which is what actually constrains it. */
+const POPUP_MAX_WIDTH = 540;
+
 const DateRangePopupView = styled(PopupView)`
   width: 100%;
-  max-width: 500px;
 
   > .container {
     height: calc(100% - 10px);

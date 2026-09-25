@@ -194,7 +194,7 @@ export const StyledDialogView = styled.form`
   box-sizing: border-box;
   --dialog-padding: 24px;
 
-  @media (max-width: 680px) {
+  @container viewport (max-width: 680px) {
     min-width: 0;
     max-width: 100%;
     border-radius: 9px;

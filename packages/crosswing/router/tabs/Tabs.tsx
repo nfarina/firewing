@@ -6,30 +6,48 @@ import {
   isValidElement,
   use,
   useEffect,
+  useRef,
   useState,
 } from "react";
 import { styled } from "styled-components";
 import { colors } from "../../colors/colors.js";
+import { easing } from "../../shared/easing.js";
 import { flattenChildren } from "../../hooks/flattenChildren.js";
+import { useElementSize } from "../../hooks/useElementSize.js";
+import { BarEdgeContext } from "../../host/context/BarEdgeContext.js";
 import { HostContext } from "../../host/context/HostContext.js";
-import { safeArea } from "../../safearea/safeArea.js";
+import { SizeClasses, sizeClassesForSize } from "../../host/util/sizeClass.js";
+import { HostLayout } from "../../host/util/types.js";
+import { provideSafeArea, safeArea } from "../../safearea/safeArea.js";
 import { RouterLocation } from "../RouterLocation.js";
 import { RouterContext } from "../context/RouterContext.js";
 import { StyledNavs } from "../navs/NavStack.js";
 import { Redirect } from "../redirect/Redirect.js";
-import { StyledTabBar, TabBar } from "./TabBar.js";
+import { StyledTabBar, TabBar, TabBarPresentation } from "./TabBar.js";
 import { TabProps } from "./TabLink.js";
+import { TabsContext } from "./TabsContext.js";
 
 export * from "./TabBar.js";
 export * from "./TabLink.js";
+export * from "./TabsContext.js";
 export * from "./UnreadBadge.js";
 
 const debug = Debug("router:Tabs");
 
 export function Tabs({
   children,
+  floating,
   ...rest
-}: { children: ReactNode } & HTMLAttributes<HTMLDivElement>) {
+}: {
+  children: ReactNode;
+  /**
+   * Float the bar along the bottom as a capsule over the content, like iOS's
+   * tab bars since iOS 26, instead of a bar that claims its own space. Pages
+   * are kept clear of it (see TabsContext), unless their NavLayout extends
+   * under bars, in which case their content scrolls on behind it.
+   */
+  floating?: boolean;
+} & HTMLAttributes<HTMLDivElement>) {
   // Coerce children to array, flattening fragments and falsy conditionals.
   const tabs = flattenChildren(children).filter(isTab);
 
@@ -37,8 +55,24 @@ export function Tabs({
   const { location, nextLocation, history, parent, flags } = use(RouterContext);
 
   // Grab the viewport information from our native host so we can hide
-  // the tab bar if the keyboard is visible.
-  const { viewport, container } = use(HostContext);
+  // the tab bar if the keyboard is visible, and its layout so we can present
+  // the tab bar to suit the device and pose.
+  const { viewport, container, layout } = use(HostContext);
+  const barEdge = use(BarEdgeContext);
+
+  // Without a host reporting size classes (in a browser), approximate them
+  // from our own size.
+  const ref = useRef<HTMLDivElement>(null);
+  const [size, setSize] = useState({ width: 0, height: 0 });
+  useElementSize(ref, setSize);
+
+  const { width, height } = layout ?? size;
+
+  const presentation = getTabBarPresentation({
+    sizeClass: layout?.sizeClass ?? sizeClassesForSize(size),
+    barEdge,
+    landscape: width > height,
+  });
 
   // Construct our storage for inactive tabs.
   const [tabLocations] = useState(() => new Map<string, RouterLocation>());
@@ -131,20 +165,65 @@ export function Tabs({
   // const collapsed = viewport.keyboardVisible; //|| (container === "android" && !atTabRoot);
 
   // Keyboard detection isn't working well on some Android devices.
-  // (Outdated comment - we're trying it again anyway!)
-  const collapsed = /*container !== "android" &&*/ viewport.keyboardVisible;
+  // (Outdated comment - we're trying it again anyway!) A bar along the bottom
+  // would ride up on the keyboard, so we hide it. So does the strip, since
+  // the keyboard leaves it too short to hold the tabs and the nav's buttons.
+  const collapsed = /*container !== "android" &&*/ !!viewport.keyboardVisible;
+
+  const floatingBar = !!floating && presentation.startsWith("bottom") && !collapsed;
 
   return (
-    <StyledTabs data-container={container} data-collapsed={collapsed} {...rest}>
-      {tabs.map(renderTabContents)}
+    <StyledTabs
+      ref={ref}
+      data-container={container}
+      data-collapsed={collapsed}
+      data-floating={floatingBar}
+      data-presentation={presentation}
+      data-bar-edge={barEdge ?? undefined}
+      {...rest}
+    >
+      <TabsContext value={{ floatingTabBar: floatingBar }}>
+        {tabs.map(renderTabContents)}
+      </TabsContext>
       <TabBar
         tabs={tabs}
         selectedTab={nextSelected.tab}
+        presentation={presentation}
+        floating={floatingBar}
         getTabLink={getTabLink}
-        collapsed={collapsed}
       />
     </StyledTabs>
   );
+}
+
+/**
+ * Picks how to present the tab bar from the size classes and the edge where
+ * the system wants bars (if any).
+ */
+export function getTabBarPresentation({
+  sizeClass,
+  barEdge,
+  landscape,
+}: {
+  sizeClass: SizeClasses;
+  barEdge?: HostLayout["barEdge"] | null;
+  landscape?: boolean;
+}): TabBarPresentation {
+  // The system runs bars vertically along one edge (iPhone Duo, closed or
+  // open). Tabs stay in that strip as the Duo opens and closes, so they don't
+  // jump around the screen.
+  if (barEdge) return "strip";
+
+  // Room to spare (iPad): a bar along the bottom, the same as on iPhone, and
+  // the shorter one in landscape, where height is scarcer than width.
+  if (sizeClass.horizontal === "regular" && sizeClass.vertical === "regular") {
+    return landscape ? "bottom-inline" : "bottom";
+  }
+
+  // Short (iPhone landscape).
+  if (sizeClass.vertical === "compact") return "bottom-inline";
+
+  return "bottom";
 }
 
 interface SelectedTab {
@@ -193,10 +272,15 @@ export const StyledTabs = styled.div`
   position: relative; /* Reset z-index. */
   background: ${colors.textBackground()};
   overflow: hidden;
+
   --tab-bar-height: 49px;
 
   &[data-container="android"] {
     --tab-bar-height: 58px;
+  }
+
+  &[data-presentation="bottom-inline"] {
+    --tab-bar-height: 32px;
   }
 
   > ${TabContent}.inactive, > ${TabContent}.active {
@@ -205,7 +289,7 @@ export const StyledTabs = styled.div`
     top: 0;
     left: 0;
     right: 0;
-    bottom: calc(var(--tab-bar-height) + ${safeArea.bottom()});
+    bottom: 0;
     display: flex;
 
     > * {
@@ -214,18 +298,16 @@ export const StyledTabs = styled.div`
 
       flex-grow: 1;
     }
-
-    &:not(:has(*[data-hide-tab-bar="true"])) {
-      > * {
-        /* "Consume" the bottom safe area so our children don't account for it. */
-        --safe-area-bottom: 0px;
-      }
-    }
   }
 
-  &[data-collapsed="true"] {
-    > ${TabContent}.inactive, > ${TabContent}.active {
-      bottom: 0;
+  /* Bars along the bottom claim their space, and cover the bottom edge so the
+     content doesn't need to. */
+  &[data-presentation^="bottom"]:not([data-collapsed="true"]):not([data-floating="true"])
+  > ${TabContent} {
+    bottom: calc(var(--tab-bar-height) + ${safeArea.bottom()});
+
+    &:not(:has(*[data-hide-tab-bar="true"])) > * {
+      ${provideSafeArea({ bottom: "0px" })}
     }
   }
 
@@ -237,11 +319,13 @@ export const StyledTabs = styled.div`
     ${StyledNavs} {
       overflow: visible;
     }
+  }
 
-    /* Special data attribute added by <NavLayout>. Our approach to hiding the tab bar used to be complex, but is now simple, we just stretch the content of any <NavLayout> to cover up the tabs. */
-    *[data-hide-tab-bar="true"] {
-      bottom: calc(0px - var(--tab-bar-height) - ${safeArea.bottom()});
-    }
+  /* Special data attribute added by <NavLayout>. Our approach to hiding the tab bar used to be complex, but is now simple, we just stretch the content of any <NavLayout> to cover up the tabs. */
+  &[data-presentation^="bottom"]:not([data-floating="true"])
+  > ${TabContent}.active
+  *[data-hide-tab-bar="true"] {
+    bottom: calc(0px - var(--tab-bar-height) - ${safeArea.bottom()});
   }
 
   > ${TabContent}.inactive {
@@ -252,8 +336,76 @@ export const StyledTabs = styled.div`
   > ${StyledTabBar} {
     z-index: 1;
     position: absolute;
+  }
+
+  &[data-collapsed="true"] > ${StyledTabBar} {
+    display: none;
+  }
+
+  &[data-presentation^="bottom"] > ${StyledTabBar} {
+    left: 0;
+    right: 0;
     bottom: 0;
-    width: 100%;
-    transition: transform 0.2s ease-in-out;
+  }
+
+  /* A floating bar hovers over the content, which runs to the bottom edge
+     behind it. How much of the content it covers is passed down for the pages
+     to keep clear of (see NavLayout). */
+  &[data-floating="true"] {
+    --tab-bar-height: 62px;
+    --floating-tab-bar-bottom: max(12px, calc(${safeArea.bottom()} - 8px));
+
+    &[data-presentation="bottom-inline"] {
+      --tab-bar-height: 44px;
+    }
+
+    > ${TabContent} > * {
+      --floating-tab-bar-height: calc(var(--floating-tab-bar-bottom) + var(--tab-bar-height) + 8px);
+    }
+
+    > ${StyledTabBar} {
+      z-index: 3;
+      /* Hugs its tabs, centered, like iOS's, and never wider than the
+         screen allows. */
+      left: 50%;
+      translate: -50% 0;
+      width: max-content;
+      max-width: calc(100% - ${safeArea.left()} - ${safeArea.right()} - 40px);
+      bottom: var(--floating-tab-bar-bottom);
+      transition:
+        transform 0.3s ${easing.outCubic},
+        opacity 0.3s ${easing.outCubic};
+    }
+
+    /* A page that hides the tab bar just sends it away, since it doesn't
+       hold any space to give back. */
+    &:has(> ${TabContent}.active ${StyledNavs} > .item:last-child [data-hide-tab-bar="true"])
+    > ${StyledTabBar} {
+      transform: translateY(calc(100% + var(--floating-tab-bar-bottom)));
+      opacity: 0;
+      pointer-events: none;
+    }
+  }
+
+  /* The strip sits in space the system already reserves for bars, over
+     whatever runs underneath. */
+  &[data-presentation="strip"] > ${StyledTabBar} {
+    z-index: 3;
+    bottom: var(--bar-strip-bottom, 0px);
+    width: var(--bar-strip-width, 44px);
+    align-items: center;
+  }
+
+  &[data-presentation="strip"]:has(> ${TabContent}.active [data-hide-tab-bar="true"])
+  > ${StyledTabBar} {
+    display: none;
+  }
+
+  &[data-presentation="strip"][data-bar-edge="right"] > ${StyledTabBar} {
+    right: var(--bar-strip-edge-inset, 20px);
+  }
+
+  &[data-presentation="strip"][data-bar-edge="left"] > ${StyledTabBar} {
+    left: var(--bar-strip-edge-inset, 20px);
   }
 `;

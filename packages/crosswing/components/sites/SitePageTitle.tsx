@@ -280,7 +280,7 @@ export const StyledPageTitle = styled.div`
 
   /* If <ListLayout> has collapsed, we want to use a mobile breadcrumb
      system that mimics <Navs>. */
-  @media (max-width: 950px) {
+  @container viewport (max-width: 950px) {
     > ${BreadcrumbPageTitle} {
       display: none;
     }

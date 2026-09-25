@@ -17,6 +17,8 @@ export type NavStackItem = {
   childContext: RouterContextValue;
   child: ReactElement<any>;
   ref: RefObject<HTMLDivElement | null>;
+  /** Covers the whole of split <Navs>, not just its pane. */
+  fullScreen?: boolean;
 };
 
 export function NavStack({
@@ -102,7 +104,7 @@ export function NavStack({
               exit: animation !== "none" ? 300 : 0,
             }}
           >
-            <div className="item" ref={item.ref}>
+            <div className="item" ref={item.ref} data-full-screen={!!item.fullScreen}>
               <RouterContext value={item.childContext}>
                 {/* Per-page, so a screen that throws leaves the rest of the app
                     (tab bar included) usable, and — critically — always offers

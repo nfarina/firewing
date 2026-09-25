@@ -1,5 +1,7 @@
 import { SafeArea } from "../../safearea/safeArea";
 
+export type HostPointer = "coarse" | "fine";
+
 export interface HostContextValue {
   container: HostContainer;
   platform: HostPlatform;
@@ -10,6 +12,18 @@ export interface HostContextValue {
   deviceId?: string;
   safeArea: SafeArea;
   viewport: HostViewport;
+  /**
+   * Whether the user points with a finger (`coarse`) or a mouse or trackpad
+   * (`fine`). Mock devices report `coarse`, so touch-sized UI shows up in a
+   * desktop browser too. Style with coarsePointer() rather than a media query,
+   * which only ever sees the real browser.
+   */
+  pointer: HostPointer;
+  /**
+   * Layout signals from the host (size classes, the fold, which edge bars go
+   * on, etc), or undefined if the host doesn't report them.
+   */
+  layout?: HostLayout;
   preferredFontSize: number;
   deepLink: DeepLink;
   clientUrl?: string;
@@ -187,6 +201,8 @@ export interface HostFeatures {
   reviewPrompt?: boolean;
   /** Any plugins exposed by the host. */
   plugins?: Record<string, HostPlugin>;
+  /** The host's layout at the time features were requested. */
+  layout?: HostLayout;
 }
 
 // DeepLink is a class and not just a string, because, imagine the user
@@ -229,6 +245,71 @@ export interface HostPlugin {
 export interface HostViewport {
   height?: number;
   keyboardVisible?: boolean;
+}
+
+/**
+ * Layout signals from the host, in CSS pixels relative to the web view. Follows
+ * Apple's guidance for adapting to device poses (iPhone Duo, Split View, etc):
+ * lay out from size classes, safe areas, reserved regions, and the bar edge,
+ * never from the device model or orientation.
+ */
+export interface HostLayout {
+  width: number;
+  height: number;
+  sizeClass: { horizontal: HostSizeClass; vertical: HostSizeClass };
+  /** Numeric equivalent of the CSS `env(safe-area-inset-*)` values. */
+  safeArea: HostInsets;
+  /**
+   * The safe area, also clearing the screen's rounded corners along one axis.
+   * `horizontal` pushes the left and right in (for content along the top or
+   * bottom edge); `vertical` pushes the top and bottom in. CSS has no
+   * equivalent, so these only come from the host.
+   */
+  safeAreaCorners?: { horizontal: HostInsets; vertical: HostInsets };
+  /**
+   * The edge where the system wants bars (toolbars, tab bars, navigation) to
+   * run vertically, if any, like on the iPhone Duo's outer display.
+   */
+  barEdge?: "left" | "right";
+  /**
+   * Where the system would place a 44px bar along each edge, routed around
+   * cameras and the status bar.
+   */
+  bars?: { top: HostRect; left: HostRect; bottom: HostRect; right: HostRect };
+  /** Areas covered by hardware, like cameras and the Dynamic Island. */
+  occlusions?: HostReservedRegion[];
+  /** Areas that split content into separate regions, like the fold. */
+  divisions?: HostReservedRegion[];
+  /** Our window's frame on its screen; narrower than the screen in Split View. */
+  window?: HostRect;
+  screen?: { width: number; height: number };
+  /** For context only; lay out from size classes instead. */
+  orientation?: "portrait" | "portraitUpsideDown" | "landscapeLeft" | "landscapeRight" | "unknown";
+  /** For context only; lay out from divisions instead. */
+  hinge?: { status: "closed" | "partiallyOpen" | "fullyOpen" | "unknown"; angle: number };
+}
+
+export type HostSizeClass = "compact" | "regular" | "unspecified";
+
+export interface HostRect {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
+
+export interface HostInsets {
+  top: number;
+  right: number;
+  bottom: number;
+  left: number;
+}
+
+export interface HostReservedRegion extends HostRect {
+  /** Inactive regions exist but don't currently apply, like the fold when fully open. */
+  active: boolean;
+  /** Margins included in the frame for keeping interactive content clear. */
+  margins: HostInsets;
 }
 
 export interface HostContact {

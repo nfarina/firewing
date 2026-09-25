@@ -1,7 +1,7 @@
 import { ReactElement, useRef } from "react";
 import { keyframes, styled } from "styled-components";
 import { HotKeyContextDataAttributes, useHotKey } from "../../hooks/useHotKey.js";
-import { safeArea } from "../../safearea/safeArea.js";
+import { NO_SAFE_AREA, provideSafeArea, safeArea } from "../../safearea/safeArea.js";
 import { easing } from "../../shared/easing.js";
 import { Modal, useModal } from "../context/useModal.js";
 import { ActionItem, ActionMenu } from "./ActionMenu.js";
@@ -78,7 +78,7 @@ const fadeOut = keyframes`
 
 const slideUp = keyframes`
   from {
-    transform: translateY(calc(100% + 10px + ${safeArea.bottom()}));
+    transform: translateY(calc(100% + 10px + var(--actions-safe-area-bottom)));
   }
   /* For some reason we have to explicitly define the "to" state to make
      it work in Safari. Otherwise it just "appears" at the end of the
@@ -94,7 +94,7 @@ const slideDown = keyframes`
     pointer-events: none;
   }
   to {
-    transform: translateY(calc(100% + 10px + ${safeArea.bottom()}));
+    transform: translateY(calc(100% + 10px + var(--actions-safe-area-bottom)));
   }
 `;
 
@@ -108,6 +108,10 @@ const StyledActionContainer = styled.div`
   padding-right: calc(10px + ${safeArea.right()});
   padding-bottom: calc(10px + ${safeArea.bottom()});
   padding-left: calc(10px + ${safeArea.left()});
+
+  /* Our slide animations need the real bottom inset to clear the screen,
+     but they run on our children, where we clear the safe area below. */
+  --actions-safe-area-bottom: ${safeArea.bottom()};
 
   /* We render the backdrop as a separate div that we can animate
      opacity on, in hopes that webkit will optimize the animation in
@@ -124,6 +128,8 @@ const StyledActionContainer = styled.div`
   }
 
   > .actions {
+    /* We've padded the actions clear of every screen edge. */
+    ${provideSafeArea(NO_SAFE_AREA)}
     z-index: 1;
     height: 0;
     flex-grow: 1;

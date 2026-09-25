@@ -1,10 +1,12 @@
-import { HTMLAttributes, useRef } from "react";
+import { HTMLAttributes, PointerEvent, use, useRef } from "react";
 import { styled } from "styled-components";
-import { safeArea } from "../../safearea/safeArea.js";
+import { NO_SAFE_AREA, provideSafeArea, safeArea } from "../../safearea/safeArea.js";
 import { StyledPopupContainer } from "../popup/usePopup.js";
 import { StyledToastContainer } from "../toasts/ToastContainer.js";
 import { ModalContext, throwsNoProvider } from "./ModalContext.js";
 import { ChildLayout, ModalContextProvider } from "./ModalContextProvider.js";
+import { HostContext } from "../../host/context/HostContext.js";
+import { getFold } from "../../host/util/fold.js";
 
 export * from "./ModalContext.js";
 export * from "./ModalContextProvider.js";
@@ -28,6 +30,26 @@ export function ModalRootProvider({
   const modalRoot = useRef<HTMLDivElement | null>(null);
   const modalContextRoot = useRef<HTMLDivElement | null>(null);
 
+  // With a fold down the screen (the iPhone Duo in the book pose), modals keep
+  // to one side of it: whichever side you last tapped, since that's usually
+  // what opened them. Written straight to the DOM, as it's only for styling.
+  const { layout } = use(HostContext);
+  const fold = getFold(layout);
+
+  function onPointerDownCapture(e: PointerEvent<HTMLDivElement>) {
+    rest.onPointerDownCapture?.(e);
+
+    const root = modalRoot.current;
+    const overlay = modalContextRoot.current;
+    if (!fold || !layout || !root || !overlay) return;
+
+    // In screen coordinates, the way the host reports the fold. (We span the
+    // screen, and the fraction holds even when a simulator scales us.)
+    const rect = overlay.getBoundingClientRect();
+    const x = ((e.clientX - rect.left) / rect.width) * layout.width;
+    root.dataset.foldSide = x < (fold.left + fold.right) / 2 ? "left" : "right";
+  }
+
   const contextValue = {
     showModal: throwsNoProvider,
     hideModal: throwsNoProvider,
@@ -41,7 +63,12 @@ export function ModalRootProvider({
 
   return (
     <ModalContext value={contextValue}>
-      <StyledModalOverlay ref={modalContextRoot} data-is-modal-provider {...rest}>
+      <StyledModalOverlay
+        ref={modalContextRoot}
+        data-is-modal-provider
+        {...rest}
+        onPointerDownCapture={onPointerDownCapture}
+      >
         <ModalContextProvider childLayout={childLayout} children={children} />
         <div className="modals" data-is-modal-root ref={modalRoot} />
       </StyledModalOverlay>
@@ -81,11 +108,18 @@ export const StyledModalOverlay = styled.div`
     }
 
     &[data-is-modal-root="true"] {
-      > ${StyledToastContainer}, > ${StyledPopupContainer} {
+      /* Popups span the screen so a floating one's backdrop covers all of it,
+         and keep themselves inside the safe area (see usePopup). */
+      > ${StyledToastContainer} {
         top: ${safeArea.top()};
         right: ${safeArea.right()};
         bottom: ${safeArea.bottom()};
         left: ${safeArea.left()};
+
+        /* Positioned inside the safe area, so their contents are clear of it. */
+        > * {
+          ${provideSafeArea(NO_SAFE_AREA)}
+        }
       }
     }
 

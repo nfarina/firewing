@@ -34,9 +34,10 @@ export default function DateRangePicker({
   return (
     <NavLayout
       title="Date Range"
-      left={{ title: "Cancel", onClick: onClose, back: true }}
+      left={{ title: "Cancel", role: "cancel", onClick: onClose, back: true }}
       right={{
         title: "Done",
+        role: "confirm",
         onClick: saveAndClose,
       }}
     >

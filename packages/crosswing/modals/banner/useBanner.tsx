@@ -2,7 +2,7 @@ import { ReactNode, useRef } from "react";
 import { keyframes, styled } from "styled-components";
 import { useHotKey } from "../../hooks/useHotKey.js";
 import { useInterval } from "../../hooks/useInterval.js";
-import { safeArea } from "../../safearea/safeArea.js";
+import { NO_SAFE_AREA, provideSafeArea, safeArea } from "../../safearea/safeArea.js";
 import { Seconds } from "../../shared/timespan.js";
 import { Modal, useModal } from "../context/useModal.js";
 import { BannerView } from "./BannerView.js";
@@ -121,6 +121,8 @@ const StyledBannerContainer = styled.div`
   pointer-events: none;
 
   > * {
+    /* We've padded the banner clear of every screen edge. */
+    ${provideSafeArea(NO_SAFE_AREA)}
     width: 100%;
     max-width: 600px;
     pointer-events: auto;

@@ -14,6 +14,7 @@ import {
 import { createGlobalStyle, keyframes, styled } from "styled-components";
 import { HotKeyContextDataAttributes, useHotKey } from "../../hooks/useHotKey.js";
 import { HostContext } from "../../host/context/HostContext.js";
+import { NO_SAFE_AREA, provideSafeArea, safeArea } from "../../safearea/safeArea.js";
 import { easing } from "../../shared/easing.js";
 import { getRectRelativeTo, Position } from "../../shared/rect.js";
 import { Size } from "../../shared/sizing.js";
@@ -22,6 +23,7 @@ import { ModalContext } from "../context/ModalContext.js";
 import { useModal } from "../context/useModal.js";
 import { getPopupPlacement, PopupPlacement } from "./getPopupPlacement.js";
 import { useClickOutsideToClose } from "./useClickOutsideToClose.js";
+import { getFold } from "../../host/util/fold.js";
 
 export interface Popup<T extends any[] = []> {
   /** Shows the popup around the given target. */
@@ -238,7 +240,7 @@ export const PopupContainer = ({
 }) => {
   const { modalContextRoot } = use(ModalContext);
   const containerRef = useRef<HTMLDivElement | null>(null);
-  const { container: hostContainer } = use(HostContext);
+  const { container: hostContainer, layout } = use(HostContext);
 
   useClickOutsideToClose(() => clickOutsideToClose && onClose(), containerRef, target);
 
@@ -360,17 +362,48 @@ export const PopupContainer = ({
       }
     }
 
+    // With a fold down the screen (the iPhone Duo in the book pose), keep to
+    // the side of it the target is on, so we never straddle it. Our container
+    // spans the screen, so the fraction across it holds even when a simulator
+    // scales us.
+    const fold = getFold(layout);
+
+    if (fold && layout) {
+      const containerRect = container.getBoundingClientRect();
+      const target = targetElement.getBoundingClientRect();
+      const x =
+        ((target.left + target.width / 2 - containerRect.left) / containerRect.width) *
+        layout.width;
+      container.dataset.foldSide = x < (fold.left + fold.right) / 2 ? "left" : "right";
+    } else {
+      delete container.dataset.foldSide;
+    }
+
     const popupAreaRect = popupArea.getBoundingClientRect();
+
+    // Measured rects are in the page's pixels, but we position the popup in our
+    // own, which differ when an ancestor is zoomed (like a device simulator
+    // scaled to fit). Everything below is converted to ours.
+    const scale = popupArea.offsetWidth ? popupAreaRect.width / popupArea.offsetWidth : 1;
 
     // Get all the bounding boxes of our elements in the coordinate system of
     // our container (taking padding into account).
     const containerSize: Size = {
-      width: popupAreaRect.width,
-      height: popupAreaRect.height,
+      width: popupAreaRect.width / scale,
+      height: popupAreaRect.height / scale,
     };
 
     // This is the content we are pointing at and trying not to cover up.
-    const targetRect = getRectRelativeTo(targetElement.getBoundingClientRect(), popupAreaRect);
+    const relativeTargetRect = getRectRelativeTo(
+      targetElement.getBoundingClientRect(),
+      popupAreaRect,
+    );
+    const targetRect = {
+      x: relativeTargetRect.x / scale,
+      y: relativeTargetRect.y / scale,
+      width: relativeTargetRect.width / scale,
+      height: relativeTargetRect.height / scale,
+    };
 
     // Sanity check - if the target element is not (anymore?) in the DOM,
     // then close the popup.
@@ -383,8 +416,8 @@ export const PopupContainer = ({
     const popupRect = popup.getBoundingClientRect();
     const extraHeight = getOverflowedHeight(popup);
     const popupSize: Size = {
-      width: Math.round(popupRect.width),
-      height: Math.round(popupRect.height + extraHeight),
+      width: Math.round(popupRect.width / scale),
+      height: Math.round(popupRect.height / scale + extraHeight),
     };
 
     // For anchor: "cursor", resolve the stored fraction against the current
@@ -561,12 +594,14 @@ export const StyledPopupContainer = styled.div`
     pointer-events: none;
   }
 
+  /* The backdrop covers the whole screen, but popups stay inside the safe
+     area, and clear of it for anything inside them. */
   > .popup-area {
     position: absolute;
-    top: ${POPUP_AREA_PADDING}px;
-    bottom: ${POPUP_AREA_PADDING}px;
-    right: ${POPUP_AREA_PADDING}px;
-    left: ${POPUP_AREA_PADDING}px;
+    top: ${safeArea.top(`${POPUP_AREA_PADDING}px`)};
+    bottom: ${safeArea.bottom(`${POPUP_AREA_PADDING}px`)};
+    right: ${safeArea.right(`${POPUP_AREA_PADDING}px`)};
+    left: ${safeArea.left(`${POPUP_AREA_PADDING}px`)};
     display: flex;
     flex-flow: column;
     align-items: flex-start;
@@ -574,12 +609,22 @@ export const StyledPopupContainer = styled.div`
     /* We lay out our popup giving it our full popup-area to expand into, then
        we'll position it at runtime using CSS variables and transforms. */
     > * {
+      ${provideSafeArea(NO_SAFE_AREA)}
       pointer-events: auto;
       box-sizing: border-box;
       max-width: var(--popup-max-width, 100%);
       max-height: var(--popup-max-height, 100%);
       transform: translate(var(--popup-left, 0px), var(--popup-top, 0px));
     }
+  }
+
+  /* Clear of the fold, on the target's side (see positionPopup). */
+  &[data-fold-side="left"] > .popup-area {
+    right: calc(100% - var(--fold-left) + ${POPUP_AREA_PADDING}px);
+  }
+
+  &[data-fold-side="right"] > .popup-area {
+    left: calc(var(--fold-right) + ${POPUP_AREA_PADDING}px);
   }
 
   &[data-show-backdrop="false"] > .backdrop {

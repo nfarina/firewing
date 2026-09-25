@@ -1,12 +1,17 @@
 import { CSSProperties, ReactNode, use, useLayoutEffect, useRef, useState } from "react";
-import { keyframes, styled } from "styled-components";
+import { css, keyframes, styled } from "styled-components";
 import { colors } from "../../colors/colors.js";
 import { HotKeyContextDataAttributes, useHotKey } from "../../hooks/useHotKey.js";
+import { BarEdgeContext } from "../../host/context/BarEdgeContext.js";
 import { HostContext } from "../../host/context/HostContext.js";
-import { safeArea } from "../../safearea/safeArea.js";
+import { NO_SAFE_AREA, provideSafeArea, safeArea, padSafeArea } from "../../safearea/safeArea.js";
 import { easing } from "../../shared/easing.js";
 import { ModalContext } from "../context/ModalContext.js";
 import { Modal, useModal } from "../context/useModal.js";
+import { useViewportSize } from "../../viewport/viewport.js";
+import { StyledBarStrip } from "../../components/BarStrip.js";
+import { StyledNavHeader, StyledNavLayout } from "../../router/navs/NavLayout.js";
+import { whenFolded } from "../../host/util/fold.js";
 
 export type SheetAnimation = "slide" | "pop";
 
@@ -84,6 +89,10 @@ export const SheetContainer = ({
 }) => {
   const { container, viewport } = use(HostContext);
   const { allowDesktopPresentation } = use(ModalContext);
+
+  // Mirrors the container query in our styles that floats us like a dialog.
+  const wide = useViewportSize().width >= 500;
+  const floating = !forceFullScreen && !!allowDesktopPresentation && wide;
   const containerRef = useRef<HTMLDivElement | null>(null);
   const resolvedOnClose = sticky ? () => {} : onClose;
 
@@ -163,7 +172,11 @@ export const SheetContainer = ({
       {/* This container element helps with CSS targeting and also allows the
           child to return different elements from render() without triggering
           extra unwanted CSS "appear" animations. */}
-      <div className="sheet">{children}</div>
+      <div className="sheet">
+        {/* Floating clear of the screen edges, so any bars inside run
+            horizontally. A full-screen sheet keeps the host's bar edge. */}
+        {floating ? <BarEdgeContext value={null}>{children}</BarEdgeContext> : children}
+      </div>
     </StyledSheetContainer>
   );
 };
@@ -260,6 +273,14 @@ const StyledSheetContainer = styled.div`
     > * {
       flex-grow: 1;
     }
+
+    /* Keeps a sheet's content clear of the safe area along the sides (the
+       iPhone Duo's control strip, iPhone landscape), like pages do for
+       themselves with padSafeArea(). The header already is. Floating, the
+       safe area is zero anyway. */
+    ${StyledNavLayout} > *:nth-child(2):not(${StyledBarStrip}) {
+      ${padSafeArea("left", "right")}
+    }
   }
 
   &[data-animating-in="true"][data-animation="slide"] {
@@ -309,12 +330,21 @@ const StyledSheetContainer = styled.div`
    * a floating dialog like useDialog().
    */
   &[data-allow-desktop-presentation="true"] {
-    @media (min-width: 500px) {
+    @container viewport (min-width: 500px) {
       padding-top: calc(25px + ${safeArea.top()});
-      padding-right: calc(25px + ${safeArea.right()});
       padding-bottom: calc(25px + ${safeArea.bottom()});
-      padding-left: calc(25px + ${safeArea.left()});
+      /* Centered on the screen, not between the side safe areas, which a strip
+         down one side (the iPhone Duo) would pull off center. */
+      padding-right: calc(25px + max(${safeArea.left()}, ${safeArea.right()}));
+      padding-left: calc(25px + max(${safeArea.left()}, ${safeArea.right()}));
       justify-content: center;
+
+      /* Clear of the fold, in the left half, where sheets belong in the book
+         pose (dialogs and popups follow the tap instead). */
+      ${whenFolded(css`
+        padding-right: calc(100% - var(--fold-left) + 25px);
+        padding-left: calc(25px + ${safeArea.left()});
+      `)}
 
       > .backdrop {
         display: block;
@@ -331,18 +361,35 @@ const StyledSheetContainer = styled.div`
       }
 
       > .sheet {
+        /* Floating, so we've padded it clear of every screen edge, and of
+           any fold. */
+        --fold: none;
+        ${provideSafeArea(NO_SAFE_AREA)}
         align-self: center;
         width: 390px;
         max-height: 615px;
         box-shadow: 0 5px 22px rgba(0, 0, 0, 0.5);
-        border-radius: 9px;
+        border-radius: 16px;
         overflow: hidden;
+
+        /* Rounded overflow doesn't clip a header's backdrop blur, which then
+           squares off the top corners; a clip path does. (On the content, so
+           it doesn't clip our shadow too.) */
+        > * {
+          clip-path: inset(0 round 16px);
+        }
+
+        /* WebKit doesn't clip the blur by that either, but it does honor the
+           blur's own corners. */
+        ${StyledNavHeader}::before {
+          border-radius: 16px 16px 0 0;
+        }
       }
     }
   }
 
   &[data-allow-desktop-presentation="true"][data-stretch-width="true"] {
-    @media (min-width: 500px) {
+    @container viewport (min-width: 500px) {
       > .sheet {
         width: 100%;
         max-width: var(--stretch-max-width);
@@ -351,7 +398,7 @@ const StyledSheetContainer = styled.div`
   }
 
   &[data-allow-desktop-presentation="true"][data-stretch-height="true"] {
-    @media (min-width: 500px) {
+    @container viewport (min-width: 500px) {
       > .sheet {
         max-height: var(--stretch-max-height);
       }

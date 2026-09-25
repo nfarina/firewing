@@ -1,9 +1,13 @@
 import { createContext } from "react";
 import { detectContainer } from "../util/ipc.js";
 import { openExternalLink } from "../util/openExternalLink.js";
+import { getPointer } from "../util/pointer.js";
 import { DeepLink, HostContextValue } from "../util/types.js";
 
-export const HostContext = createContext<HostContextValue>(defaultHostContext());
+/** What HostContext holds without a provider (see hasHostProvider). */
+const noHostContext = defaultHostContext();
+
+export const HostContext = createContext<HostContextValue>(noHostContext);
 HostContext.displayName = "HostContext";
 
 export function defaultHostContext(merge?: Partial<HostContextValue>): HostContextValue {
@@ -12,6 +16,7 @@ export function defaultHostContext(merge?: Partial<HostContextValue>): HostConte
     container,
     platform: "unknown",
     viewport: {},
+    pointer: getPointer(),
     safeArea: {
       top: "0px",
       right: "0px",
@@ -66,3 +71,8 @@ export function defaultHostContext(merge?: Partial<HostContextValue>): HostConte
 }
 
 export const AndroidBackButtonClassName = "hardware-back";
+
+/** Whether this context value came from a provider (real or mock). */
+export function hasHostProvider(host: HostContextValue): boolean {
+  return host !== noHostContext;
+}
