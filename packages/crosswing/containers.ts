@@ -82,6 +82,10 @@ export const CrosswingDesktopRootStyle = createGlobalStyle`
     margin: 0;
     display: flex;
     flex-flow: column;
+    /* What width-dependent styles respond to (see viewportContainer). Without
+       it, every \`@container viewport\` query stays unmatched and components
+       keep their widest layout at any width. */
+    ${viewportContainer}
   }
 
   /* The main <div> you're rendering your Crosswing app into. */
