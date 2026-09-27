@@ -132,7 +132,11 @@ export interface HostContextValue {
 
 export type HostContainer = "ios" | "android" | "electron" | "web" | "webapp";
 
-export type HostPlatform = "visionOS" | "unknown";
+/**
+ * `iOSAppOnMac` is the iOS app running as-is on an Apple Silicon Mac
+ * ("Designed for iPad", at 1.15 page zoom). `macOS` is kept for a real Mac app.
+ */
+export type HostPlatform = "visionOS" | "iOSAppOnMac" | "unknown";
 
 export interface HostFeatures {
   /** Platform specifier. */
