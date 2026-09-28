@@ -1,7 +1,7 @@
 import { CSSProperties, HTMLAttributes } from "react";
 import { styled } from "styled-components";
 import { colors } from "../../colors/colors.js";
-import { HostLayout, HostRect } from "../util/types.js";
+import { HostLayout, HostPlatform, HostRect } from "../util/types.js";
 import { viewportContainer } from "../../viewport/viewport.js";
 import { MockHostProvider } from "./MockHostProvider.js";
 
@@ -19,6 +19,7 @@ export function MockDevice({
   layout,
   live,
   cutouts = getCameraCutouts(layout),
+  platform,
   children,
   style,
   ...rest
@@ -27,8 +28,10 @@ export function MockDevice({
   live?: boolean;
   /** Camera cutouts to draw over the screen. Defaults to the cameras the layout reports. */
   cutouts?: HostRect[];
+  /** The platform the host reports, like "macOS" for the Mac app. */
+  platform?: HostPlatform;
 }) {
-  // Mock devices are touch devices, even in a desktop browser.
+  // Mock devices are touch devices, even in a desktop browser (but see pointer).
   // Partly folded (the iPhone Duo's book and laptop poses), we shade the screen
   // toward the crease, deeper the more it's folded. We can't really bend it:
   // that would mean drawing the app twice, once per half.
@@ -49,9 +52,11 @@ export function MockDevice({
         } as CSSProperties)
       : null;
 
+  // A Mac is pointed at with a mouse or trackpad.
+  const pointer = platform === "macOS" ? ("fine" as const) : ("coarse" as const);
   const host = live
-    ? { inherit: true, pointer: "coarse" as const }
-    : { container: "ios" as const, pointer: "coarse" as const };
+    ? { inherit: true, pointer, ...(platform && { platform }) }
+    : { container: "ios" as const, pointer, ...(platform && { platform }) };
 
   return (
     <MockHostProvider {...host} layout={layout}>

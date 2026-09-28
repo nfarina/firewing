@@ -115,7 +115,7 @@ export function NavLayout({
   const resolvedBack = backTo ?? back;
 
   // Pull host info for safe area.
-  const { container, viewport } = use(HostContext);
+  const { container, platform, viewport } = use(HostContext);
   const statusBar = useHostStatusBar();
 
   const tabs = use(TabsContext);
@@ -221,6 +221,7 @@ export function NavLayout({
     >
       <StyledNavHeader
         data-container={container}
+        data-platform={platform}
         data-hide-separator={!!hideSeparator}
         data-hide-fade={!!hideHeaderFade}
         data-transparent-header={!!transparentHeader}
@@ -348,6 +349,16 @@ export const StyledNavHeader = styled.div`
   @container viewport (min-width: 700px) {
     padding-left: max(${safeArea.left()}, ${safeArea.right()});
     padding-right: max(${safeArea.left()}, ${safeArea.right()});
+  }
+
+  /* A Mac window's traffic lights sit in our top-left corner, which the host
+     reports as a corner inset. Only there: an iPhone reports corner insets
+     too, for bars running into its rounded corners, which ours (below the
+     status bar) doesn't. Nothing's in the right corner, so no mirroring it
+     there to center the title; this outranks the rule above at any width. */
+  &[data-platform="macOS"] {
+    padding-left: ${safeAreaCorners.left()};
+    padding-right: ${safeArea.right()};
   }
 
   transition:
