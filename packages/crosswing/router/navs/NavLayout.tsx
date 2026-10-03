@@ -8,6 +8,7 @@ import {
   StyledBarStrip,
   barStripPill,
 } from "../../components/BarStrip.js";
+import { fonts } from "../../fonts/fonts.js";
 import { BarEdgeContext } from "../../host/context/BarEdgeContext.js";
 import { HostContext } from "../../host/context/HostContext.js";
 import { useHostStatusBar } from "../../host/features/HostStatusBar.js";
@@ -220,6 +221,7 @@ export function NavLayout({
       {...rest}
     >
       <StyledNavHeader
+        data-nav-header
         data-container={container}
         data-platform={platform}
         data-hide-separator={!!hideSeparator}
@@ -355,10 +357,40 @@ export const StyledNavHeader = styled.div`
      reports as a corner inset. Only there: an iPhone reports corner insets
      too, for bars running into its rounded corners, which ours (below the
      status bar) doesn't. Nothing's in the right corner, so no mirroring it
-     there to center the title; this outranks the rule above at any width. */
+     there to center the title; this outranks the rule above at any width.
+
+     The lights would pull a centered title off center, so the title leads
+     instead, right after the left-hand controls, like a Mac toolbar's. Every
+     header there does (not just the one beside the lights) so they match. */
   &[data-platform="macOS"] {
     padding-left: ${safeAreaCorners.left()};
     padding-right: ${safeArea.right()};
+
+    /* The side slots no longer need to match, so they fit their controls. */
+    > .accessories {
+      width: auto;
+
+      /* Nothing to hold apart from the title, so less of a gap before it. */
+      &[data-align="left"]:empty {
+        padding-left: 10px;
+      }
+    }
+
+    > ${StyledNavTitleView} {
+      > .title,
+      > .subtitle {
+        text-align: left;
+      }
+
+      /* A Mac window's title is smaller than an iOS bar's. */
+      > .title {
+        font: ${fonts.displayBold({ size: 15, line: "1.2" })};
+      }
+
+      > .subtitle {
+        font: ${fonts.display({ size: 11, line: "1.2" })};
+      }
+    }
   }
 
   transition:
