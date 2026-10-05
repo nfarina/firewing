@@ -173,6 +173,23 @@ export function useFirestoreConnectionHealth({
       if (document.visibilityState !== "visible") return;
 
       const now = Date.now();
+
+      // A wedged verdict isn't final. The cure is a reload, which is refused
+      // while we're in the background — exactly where suspended timers make a
+      // cycle most likely to time out — and until this check existed, nothing
+      // ever asked again: the user came back hours later to a client that had
+      // given up on itself, and every new screen spun until they quit the app.
+      // So test it again now that someone is looking. A healthy client simply
+      // recovers; one that's still wedged lands back in the handler, which can
+      // reload this time.
+      if (wedgedRef.current) {
+        if (now - lastReconnectRef.current >= STARVED_MAX_INTERVAL) {
+          wedgedRef.current = false;
+          void reconnect("retrying a wedged client", 0);
+        }
+        return;
+      }
+
       let starvedSince = 0;
       for (const startedAt of waiting.values()) {
         if (now - startedAt >= STARVED_THRESHOLD) {

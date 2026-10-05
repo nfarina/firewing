@@ -42,6 +42,7 @@
     "./host/pointer": "./host/util/pointer.ts",
     "./host/fold": "./host/util/fold.ts",
     "./host/console": "./host/util/attachConsole.ts",
+    "./host/immediate": "./host/util/resilientImmediate.ts",
     "./host/debug": "./host/debug/HostLayoutDebug.tsx",
     "./host/features/*": "./host/features/*.ts",
     "./host/util/smoothScroll": "./host/util/smoothScroll.ts",
