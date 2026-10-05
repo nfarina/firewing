@@ -50,6 +50,7 @@
     "./host/util/useClipboard": "./host/util/useClipboard.ts",
     "./host/util/useAutoStatusBar": "./host/util/useAutoStatusBar.ts",
     "./host/util/useWindowListener": "./host/util/useWindowListener.ts",
+    "./host/util/useBackButton": "./host/util/useBackButton.ts",
     "./icons/*": "./icons/*.tsx",
     "./hooks/*": "./hooks/*.ts",
     "./colors": "./colors/colors.ts",

@@ -49,6 +49,7 @@ export function TabLink({
   return (
     <StyledTabLink
       to={to}
+      data-tab-link
       data-active={active}
       onClick={onClick}
       // For when the title is hidden, like in the iPhone Duo's strip.

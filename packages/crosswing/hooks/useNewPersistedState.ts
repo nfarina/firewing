@@ -80,6 +80,8 @@ export function useNewPersistedState<S>({
   // Sync persisted value to draft when not updating.
   useEffect(() => {
     if (!scheduler.isProcessing && !deepEqual(persistedValue, draftValue)) {
+      // We're taking the store's word for it, whatever we last asked for.
+      scheduler.settle();
       setDraftValue(persistedValue);
     }
   }, [persistedValue, scheduler]);
@@ -89,7 +91,16 @@ export function useNewPersistedState<S>({
     // Skip the update if the value already matches the persisted store. This
     // prevents spurious updates when Firestore changes echo back through UI
     // components (e.g., Slate onChange firing after a programmatic value sync).
-    if (deepEqual(newValue, persistedValue)) return;
+    //
+    // But only when the store is settled. `persistedValue` is what the store
+    // said last, not what it's about to say: if we've queued or sent a value it
+    // hasn't shown us yet, then matching the old one means the user has undone
+    // their edit (typed a character and deleted it, say) and that still has to
+    // be written. Skipping it left the abandoned value on its way to the store,
+    // and when it echoed back it replaced what the user was looking at — a
+    // deleted character reappearing and, in a text field, the caret thrown to
+    // the end mid-edit.
+    if (scheduler.isSettled(persistedValue) && deepEqual(newValue, persistedValue)) return;
     scheduler.update(newValue);
   }
 
@@ -115,8 +126,28 @@ class UpdateScheduler<S> {
   public onError?: ((error: Error) => void) | null = null;
   public onStatusChange?: ((key: string, isUpdating: boolean) => void) | null = null;
 
+  /**
+   * The most recent value we were asked to persist, until we adopt whatever
+   * the store says instead.
+   */
+  private requested: { value: S } | null = null;
+
   constructor(key: string) {
     this.key = key;
+  }
+
+  /**
+   * True when nothing is queued or running, and the store is showing the last
+   * value we asked it for.
+   */
+  isSettled(persistedValue: S): boolean {
+    if (this.isProcessing) return false;
+    return this.requested === null || deepEqual(this.requested.value, persistedValue);
+  }
+
+  /** Forget what we asked for; the store's value stands. */
+  settle() {
+    this.requested = null;
   }
 
   setUpdateFunc(updateFunc: (value: S) => Falsy | Promise<Falsy>) {
@@ -142,6 +173,7 @@ class UpdateScheduler<S> {
   update(value: S) {
     // console.log(`Scheduler[${this.key}]: Update requested with value`, value);
     this.pendingValue = value;
+    this.requested = { value };
 
     // Clear any existing scheduled update
     if (this.pendingTimeout) {
@@ -226,6 +258,7 @@ class UpdateScheduler<S> {
     } catch (error) {
       console.error(`Scheduler[${this.key}]: Update failed`, error);
       this.lastUpdateTime = 0; // Reset on error so retry happens immediately
+      this.requested = null; // The draft goes back to what the store has.
       this.onError?.(error as Error);
     } finally {
       this.isUpdating = false;
