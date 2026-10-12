@@ -73,7 +73,10 @@ export function SitePageTitle({
       )}
       <MobilePageTitle style={{ "--num-accessories": accessories?.length ?? 0 } as CSSProperties}>
         {backCrumb ? (
-          <NavAccessoryView accessory={{ icon: <ArrowLeft />, to: backCrumb.link }} align="left" />
+          <NavAccessoryView
+            accessory={{ icon: <ArrowLeft />, to: backCrumb.link, back: true }}
+            align="left"
+          />
         ) : (
           <div />
         )}
