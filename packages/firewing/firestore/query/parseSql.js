@@ -416,6 +416,9 @@ CondLexer.prototype = {
   // Determine the next token
   readNextToken: function () {
     if (/\w/.test(this.currentChar)) return this.readWord();
+    // A minus sign directly before a digit starts a negative number.
+    if (this.currentChar === "-" && /[0-9]/.test(this.source[this.cursor] || ""))
+      return this.readWord();
     if (/["'`]/.test(this.currentChar)) return this.readString();
     if (/[()]/.test(this.currentChar)) return this.readGroupSymbol();
     if (/[!=<>]/.test(this.currentChar)) return this.readOperator();

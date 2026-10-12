@@ -174,7 +174,7 @@ function getValue(value: string | SqlWhereLogic): string | number | boolean | nu
       return true;
     } else if (lower === "false") {
       return false;
-    } else if (value.match(/^[0-9]+$/)) {
+    } else if (value.match(/^-?[0-9]+(\.[0-9]+)?$/)) {
       return Number(value);
     } else if (value.match(/^`{1}.*`{1}$/)) {
       // String wrapped in backticks for runtime eval, like `Date.now()`.

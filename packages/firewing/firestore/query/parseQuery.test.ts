@@ -124,6 +124,9 @@ describe("parseQuery", () => {
       ["true", true],
       ["false", false],
       ["42", 42],
+      ["-6", -6],
+      ["1.5", 1.5],
+      ["-0.25", -0.25],
       ["'Hello World'", "Hello World"],
       [`"Hello"`, "Hello"],
       ["Nick", "Nick"], // unquoted preserves case
@@ -132,6 +135,19 @@ describe("parseQuery", () => {
       const result = parseQuery(`select * from users where profile.name.first = ${literal}`);
       expect(result?.filters[0]?.value).toEqual(expected);
     }
+  });
+
+  test("negative numbers keep their sign in comparisons and sets", () => {
+    const compared = parseQuery("select * from users where utcOffset >= -12");
+    expect(compared?.filters[0]).toMatchObject({ op: ">=", value: -12 });
+
+    const set = parseQuery("select * from users where utcOffset in (-6 or 18)");
+    expect(set?.filters[0]).toMatchObject({ op: "in", value: [-6, 18] });
+  });
+
+  test("a hyphen inside an unquoted word is not a minus sign", () => {
+    const result = parseQuery("select * from users where day = 2026-10-08");
+    expect(result?.filters[0]?.value).toBe("2026-10-08");
   });
 
   test("backtick eval runs JS at parse time", () => {

@@ -12,8 +12,10 @@ import { styled } from "styled-components";
 import { colors } from "../../colors/colors";
 import { fonts } from "../../fonts/fonts";
 import { flattenChildren } from "../../hooks/flattenChildren";
+import { HostContext } from "../../host/context/HostContext";
 import { tooltip } from "../../modals/popup/TooltipView";
 import { StyledUnreadBadge, UnreadBadge } from "../../router/tabs/UnreadBadge.js";
+import { safeAreaCorners } from "../../safearea/safeArea";
 import { AutoBorderView, BorderVisibility } from "../AutoBorderView";
 import { Button, StyledButton } from "../Button";
 import { NewSiteContext, shouldRenderAccessory } from "./NewSiteContext";
@@ -37,6 +39,7 @@ export function NewSiteHeader({
   borderVisibility?: BorderVisibility;
 }) {
   const { siteTitle } = use(NewSiteContext);
+  const { platform } = use(HostContext);
   const titleRef = useRef<HTMLDivElement>(null);
 
   // Set document title based on the text content of the title element.
@@ -52,8 +55,19 @@ export function NewSiteHeader({
     }
   }, [siteTitle, title, subtitle]);
 
-  const { sidebarVisible, setSidebarVisible, siteLayout, siteAccessory, sidebarBadge } =
-    use(NewSiteContext);
+  const {
+    isDefaultContext,
+    sidebarVisible,
+    setSidebarVisible,
+    siteLayout,
+    siteAccessory,
+    sidebarBadge,
+  } = use(NewSiteContext);
+
+  // Whether a sidebar sits beside us, taking the window's left edge. A page
+  // used outside of a <NewSiteLayout> has no sidebar, whatever the context's
+  // defaults say.
+  const sidebarDocked = !isDefaultContext && sidebarVisible && siteLayout === "desktop";
 
   const cssProps = {
     "--accessory-width": (siteAccessory?.size.width ?? 0) + "px",
@@ -75,6 +89,8 @@ export function NewSiteHeader({
     <StyledNewSiteHeader
       data-site-layout={siteLayout}
       data-sidebar-visible={sidebarVisible}
+      data-platform={platform}
+      data-sidebar-docked={sidebarDocked}
       data-has-site-accessory={
         !hideSiteAccessory && shouldRenderAccessory(siteAccessory, siteLayout)
       }
@@ -236,8 +252,16 @@ export const StyledNewSiteHeader = styled(AutoBorderView)`
     }
   }
 
+  /* A Mac window's traffic lights sit in the top-left corner, which the host
+     reports as a corner inset (see StyledNavHeader, which does the same). Not
+     while the sidebar is docked beside us, though: then it has the corner. */
+  &[data-platform="macOS"][data-sidebar-docked="false"] {
+    padding-left: max(10px, ${safeAreaCorners.left()});
+  }
+
   &[data-site-layout="mobile"] {
-    padding: 5px 10px;
+    padding-top: 5px;
+    padding-bottom: 5px;
 
     > .sidebar-toggle {
       /* Match accessories width to center the title. */
