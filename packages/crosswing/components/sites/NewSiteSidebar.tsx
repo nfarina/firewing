@@ -3,6 +3,7 @@ import { HTMLAttributes, MouseEvent, ReactNode, use } from "react";
 import { styled } from "styled-components";
 import { colors } from "../../colors/colors";
 import { fonts } from "../../fonts/fonts";
+import { HostContext } from "../../host/context/HostContext";
 import { tooltip } from "../../modals/popup/TooltipView";
 import { RouterContext } from "../../router/context/RouterContext";
 import { Link } from "../../router/Link";
@@ -22,10 +23,11 @@ export function NewSiteSidebar({
   footer?: ReactNode;
 }) {
   const { setSidebarVisible, siteLayout } = use(NewSiteContext);
+  const { platform } = use(HostContext);
 
   return (
-    <StyledNewSiteSidebar {...rest}>
-      <AutoBorderView className="header">
+    <StyledNewSiteSidebar data-platform={platform} {...rest}>
+      <AutoBorderView className="header" data-window-drag>
         <Button
           newStyle
           className="sidebar-toggle"
@@ -79,6 +81,13 @@ export const StyledNewSiteSidebar = styled.div`
       align-items: center;
       gap: 5px;
     }
+  }
+
+  /* The page's header beside us is taller in the Mac app (see
+     StyledNewSiteHeader). */
+  &[data-platform="macOS"] > .header {
+    padding-top: 12px;
+    height: 62px;
   }
 
   > .children {

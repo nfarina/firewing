@@ -222,6 +222,7 @@ export function NavLayout({
     >
       <StyledNavHeader
         data-nav-header
+        data-window-drag
         data-container={container}
         data-platform={platform}
         data-hide-separator={!!hideSeparator}

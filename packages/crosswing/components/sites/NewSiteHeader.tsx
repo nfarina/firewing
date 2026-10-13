@@ -17,6 +17,7 @@ import { tooltip } from "../../modals/popup/TooltipView";
 import { StyledUnreadBadge, UnreadBadge } from "../../router/tabs/UnreadBadge.js";
 import { safeAreaCorners } from "../../safearea/safeArea";
 import { AutoBorderView, BorderVisibility } from "../AutoBorderView";
+import { barStripPill } from "../BarStrip";
 import { Button, StyledButton } from "../Button";
 import { NewSiteContext, shouldRenderAccessory } from "./NewSiteContext";
 
@@ -87,6 +88,7 @@ export function NewSiteHeader({
 
   return (
     <StyledNewSiteHeader
+      data-window-drag
       data-site-layout={siteLayout}
       data-sidebar-visible={sidebarVisible}
       data-platform={platform}
@@ -252,11 +254,54 @@ export const StyledNewSiteHeader = styled(AutoBorderView)`
     }
   }
 
+  /* In the Mac app, we look like a NavLayout's header does there (see
+     StyledNavHeader): as tall, with its buttons as far from the top and the
+     right edge, a window-sized title, and floating buttons. */
+  &[data-platform="macOS"] {
+    padding: 12px 11px 10px 10px;
+
+    > .page-title {
+      font: ${fonts.displayBold({ size: 15, line: "1.2" })};
+      top: 0;
+      /* The title truncates itself, and clipping here would cut off the
+         shadow of a floating button inside a custom title. */
+      overflow: visible;
+
+      > .subtitle {
+        font: ${fonts.display({ size: 11, line: "1.2" })};
+        margin-bottom: 0;
+      }
+
+      &[data-has-subtitle="true"] > .title {
+        font: ${fonts.displayBold({ size: 15, line: "1.2" })};
+        margin-bottom: 0;
+      }
+    }
+
+    > .accessories > ${StyledButton}[data-new-style="true"] {
+      ${barStripPill}
+      min-width: 40px;
+      min-height: 40px;
+      border: none;
+
+      > .icon > svg {
+        width: 20px;
+        height: 20px;
+      }
+
+      &[data-primary="true"] {
+        background: ${colors.primary()};
+        color: ${colors.white()};
+      }
+    }
+  }
+
   /* A Mac window's traffic lights sit in the top-left corner, which the host
-     reports as a corner inset (see StyledNavHeader, which does the same). Not
-     while the sidebar is docked beside us, though: then it has the corner. */
+     reports as a corner inset (see StyledNavHeader, which does the same), and
+     we keep as clear of them as its buttons do. Not while the sidebar is
+     docked beside us, though: then it has the corner. */
   &[data-platform="macOS"][data-sidebar-docked="false"] {
-    padding-left: max(10px, ${safeAreaCorners.left()});
+    padding-left: ${safeAreaCorners.left("19px")};
   }
 
   &[data-site-layout="mobile"] {
