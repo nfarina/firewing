@@ -216,11 +216,7 @@ export const StyledPopupView = styled.div`
          box-shadow:
            0 10px 15px -3px colors.gray800({ alpha: 0.14 }),
            0 4px 6px -4px colors.gray800({ alpha: 0.14 }),
-           0 0 0 1px colors.gray300();
-         Deliberately written as plain text rather than real interpolations:
-         oxfmt 0.60 crashes ("Invalid document: Expected end tag of kind
-         LineSuffix") on a CSS comment containing an interpolation that takes
-         arguments, when it follows a declaration inside a nested block. */
+           0 0 0 1px colors.gray300(); */
     }
 
     > .arrow-container {

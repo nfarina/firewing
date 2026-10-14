@@ -1,6 +1,6 @@
 import { Meta, StoryObj } from "@storybook/react";
 import { use } from "react";
-import { expect, userEvent, within } from "storybook/test";
+import { expect, userEvent, waitFor, within } from "storybook/test";
 import { CrosswingAppDecorator } from "../../storybook.js";
 import { Link } from "../Link.js";
 import { RouterContext } from "../context/RouterContext.js";
@@ -93,7 +93,9 @@ export const RedirectReplacesImportInStack: StoryObj<typeof Navs> = {
     await step("pressing back lands on the book (no import→recipe bounce)", async () => {
       await userEvent.click(await canvas.findByRole("button", { name: "Back" }));
       // The recipe is popped off the stack rather than re-pushed by a bounce.
-      await expect(canvas.queryByText("RECIPE rec1")).not.toBeInTheDocument();
+      // It lingers for the exit animation, so wait for it to leave; a bounce
+      // would keep it mounted.
+      await waitFor(() => expect(canvas.queryByText("RECIPE rec1")).not.toBeInTheDocument());
       await expect(await canvas.findByText("BOOK bookA")).toBeVisible();
     });
   },

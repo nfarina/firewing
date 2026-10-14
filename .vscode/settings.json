@@ -1,14 +1,10 @@
 {
   // Use our local version of TypeScript.
-  "typescript.tsdk": "node_modules/@typescript/native-preview/lib",
-  // Turn on auto-format by default.
-  "editor.formatOnSave": true,
+  "typescript.tsdk": "node_modules/typescript/lib",
   "[javascript]": {
-    "editor.defaultFormatter": "oxc.oxc-vscode",
     "editor.codeActionsOnSave": ["source.organizeImports"]
   },
   "[typescript]": {
-    "editor.defaultFormatter": "oxc.oxc-vscode",
     "editor.codeActionsOnSave": [
       // The problem with this is that you end up dirtying more files in git
       // possibly unintentionally, and you also erase redo history when saving.
@@ -16,7 +12,6 @@
     ]
   },
   "[typescriptreact]": {
-    "editor.defaultFormatter": "oxc.oxc-vscode",
     "editor.codeActionsOnSave": ["source.organizeImports"]
   },
   "task.allowAutomaticTasks": "on",

@@ -4,7 +4,6 @@ import svgo from "@svgr/plugin-svgo";
 import fs from "fs/promises";
 import { glob } from "glob";
 import path from "path";
-import { format } from "oxfmt";
 
 // Auto-generates TypeScript code for each icon.
 
@@ -52,11 +51,8 @@ for (const iconFile of iconFiles) {
     { componentName },
   );
 
-  // Format the generated code.
-  const { code: tsxFileContent } = await format(`${name}.tsx`, tsxCode);
-
   const tsxFilePath = new URL(`../icons/${name}.tsx`, import.meta.url);
-  await fs.writeFile(tsxFilePath, tsxFileContent);
+  await fs.writeFile(tsxFilePath, tsxCode + "\n");
 }
 
 console.log(`Generated TypeScript files for icons.`);
