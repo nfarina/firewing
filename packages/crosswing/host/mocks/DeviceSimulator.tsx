@@ -118,6 +118,8 @@ export const StyledDeviceSimulator = styled.div`
   flex-flow: column;
   height: 100vh;
   box-sizing: border-box;
+  /* Turn off macOS stem darkening so text renders like it does on iOS. */
+  -webkit-font-smoothing: antialiased;
 
   > .toolbar {
     flex-shrink: 0;

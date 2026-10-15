@@ -9,7 +9,6 @@ export const CrosswingRootStyle = createGlobalStyle`
     /* Make the site nice on mobile. */
     -webkit-overflow-scrolling: touch;
     -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
-    -webkit-font-smoothing: antialiased;
   }
 
   body {
@@ -39,33 +38,6 @@ export const CrosswingRootStyle = createGlobalStyle`
   }
 `;
 
-/**
- * When viewing the mobile app on a desktop browser, this will
- * "frame" it so the UI doesn't appear stretched.
- */
-export const CrosswingAppDesktopFrame = createGlobalStyle`
-  @media (min-width: 500px) {
-    body > #root {
-      display: flex;
-      flex-flow: column;
-      align-items: center;
-      justify-content: center;
-      box-sizing: border-box;
-      background: #cdd6d6;
-
-      @media (prefers-color-scheme: dark) {
-        background: #3C4444; /* From Figma */
-      }
-
-      > * {
-        /* Approximate the visible content area of an iPhone 12 Pro. */
-        width: 390px;
-        max-height: 715px;
-      }
-    }
-  }
-`;
-
 /** Top-level styles for a desktop website rendered with Crosswing. */
 export const CrosswingDesktopRootStyle = createGlobalStyle`
   html {
@@ -74,7 +46,6 @@ export const CrosswingDesktopRootStyle = createGlobalStyle`
     /* Make the site nice on mobile. */
     -webkit-overflow-scrolling: touch;
     -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
-    -webkit-font-smoothing: antialiased;
   }
 
   body {
