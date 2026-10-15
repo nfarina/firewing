@@ -45,6 +45,7 @@ export function defaultHostContext(merge?: Partial<HostContextValue>): HostConte
     requestReview: async () => {},
     badgeAppIcon: async () => {},
     scrollToTop: () => {},
+    scrollToHome: () => {},
     copyToClipboard: (dataString: string) => {
       navigator.clipboard.writeText(dataString);
     },

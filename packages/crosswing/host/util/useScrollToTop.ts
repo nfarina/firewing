@@ -4,17 +4,21 @@ import { HostContainer } from "./types.js";
 
 export type ScrollToTop = () => void;
 
-export function useScrollToTop(container: HostContainer): ScrollToTop {
+export function useScrollToTop(container: HostContainer): {
+  scrollToTop: ScrollToTop;
+  scrollToHome: ScrollToTop;
+} {
   // The host says where across the screen the status bar was tapped, so a
   // split layout scrolls just the pane below it.
   function scrollToTop(tap?: { x?: number }) {
     const x = typeof tap?.x === "number" ? tap.x : null;
-    const root = document.documentElement;
-    const scrolled = root && findSomethingScrolled(root, x);
+    scrollTo({ x, target: getTop });
+  }
 
-    // console.log("Scrolling to top:", scrolled);
-
-    if (scrolled) smoothScroll(scrolled, getTop(scrolled));
+  // Like tapping the current tab in iOS Photos: a scroller laid out bottom-up
+  // (like a chat) goes to its bottom, where it started, instead of its top.
+  function scrollToHome() {
+    scrollTo({ x: null, target: getHome });
   }
 
   useEffect(() => {
@@ -33,24 +37,49 @@ export function useScrollToTop(container: HostContainer): ScrollToTop {
     };
   }, []);
 
-  if (container === "ios") return scrollToTop;
+  // Only iOS has a status bar to tap, but any tab bar can call scrollToHome.
+  if (container === "ios") return { scrollToTop, scrollToHome };
+  return { scrollToTop: () => {}, scrollToHome };
+}
 
-  // Not on a supported platform.
-  return () => {};
+function scrollTo({
+  x,
+  target,
+}: {
+  x: number | null;
+  target: (node: HTMLElement) => number;
+}) {
+  const root = document.documentElement;
+  const scrolled = root && findSomethingScrolled(root, x, target);
+
+  // console.log("Scrolling to", scrolled);
+
+  if (scrolled) smoothScroll(scrolled, target(scrolled));
 }
 
 /**
- * The first element scrolled away from its top that's showing (not in a
+ * The first element scrolled away from its target that's showing (not in a
  * hidden tab, say) and, given an x, spans it.
  */
-function findSomethingScrolled(node: HTMLElement, x: number | null): HTMLElement | void {
-  if (node.scrollTop > getTop(node) && isShowing(node) && spans(node, x)) return node;
+function findSomethingScrolled(
+  node: HTMLElement,
+  x: number | null,
+  target: (node: HTMLElement) => number,
+): HTMLElement | void {
+  if (isAway(node, target) && isShowing(node) && spans(node, x)) return node;
   const { length } = node.children;
   for (let i = 0; i < length; i++) {
     const child = node.children[i];
-    const found = findSomethingScrolled(child as HTMLElement, x);
+    const found = findSomethingScrolled(child as HTMLElement, x, target);
     if (found) return found;
   }
+}
+
+function isAway(node: HTMLElement, target: (node: HTMLElement) => number): boolean {
+  // Cheap check first; most elements don't scroll at all.
+  if (node.scrollHeight <= node.clientHeight) return false;
+  // A pixel of slack, since scrollTop can come back fractional.
+  return Math.abs(node.scrollTop - target(node)) >= 1;
 }
 
 function isShowing(node: HTMLElement): boolean {
@@ -70,8 +99,17 @@ function spans(node: HTMLElement, x: number | null): boolean {
  * may well run into loading more, and stop short, which is fine.
  */
 function getTop(node: HTMLElement): number {
-  if (node.scrollHeight <= node.clientHeight) return 0;
+  return isBottomUp(node) ? node.clientHeight - node.scrollHeight : 0;
+}
+
+/** The scrollTop a scroller starts at: its top, or for a bottom-up one, its bottom. */
+function getHome(node: HTMLElement): number {
+  return isBottomUp(node) ? 0 : getTop(node);
+}
+
+function isBottomUp(node: HTMLElement): boolean {
+  if (node.scrollHeight <= node.clientHeight) return false;
   const { flexDirection, overflowY } = getComputedStyle(node);
   const scrolls = overflowY === "auto" || overflowY === "scroll";
-  return scrolls && flexDirection === "column-reverse" ? node.clientHeight - node.scrollHeight : 0;
+  return scrolls && flexDirection === "column-reverse";
 }

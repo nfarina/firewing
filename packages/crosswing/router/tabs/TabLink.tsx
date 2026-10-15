@@ -35,14 +35,15 @@ export function TabLink({
 }) {
   const { icon = DEFAULT_TAB_LINK_ICON, title, badge } = tab.props;
   const { location } = use(RouterContext);
-  const { scrollToTop } = use(HostContext);
+  const { scrollToHome } = use(HostContext);
 
   // If you click a tab and have nowhere to navigate to (i.e. you're
-  // already at the tab root) then try scrolling to the top, if on iOS.
+  // already at the tab root) then try scrolling back home: the
+  // top, or the bottom of a bottom-up view like a chat.
   const onClick = (e: MouseEvent<HTMLAnchorElement>) => {
     if (location.href() === to) {
       e.preventDefault();
-      scrollToTop();
+      scrollToHome();
     }
   };
 

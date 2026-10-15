@@ -79,7 +79,7 @@ export function HostProvider({
   useBackButton();
 
   // Initialize scroll-to-top when tapping status bar on iOS.
-  const scrollToTop = useScrollToTop(container);
+  const { scrollToTop, scrollToHome } = useScrollToTop(container);
 
   // Whether we're pointed at with a finger. Published as --pointer too, for
   // coarsePointer().
@@ -131,6 +131,7 @@ export function HostProvider({
           requestReview,
           badgeAppIcon,
           scrollToTop,
+          scrollToHome,
           copyToClipboard: clipboard.copy,
           readFromClipboard: clipboard.read,
           showShareSheet,
