@@ -17,7 +17,16 @@ export function useAutoStatusBar() {
   useEffect(() => {
     if (!statusBar) return;
 
-    const observeMutations = () => {
+    // We watch every mutation in the document, which means every keystroke in
+    // a text field (and much else). So check at most once per frame, and only
+    // tell the host when the style actually changes — each check forces a
+    // layout for elementFromPoint, and each message is a native round trip.
+    let frame: number | null = null;
+    let lastLight: boolean | null = null;
+
+    const update = () => {
+      frame = null;
+
       // Grab the element at 0,0 in window coordinates.
       let topElement = document.elementFromPoint(0, 0);
       let topStyle: StatusBarStyle = "default";
@@ -33,16 +42,25 @@ export function useAutoStatusBar() {
         topElement = topElement.parentElement;
       }
 
-      statusBar.setLight(topStyle === "light");
+      const light = topStyle === "light";
+      if (light === lastLight) return;
+
+      lastLight = light;
+      statusBar.setLight(light);
     };
 
-    const observer = new MutationObserver(observeMutations);
+    const observer = new MutationObserver(() => {
+      if (frame === null) frame = requestAnimationFrame(update);
+    });
     observer.observe(document.body, {
       childList: true,
       attributes: true,
       subtree: true,
     });
 
-    return () => observer.disconnect();
+    return () => {
+      observer.disconnect();
+      if (frame !== null) cancelAnimationFrame(frame);
+    };
   }, []);
 }
