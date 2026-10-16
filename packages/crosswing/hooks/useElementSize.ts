@@ -70,7 +70,10 @@ export function useElementSize(
         });
       });
 
-      resizeObserver.observe(container);
+      // The border box, to match the offset sizes we report. The default
+      // (content box) misses padding changes, like a safe area inset that
+      // comes and goes with the keyboard.
+      resizeObserver.observe(container, { box: "border-box" });
 
       return () => resizeObserver.unobserve(container);
     } else {
