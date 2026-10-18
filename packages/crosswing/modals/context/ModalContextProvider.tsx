@@ -167,6 +167,8 @@ export function ModalContextProvider({
     placement: PopupPlacement;
     children: ReactNode;
     delay?: number;
+    /** Set for useTooltip() tooltips, so they re-render as their owner does. */
+    tooltipId?: string;
   } | null>(null);
 
   // We need to keep the tooltips variable fresh due to the closure in useEffect
@@ -266,6 +268,7 @@ export function ModalContextProvider({
         placement: (placement as PopupPlacement) || "above",
         children,
         delay: getDelay(),
+        tooltipId: tooltipId ?? undefined,
       });
     }
 
@@ -355,6 +358,15 @@ export function ModalContextProvider({
     };
   }
 
+  // A useTooltip() tooltip re-registers its render function whenever its owner
+  // re-renders, so render through the latest one rather than the snapshot
+  // taken on mouseenter — that's what keeps an open tooltip live. If the owner
+  // has unmounted, the snapshot is all we have.
+  const liveTooltip = tooltipPopup?.tooltipId ? tooltips.get(tooltipPopup.tooltipId) : undefined;
+  const tooltipTarget = tooltipPopup?.target.current;
+  const tooltipChildren =
+    liveTooltip && tooltipTarget ? liveTooltip(tooltipTarget) : tooltipPopup?.children;
+
   const cssProps = childLayout
     ? ({
         "--child-width": childLayout.width ? `${childLayout.width}px` : undefined,
@@ -390,7 +402,7 @@ export function ModalContextProvider({
                 <PopupContainer
                   placement={tooltipPopup.placement}
                   target={tooltipPopup.target}
-                  children={tooltipPopup.children}
+                  children={tooltipChildren}
                   delay={tooltipPopup.delay}
                   onClose={() => setTooltipPopup(null)}
                   // Tooltips don't create a hotkey context, so we don't want
