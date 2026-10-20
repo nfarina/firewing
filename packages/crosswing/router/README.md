@@ -72,6 +72,8 @@ Use `NavLayout` inside a navigation page for the standard header, title, accesso
 </Tabs>
 ```
 
+Tapping the active tab goes back to its root; at the root (ignoring the querystring), it scrolls back home (`HostContext.scrollToHome`). When there's nothing to scroll either, the root page can claim the tap with `useTabReselect(target => …)`, say to open a popup anchored to the tab.
+
 ## Links and project paths
 
 Use `Link` or a styled `Link` for navigation rather than manually manipulating browser history. In the app and admin packages, prefer absolute paths from `AppPaths`, `AdminPaths`, or `TeamPaths` as described in `.claude/rules/db.md`.

@@ -28,10 +28,13 @@ export function TabLink({
   to,
   active,
   tab,
+  onReselect,
 }: {
   to: string;
   active?: boolean;
   tab: ReactElement<TabProps>;
+  /** A tap with nowhere to navigate and nothing to scroll. */
+  onReselect?: (target: HTMLElement) => void;
 }) {
   const { icon = DEFAULT_TAB_LINK_ICON, title, badge } = tab.props;
   const { location } = use(RouterContext);
@@ -39,11 +42,15 @@ export function TabLink({
 
   // If you click a tab and have nowhere to navigate to (i.e. you're
   // already at the tab root) then try scrolling back home: the
-  // top, or the bottom of a bottom-up view like a chat.
+  // top, or the bottom of a bottom-up view like a chat. Failing that, the
+  // root page may have something to offer (see useTabReselect).
+  //
+  // The querystring doesn't count: a root page can keep its state there (like
+  // which of several things it's showing), and is still the root.
   const onClick = (e: MouseEvent<HTMLAnchorElement>) => {
-    if (location.href() === to) {
+    if (location.href({ excludeSearch: true }) === to.split("?")[0]) {
       e.preventDefault();
-      scrollToHome();
+      if (!scrollToHome()) onReselect?.(e.currentTarget);
     }
   };
 

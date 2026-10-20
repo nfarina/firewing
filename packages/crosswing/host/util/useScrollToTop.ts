@@ -6,7 +6,7 @@ export type ScrollToTop = () => void;
 
 export function useScrollToTop(container: HostContainer): {
   scrollToTop: ScrollToTop;
-  scrollToHome: ScrollToTop;
+  scrollToHome: () => boolean;
 } {
   // The host says where across the screen the status bar was tapped, so a
   // split layout scrolls just the pane below it.
@@ -17,8 +17,9 @@ export function useScrollToTop(container: HostContainer): {
 
   // Like tapping the current tab in iOS Photos: a scroller laid out bottom-up
   // (like a chat) goes to its bottom, where it started, instead of its top.
-  function scrollToHome() {
-    scrollTo({ x: null, target: getHome });
+  // Says whether there was anything to scroll.
+  function scrollToHome(): boolean {
+    return scrollTo({ x: null, target: getHome });
   }
 
   useEffect(() => {
@@ -48,13 +49,15 @@ function scrollTo({
 }: {
   x: number | null;
   target: (node: HTMLElement) => number;
-}) {
+}): boolean {
   const root = document.documentElement;
   const scrolled = root && findSomethingScrolled(root, x, target);
 
   // console.log("Scrolling to", scrolled);
 
-  if (scrolled) smoothScroll(scrolled, target(scrolled));
+  if (!scrolled) return false;
+  smoothScroll(scrolled, target(scrolled));
+  return true;
 }
 
 /**

@@ -3,6 +3,7 @@ import {
   HTMLAttributes,
   ReactElement,
   ReactNode,
+  RefObject,
   isValidElement,
   use,
   useEffect,
@@ -26,11 +27,13 @@ import { Redirect } from "../redirect/Redirect.js";
 import { StyledTabBar, TabBar, TabBarPresentation } from "./TabBar.js";
 import { TabProps } from "./TabLink.js";
 import { TabsContext } from "./TabsContext.js";
+import { TabReselectContext, TabReselectHandler } from "./useTabReselect.js";
 
 export * from "./TabBar.js";
 export * from "./TabLink.js";
 export * from "./TabsContext.js";
 export * from "./UnreadBadge.js";
+export * from "./useTabReselect.js";
 
 const debug = Debug("router:Tabs");
 
@@ -76,6 +79,17 @@ export function Tabs({
 
   // Construct our storage for inactive tabs.
   const [tabLocations] = useState(() => new Map<string, RouterLocation>());
+
+  // Where each tab's root page can leave a handler for taps on its own tab.
+  const [reselectHandlers] = useState(
+    () => new Map<string, RefObject<TabReselectHandler | null>>(),
+  );
+
+  function getReselectHandler(tabPath: string): RefObject<TabReselectHandler | null> {
+    let handler = reselectHandlers.get(tabPath);
+    if (!handler) reselectHandlers.set(tabPath, (handler = { current: null }));
+    return handler;
+  }
 
   debug(`Render <Tabs> with location "${location}" and next location "${nextLocation}"`);
 
@@ -149,7 +163,9 @@ export function Tabs({
 
       return (
         <TabContent key={childLocation.claimedHref()} className={className}>
-          <RouterContext value={childContext}>{render()}</RouterContext>
+          <TabReselectContext value={getReselectHandler(tabPath)}>
+            <RouterContext value={childContext}>{render()}</RouterContext>
+          </TabReselectContext>
         </TabContent>
       );
     }
@@ -191,6 +207,7 @@ export function Tabs({
         presentation={presentation}
         floating={floatingBar}
         getTabLink={getTabLink}
+        onReselect={(tab, target) => getReselectHandler(tab.props.path).current?.(target)}
       />
     </StyledTabs>
   );

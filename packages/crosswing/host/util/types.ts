@@ -71,8 +71,8 @@ export interface HostContextValue {
   badgeAppIcon(badge: number): Promise<void>;
   /** Attempts to scroll to the top based on what looks scrolled, if on iOS. Otherwise does nothing. */
   scrollToTop(): void;
-  /** Like scrollToTop, but a bottom-up scroller (like a chat) goes to its bottom instead, as when tapping the current tab in iOS Photos. Works on any platform. */
-  scrollToHome(): void;
+  /** Like scrollToTop, but a bottom-up scroller (like a chat) goes to its bottom instead, as when tapping the current tab in iOS Photos. Works on any platform. Returns whether there was anything to scroll. */
+  scrollToHome(): boolean;
   /** Copies the given string to the OS clipboard. */
   copyToClipboard(text: string): void;
   /** Reads text from the OS clipboard, prompting for permission if required. */

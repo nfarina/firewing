@@ -24,6 +24,7 @@ export function TabBar({
   presentation = "bottom",
   floating,
   getTabLink,
+  onReselect,
 }: {
   tabs: ReactElement<TabProps>[];
   selectedTab: ReactElement<TabProps>;
@@ -31,6 +32,8 @@ export function TabBar({
   /** A capsule floating over the content, for the bottom presentations. */
   floating?: boolean;
   getTabLink: (tab: ReactElement<TabProps>) => string;
+  /** A tap on the current tab, at its root, with nothing to scroll home. */
+  onReselect?: (tab: ReactElement<TabProps>, target: HTMLElement) => void;
 }) {
   const { container } = use(HostContext);
 
@@ -41,7 +44,13 @@ export function TabBar({
       data-floating={!!floating}
     >
       {tabs.map((tab) => (
-        <TabLink key={tab.props.path} to={getTabLink(tab)} active={tab === selectedTab} tab={tab} />
+        <TabLink
+          key={tab.props.path}
+          to={getTabLink(tab)}
+          active={tab === selectedTab}
+          tab={tab}
+          onReselect={(target) => onReselect?.(tab, target)}
+        />
       ))}
     </StyledTabBar>
   );
