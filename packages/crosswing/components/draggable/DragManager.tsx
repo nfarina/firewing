@@ -64,6 +64,9 @@ export class DragManager {
   private clone: HTMLElement | null = null;
   private initialPosition: Coordinate | null = null;
   private initialTouchPosition: Coordinate | null = null;
+  // Where the clone's containing block is on screen: positions are in
+  // viewport coordinates, and any positioned ancestor of the root moves them.
+  private cloneOrigin: Coordinate = { x: 0, y: 0 };
 
   // The drop target that the dragged item is currently closest to.
   private currentTarget: HTMLElement | null = null;
@@ -135,6 +138,10 @@ export class DragManager {
     root.appendChild(clone);
     this.clone = clone;
 
+    const placed = clone.getBoundingClientRect();
+    this.cloneOrigin = { x: placed.left - rect.left, y: placed.top - rect.top };
+    this.moveClone({ left: rect.left, top: rect.top });
+
     options.onProxyChange?.(clone);
 
     // Don't allow dragged elements to make the page "bigger".
@@ -181,11 +188,11 @@ export class DragManager {
 
     if (!options.lockAxis || options.lockAxis === "x") {
       const left = x - initialTouchPosition.x + initialPosition.x;
-      clone.style.left = `${left}px`;
+      this.moveClone({ left });
     }
     if (!options.lockAxis || options.lockAxis === "y") {
       const top = y - initialTouchPosition.y + initialPosition.y;
-      clone.style.top = `${top}px`;
+      this.moveClone({ top });
     }
 
     const target = this.findTarget({ x, y });
@@ -305,8 +312,7 @@ export class DragManager {
       if (!currentTarget && clone) {
         const rect = getBoundingClientRectWithMargins(dragging);
         clone.style.transition = transition;
-        clone.style.left = `${rect.left}px`;
-        clone.style.top = `${rect.top}px`;
+        this.moveClone(rect);
 
         setTimeout(() => {
           this.cleanup();
@@ -324,8 +330,7 @@ export class DragManager {
       // Animate the clone to land in the target zone, or its original position.
       const rect = getBoundingClientRectWithMargins(currentTarget);
       clone.style.transition = transition;
-      clone.style.left = `${rect.left}px`;
-      clone.style.top = `${rect.top}px`;
+      this.moveClone(rect);
 
       setTimeout(() => {
         const draggingId = dragging.getAttribute("data-draggable-id");
@@ -422,6 +427,14 @@ export class DragManager {
 
   // Collapses along the locked axis, so a horizontal row (a tab bar) closes
   // up too, not just a vertical list.
+  /** Puts the clone at a place on screen (viewport coordinates). */
+  private moveClone({ left, top }: { left?: number; top?: number }) {
+    const { clone, cloneOrigin } = this;
+    if (!clone) return;
+    if (left !== undefined) clone.style.left = `${left - cloneOrigin.x}px`;
+    if (top !== undefined) clone.style.top = `${top - cloneOrigin.y}px`;
+  }
+
   private hideDraggingElement() {
     const { dragging } = this;
     this.previousDraggingStyle = {
