@@ -81,16 +81,20 @@ export function useFirestoreQuery<T extends { id?: string }>(
       // Pending "accept this empty cached result after all" timer; see below.
       let emptyCacheTimer: ReturnType<typeof setTimeout> | undefined;
 
+      // Whether the server has given this listener a full result yet.
+      let synced = false;
+
       const snapshotHandler = (snapshot: QuerySnapshot<T>) => {
         // Server contact is the health signal the connection monitor watches
         // for; cache-only snapshots prove nothing about the connection.
         if (!snapshot.metadata.fromCache) {
           app.events.emit("listenServerSnapshot", { listenerId });
+          synced = true;
         }
 
         const fromCache = snapshot.metadata.fromCache;
 
-        if (fromCache && !persistenceEnabled) {
+        if (fromCache && !persistenceEnabled && !synced) {
           // Without persistence, "cache" means "whatever documents are in
           // memory already that satisfy the query", which is really unhelpful
           // because it's usually just one or two and makes query results look
@@ -99,6 +103,12 @@ export function useFirestoreQuery<T extends { id?: string }>(
           // back into a loading state (usually VERY temporarily) when results
           // are updated in certain cases, notably when an item is deleted from
           // the results in the DB.
+          //
+          // Once the server has given us a full result, though, memory holds
+          // all of it, and a cache snapshot is that result plus our own local
+          // writes. That's what we get for every write made while the SDK
+          // thinks it's offline, and ignoring those made a tap on a flaky
+          // connection appear to do nothing until the server caught up.
         } else if (fromCache && snapshot.docs.length === 0) {
           // With persistence, cached results are worth showing — that's the
           // whole point — but an *empty* one is ambiguous. Firestore gives us
