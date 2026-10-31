@@ -12,6 +12,8 @@ const debug = Debug("firewing:infinite");
 export interface UseInfiniteFirestoreQueryOptions {
   /** The number of documents to load for each "chunk". */
   pageSize: number;
+  /** Load at least this many documents, regardless of scrolling. Scrolling continues on from here. */
+  minLimit?: number;
   /** This will be treated as a "maximum limit". */
   limit?: number | null;
   /** This will be treated as a "maximum limit" and will also use limitToLast() instead of limit(). You can pass true to simply use limitToLast() infinitely. */
@@ -34,6 +36,7 @@ export function useInfiniteFirestoreQuery<T extends { id?: string }>(
   deps: DependencyList,
   {
     pageSize,
+    minLimit,
     limit: maxLimit,
     limitToLast: maxLimitToLast,
     onSnapshot,
@@ -49,6 +52,7 @@ export function useInfiniteFirestoreQuery<T extends { id?: string }>(
   // Outsource much of the work.
   const [limit, onScroll] = useInfiniteScroll(items?.length ?? 0, deps, {
     pageSize,
+    minLimit,
   });
 
   const effectiveLimit = (() => {
