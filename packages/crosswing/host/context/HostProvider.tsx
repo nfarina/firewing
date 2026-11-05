@@ -52,7 +52,8 @@ import { useSafeArea } from "../util/useSafeArea.js";
 import { useScrollToTop } from "../util/useScrollToTop.js";
 import { useWindowListener } from "../util/useWindowListener.js";
 import { useMatchMedia } from "../../hooks/useMatchMedia.js";
-import { getFoldAboveKeyboard, getFoldStyle } from "../util/fold.js";
+import { extendThroughFold, getFoldStyle } from "../util/fold.js";
+import { getKeyboardStyle, keyboardMotion, registerSafeAreaBottom } from "../util/keyboardMotion.js";
 import { COARSE_POINTER_QUERY, getPointerStyle } from "../util/pointer.js";
 import { getBarStripStyle, getSafeAreaCornersStyle, getTopBarStyle, reserveSafeArea } from "../util/barStrip.js";
 import { BarEdgeContext } from "./BarEdgeContext.js";
@@ -61,30 +62,31 @@ import { HostContext } from "./HostContext.js";
 export * from "./BarEdgeContext.js";
 export * from "./HostContext.js";
 
-/** Raises the bottom safe area clear of the fold when the keyboard ends in it (see getFoldAboveKeyboard). */
-function clearFoldAboveKeyboard(
-  safeArea: SafeArea,
-  layout: HostLayout | undefined,
-  viewport: HostViewport,
-): SafeArea {
-  const fold = getFoldAboveKeyboard(layout, viewport);
-  return fold > 0 ? { ...safeArea, bottom: `max(${safeArea.bottom}, ${fold}px)` } : safeArea;
-}
-
 export function HostProvider({
   container = detectContainer(),
   deviceId,
+  behindKeyboard,
   ...rest
 }: HTMLAttributes<HTMLDivElement> & {
   /** Allow setting the HostContainer directly for certain debugging situations. */
   container?: HostContainer;
   /** Allow setting the device ID directly for certain debugging situations. */
   deviceId?: string;
+  /**
+   * Run the page behind the on-screen keyboard, with its height as bottom safe
+   * area, rather than ending it at the keyboard's top (see extendThroughFold).
+   */
+  behindKeyboard?: boolean;
 }) {
   const features = useFeatures();
-  const viewport = useHostViewport();
+  const hostViewport = useHostViewport();
   const layout = useHostLayout(features);
-  const safeArea = useSafeArea(container, features, viewport);
+  const hostSafeArea = useSafeArea(container, features, hostViewport);
+  const { safeArea, viewport } = hostSafeArea
+    ? extendThroughFold(reserveSafeArea(hostSafeArea, layout), layout, hostViewport, {
+        behindKeyboard,
+      })
+    : { safeArea: undefined, viewport: hostViewport };
   const deepLink = useDeepLinks(features);
   const clipboard = useClipboard(features);
   const preferredFontSize = usePreferredFontSize(features);
@@ -99,12 +101,15 @@ export function HostProvider({
   // coarsePointer().
   const coarse = useMatchMedia(COARSE_POINTER_QUERY);
 
+  // So the bottom safe area can move with the keyboard (keyboardMotion).
+  if (behindKeyboard) registerSafeAreaBottom();
+
   const value: HostContextValue | null =
     features && viewport && safeArea && deepLink
       ? {
           container,
           platform: (features.platform as HostPlatform) ?? "unknown",
-          safeArea: clearFoldAboveKeyboard(reserveSafeArea(safeArea, layout), layout, viewport),
+          safeArea,
           viewport,
           pointer: coarse ? "coarse" : "fine",
           layout,
@@ -187,6 +192,7 @@ export function HostProvider({
         {/* We need an actual HTML element in the DOM to attach our CSS custom properties to. */}
         <StyledHostProvider
           $safeArea={value.safeArea}
+          $behindKeyboard={behindKeyboard}
           {...rest}
           style={{
             ...getPointerStyle(value.pointer),
@@ -194,6 +200,7 @@ export function HostProvider({
             ...getFoldStyle(layout),
             ...getSafeAreaCornersStyle(layout),
             ...getTopBarStyle(layout),
+            ...getKeyboardStyle(viewport),
             ...rest.style,
           }}
         />
@@ -204,10 +211,12 @@ export function HostProvider({
 
 export const StyledHostProvider = styled.div<{
   $safeArea: SafeArea;
+  $behindKeyboard?: boolean;
 }>`
   display: flex;
   flex-flow: column;
   ${({ $safeArea }) => getSafeAreaCSS($safeArea)}
+  ${({ $behindKeyboard }) => $behindKeyboard && keyboardMotion}
 
   > * {
     flex-grow: 1;
