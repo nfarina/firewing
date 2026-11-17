@@ -37,6 +37,8 @@ export type RpcClient<S extends RpcFunctions> = <
 export interface RpcOptions<Req, Resp> {
   /** If true, no request ID will be generated and nothing will be logged. */
   silent?: boolean;
+  /** How long to wait for a response, in ms, before failing with "deadline-exceeded". Firebase's default is 70 seconds. */
+  timeout?: number;
   /** Optional objects that are merged with data objects when logging them. */
   redact?: {
     request?: DeepPartial<Req>;
@@ -53,7 +55,7 @@ export function useFirebaseRpc<S extends RpcFunctions>({
     group: G,
     name: N,
     data: Parameters<T>[0] = {},
-    { redact, silent = false }: RpcOptions<Parameters<T>[0], Awaited<ReturnType<T>>> = {},
+    { redact, silent = false, timeout }: RpcOptions<Parameters<T>[0], Awaited<ReturnType<T>>> = {},
   ): ReturnType<T> {
     // Generate a unique ID for this request.
     const requestId = silent ? null : app().firestore().collection("rpcRequesets").doc().id;
@@ -90,6 +92,7 @@ export function useFirebaseRpc<S extends RpcFunctions>({
       data,
       redact,
       silent,
+      timeout,
     }).then((result) => {
       const { elapsed, retries, error } = result;
 
@@ -133,6 +136,7 @@ async function makeRpcRequestWithRetries({
   data,
   redact,
   silent,
+  timeout,
 }: {
   app: FirebaseAppAccessor;
   requestId: string | null;
@@ -142,6 +146,7 @@ async function makeRpcRequestWithRetries({
   data: any;
   redact: any;
   silent: boolean;
+  timeout?: number;
 }): Promise<RequestResult> {
   const start = Date.now();
   let retry = MIN_RETRY;
@@ -152,7 +157,9 @@ async function makeRpcRequestWithRetries({
 
   while (true) {
     try {
-      const rpcFunction = app().functions().httpsCallable("rpc");
+      const rpcFunction = app()
+        .functions()
+        .httpsCallable("rpc", timeout ? { timeout } : undefined);
       const result = await rpcFunction({
         requestId,
         group,
