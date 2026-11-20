@@ -879,6 +879,21 @@ class MockFirestoreWriteBatch<T extends MockFirestoreCollections> {
     return this;
   }
 
+  /** Like set(), but the commit fails if the document already exists. */
+  public create<U extends keyof T>(
+    documentRef: MockDocumentReference<T, U>,
+    newData: T[U],
+  ): MockFirestoreWriteBatch<T> {
+    this.operations.push(async () => {
+      if ((await documentRef.get()).data() != null) {
+        // What Firestore reports: gRPC's ALREADY_EXISTS.
+        throw Object.assign(new Error("6 ALREADY_EXISTS: Document already exists"), { code: 6 });
+      }
+      return documentRef.set(newData);
+    });
+    return this;
+  }
+
   public update<U extends keyof T>(
     documentRef: MockDocumentReference<T, U>,
     updateData: T[U],
